@@ -15,14 +15,14 @@ echo "************************************************************************"
 
 ROOT=$(dirname `readlink -f "$0"`)
 
-URL="wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/kdd12.bz2"
+URL="wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/kdd12.xz"
 
 if [ ! -e $ROOT/kdd12 ]; then
 	echo "Downloading kdd12 dataset..."
 	wget -c $URL -P $ROOT
 	echo "Download Completed."
 	echo "Extracting now. This may take a while..."
-	bunzip2 -f $ROOT/kdd12.bz2 > $ROOT/kdd12
+	unxz -f $ROOT/kdd12.xz
 else
 	echo "Dataset found. Reusing the existing one."
 fi
