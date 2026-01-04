@@ -17,9 +17,9 @@ ROOT=$(dirname `readlink -f "$0"`)
 #source $ROOT/site_config.sh
 
 # List of all benchmarks to run
-BENCHMARKS="memcached xsbench graph500 hashjoin btree canneal"
+BENCHMARKS="xsbench hashjoin btree"
 # List of all configs to run
-CONFIGS="F FM FA FAM I IM"
+CONFIGS="FM IM"
 
 for bench in $BENCHMARKS; do
 	for config in $CONFIGS; do

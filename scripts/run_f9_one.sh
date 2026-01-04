@@ -19,8 +19,9 @@
 #PERF_EVENTS=cycles,dTLB-loads,dTLB-load-misses,dTLB-stores,dTLB-store-misses,dtlb_load_misses.walk_duration,dtlb_store_misses.walk_duration
 PERF_EVENTS=cycles,dTLB-loads,dTLB-load-misses,dTLB-stores,dTLB-store-misses,dtlb_load_misses.walk_duration,dtlb_store_misses.walk_duration,page_walker_loads.dtlb_l1,page_walker_loads.dtlb_l2,page_walker_loads.dtlb_l3,page_walker_loads.dtlb_memory,page_walker_loads.dtlb_l1,page_walker_loads.dtlb_l2,page_walker_loads.dtlb_l3,page_walker_loads.dtlb_memory,LLC-loads,LLC-load-misses,LLC-stores,LLC-store-misses
 NR_PTCACHE_PAGES=1100000 # --- 2GB per socket
-XSBENCH_ARGS=" -- -p 25000000 -g 920000 "
+XSBENCH_ARGS=" -- -p 25000000 -g 300000 "
 GRAPH500_ARGS=" -- -s 29 -e 21"
+HASHJOIN_ARGS=" -- -o 1250000000 -i 10000000 -s 10000000"
 BENCH_ARGS=""
 
 
@@ -72,8 +73,8 @@ test_and_set_pathnames()
 	SCRIPTS=$(readlink -f "`dirname $(readlink -f "$0")`")
 	ROOT="$(dirname "$SCRIPTS")"
 	BENCHPATH=$ROOT"/bin/$BIN"
-	PERF=$ROOT"/bin/perf"
-	NUMACTL=$ROOT"/bin/numactl"
+	PERF="/usr/local/bin/perf"
+	NUMACTL="/usr/local/bin/numactl"
         if [ ! -e $BENCHPATH ]; then
                 echo "Benchmark binary is missing"
                 exit
@@ -99,30 +100,7 @@ test_and_set_configs()
 {
         CURR_CONFIG=$1
         FIRST_CHAR=${CURR_CONFIG:0:1}
-        thp="never"
-        if [ $FIRST_CHAR == "T" ]; then
-                thp="always"
-        fi
-        echo $thp | sudo tee /sys/kernel/mm/transparent_hugepage/enabled > /dev/null
-        if [ $? -ne 0 ]; then
-                echo  "ERROR setting thp to: $thp"
-                exit
-        fi
-        echo $thp | sudo tee /sys/kernel/mm/transparent_hugepage/defrag > /dev/null
-        if [ $? -ne 0 ]; then
-                echo "ERROR setting thp to: $thp"
-                exit
-        fi
 
-        AUTONUMA="0"
-        if [ $CURR_CONFIG == "FA" ] || [ $CURR_CONFIG == "FAM" ] || [ $CURR_CONFIG == "TFA" ] || [ $CURR_CONFIG == "TFAM" ]; then
-                AUTONUMA="1"
-        fi
-        echo $AUTONUMA | sudo tee /proc/sys/kernel/numa_balancing > /dev/null
-        if [ $? -ne 0 ]; then
-                echo "ERROR setting AutoNUMA to: $AUTONUMA"
-                exit
-        fi
         # obtain the number of available nodes
         NODESTR=$(numactl --hardware | grep available)
         NODE_MAX=$(echo ${NODESTR##*: } | cut -d " " -f 1)
@@ -131,40 +109,22 @@ test_and_set_configs()
 
         # --- check interleaving
         if [ $CURR_CONFIG == "I" ] || [ $CURR_CONFIG == "IM" ] || [ $CURR_CONFIG == "TI" ] || [ $CURR_CONFIG == "TIM" ]; then
-                CMD_PREFIX+=" --interleave=$NODE_MAX"
+                CMD_PREFIX+=" --interleave=all"
         fi
 
         # --- check page table replication
         LAST_CHAR="${CURR_CONFIG: -1}"
         if [ $LAST_CHAR == "M" ]; then
-                CMD_PREFIX+=" --pgtablerepl=$NODE_MAX "
-                echo 0 | sudo tee /proc/sys/kernel/pgtable_replication > /dev/null
-                if [ $? -ne 0 ]; then
-                        echo "ERROR setting pgtable_replication to $0"
-                        exit
-                fi
+                CMD_PREFIX+=" --pgtablerepl=all "
                 # --- drain first then reserve
-                echo -1 | sudo tee /proc/sys/kernel/pgtable_replication_cache > /dev/null
+                echo -1 | sudo tee /proc/mitosis/cache
                 if [ $? -ne 0 ]; then
-                        echo "ERROR setting pgtable_replication_cache to $0"
+                        echo "ERROR setting cache to $0"
                         exit
                 fi
-                echo $NR_PTCACHE_PAGES | sudo tee /proc/sys/kernel/pgtable_replication_cache > /dev/null
+                echo $NR_PTCACHE_PAGES | sudo tee /proc/mitosis/cache > /dev/null
                 if [ $? -ne 0 ]; then
-                        echo "ERROR setting pgtable_replication_cache to $NR_PTCACHE_PAGES"
-                        exit
-                fi
-        else
-                # --- enable default page table allocation
-                echo -1 | sudo tee /proc/sys/kernel/pgtable_replication > /dev/null
-                if [ $? -ne 0 ]; then
-                        echo "ERROR setting pgtable_replication to -1"
-                        exit
-                fi
-                # --- drain page table cache
-                echo -1 | sudo tee /proc/sys/kernel/pgtable_replication_cache > /dev/null
-                if [ $? -ne 0 ]; then
-                        echo "ERROR setting pgtable_replication to 0"
+                        echo "ERROR setting cache to $NR_PTCACHE_PAGES"
                         exit
                 fi
         fi
@@ -173,7 +133,9 @@ test_and_set_configs()
                 BENCH_ARGS=$XSBENCH_ARGS
         elif [ $BENCHMARK == "graph500" ]; then
                 BENCH_ARGS=$GRAPH500_ARGS
-        fi
+        elif [ $BENCHMARK == "hashjoin" ]; then
+		BENCH_ARGS=$HASHJOIN_ARGS
+	fi
 
 }
 
@@ -195,7 +157,7 @@ launch_benchmark_config()
 	killall bench_stream &>/dev/null
 	LAUNCH_CMD="$CMD_PREFIX $BENCHPATH $BENCH_ARGS"
 	echo $LAUNCH_CMD >> $OUTFILE
-	$LAUNCH_CMD > /dev/null 2>&1 &
+	$LAUNCH_CMD 2>&1 &
 	BENCHMARK_PID=$!
 	echo -e "\e[0mWaiting for benchmark: $BENCHMARK_PID to be ready"
 	while [ ! -f /tmp/alloctest-bench.ready ]; do
