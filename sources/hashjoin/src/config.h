@@ -30,7 +30,7 @@
 #define CONFIG_HAVE_MODIFIED_KERNEL 1
 
 ///< the name of the shared memory file created
-#define CONFIG_SHM_FILE_NAME "/tmp/mitosis-hashjoin-bench"
+#define CONFIG_SHM_FILE_NAME "/tmp/alloctest-bench"
 
 ///< the random seed
 #define CONFIG_RAND_SEED 42
