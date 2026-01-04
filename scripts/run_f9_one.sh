@@ -135,7 +135,7 @@ launch_benchmark_config()
 	LAUNCH_CMD="$CMD_PREFIX $BENCHPATH $BENCH_ARGS"
 	echo "Command: $LAUNCH_CMD" | tee $OUTFILE
 	
-	$LAUNCH_CMD 2>&1 &
+	/usr/bin/time --verbose $LAUNCH_CMD 2>&1 | tee -a $OUTFILE &
 	BENCHMARK_PID=$!
 	echo "Waiting for benchmark: $BENCHMARK_PID to be ready"
 	
@@ -143,17 +143,14 @@ launch_benchmark_config()
 		sleep 0.1
 	done
 	
-	SECONDS=0
 	echo "Waiting for benchmark to be done"
 	
 	while [ ! -f /tmp/alloctest-bench.done ]; do
 		sleep 0.1
 	done
 	
-	DURATION=$SECONDS
 	wait $BENCHMARK_PID
 	
-	echo "Execution Time (seconds): $DURATION" | tee -a $OUTFILE
 	echo "****success****" | tee -a $OUTFILE
 	echo "$BENCHMARK : $CONFIG completed."
 	
