@@ -122,7 +122,7 @@ test_and_set_configs()
                         echo "ERROR setting cache to $0"
                         exit
                 fi
-                echo $NR_PTCACHE_PAGES | sudo tee /proc/mitosis/cache > /dev/null
+                echo $NR_PTCACHE_PAGES | sudo tee /proc/mitosis/cache
                 if [ $? -ne 0 ]; then
                         echo "ERROR setting cache to $NR_PTCACHE_PAGES"
                         exit
@@ -152,11 +152,12 @@ prepare_datasets()
 launch_benchmark_config()
 {
 	# --- clean up exisiting state/processes
-	rm /tmp/alloctest-bench.ready &>/dev/null
-	rm /tmp/alloctest-bench.done &> /dev/null
-	killall bench_stream &>/dev/null
+	rm /tmp/alloctest-bench.ready
+	rm /tmp/alloctest-bench.done
+	killall bench_stream
 	LAUNCH_CMD="$CMD_PREFIX $BENCHPATH $BENCH_ARGS"
 	echo $LAUNCH_CMD >> $OUTFILE
+	echo $LAUNCH_CMD
 	$LAUNCH_CMD 2>&1 &
 	BENCHMARK_PID=$!
 	echo -e "\e[0mWaiting for benchmark: $BENCHMARK_PID to be ready"
@@ -171,14 +172,16 @@ launch_benchmark_config()
 		sleep 0.1
 	done
 	DURATION=$SECONDS
-	kill -INT $PERF_PID &> /dev/null
+	kill -INT $PERF_PID
 	wait $PERF_PID
-	wait $BENCHMARK_PID 2>/dev/null
+	wait $BENCHMARK_PID
 	echo "Execution Time (seconds): $DURATION" >> $OUTFILE
+	echo "Execution Time (seconds): $DURATION"
 	echo "****success****" >> $OUTFILE
+	echo "****success****"
 	echo "$BENCHMARK : $CONFIG completed."
         echo ""
-	killall bench_stream &>/dev/null
+	killall bench_stream
 }
 
 # --- prepare the setup
