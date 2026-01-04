@@ -34,12 +34,7 @@ validate_benchmark_config()
 		echo "Invalid benchmark: $CURR_BENCH"
 		exit
 	fi
-	FIRST_CHAR=${CURR_CONFIG:0:1}
-	if [ $FIRST_CHAR == "T" ]; then
-		CURR_CONFIG=${CURR_CONFIG:1}
-	fi
-	if [ $CURR_CONFIG == "F" ] || [ $CURR_CONFIG == "FM" ] || [ $CURR_CONFIG == "FA" ] ||
-		[ $CURR_CONFIG == "FAM" ] || [ $CURR_CONFIG == "I" ] || [ $CURR_CONFIG == "IM" ]; then
+	if [ $CURR_CONFIG == "F" ] || [ $CURR_CONFIG == "FM" ] || [ $CURR_CONFIG == "I" ] || [ $CURR_CONFIG == "IM" ]; then
 		:
 	else
 		echo "Invalid config: $CURR_CONFIG"
@@ -82,14 +77,13 @@ test_and_set_pathnames()
 test_and_set_configs()
 {
 	CURR_CONFIG=$1
-	FIRST_CHAR=${CURR_CONFIG:0:1}
 
 	NODESTR=$(numactl --hardware | grep available)
 	NODE_MAX=$(echo ${NODESTR##*: } | cut -d " " -f 1)
 	NODE_MAX=`expr $NODE_MAX - 1`
 	CMD_PREFIX=$NUMACTL
 
-	if [ $CURR_CONFIG == "I" ] || [ $CURR_CONFIG == "IM" ] || [ $CURR_CONFIG == "TI" ] || [ $CURR_CONFIG == "TIM" ]; then
+	if [ $CURR_CONFIG == "I" ] || [ $CURR_CONFIG == "IM" ]; then
 		CMD_PREFIX+=" --interleave=all"
 	fi
 
