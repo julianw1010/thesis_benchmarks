@@ -101,6 +101,7 @@ test_and_set_pathnames()
 		echo "Error creating output directory: $RUNDIR"
 	fi
 	OUTFILE=$RUNDIR/timelog-$BENCHMARK-$(hostname)-$CONFIG.txt
+	TIMEFILE=$RUNDIR/time-$BENCHMARK-$(hostname)-$CONFIG.txt
 	HISTORY_BEFORE=$RUNDIR/history-before-$BENCHMARK-$(hostname)-$CONFIG.txt
 	HISTORY_AFTER=$RUNDIR/history-after-$BENCHMARK-$(hostname)-$CONFIG.txt
 }
@@ -172,9 +173,9 @@ save_history()
 	local output_file=$1
 	if [ -n "$HISTORY_PROC" ]; then
 		echo "Saving history to $output_file"
-		cat $HISTORY_PROC > $output_file
+		cat $HISTORY_PROC | tee $output_file
 	else
-		echo "History interface not available" > $output_file
+		echo "History interface not available" | tee $output_file
 	fi
 }
 
@@ -198,7 +199,8 @@ launch_benchmark_config()
 	echo "Start time: $(date)" | tee -a $OUTFILE
 	echo "----------------------------------------" | tee -a $OUTFILE
 	
-	/usr/bin/time --verbose $LAUNCH_CMD 2>&1 | tee -a $OUTFILE &
+	# Run benchmark directly (visible in htop), time output goes to separate file
+	/usr/bin/time --verbose --output=$TIMEFILE $LAUNCH_CMD &
 	BENCHMARK_PID=$!
 	echo "Waiting for benchmark: $BENCHMARK_PID to be ready"
 	
@@ -216,6 +218,11 @@ launch_benchmark_config()
 
 	echo "----------------------------------------" | tee -a $OUTFILE
 	echo "End time: $(date)" | tee -a $OUTFILE
+	
+	# Append time output to main log
+	echo "----------------------------------------" | tee -a $OUTFILE
+	echo "Time statistics:" | tee -a $OUTFILE
+	cat $TIMEFILE | tee -a $OUTFILE
 
 	# Save history after benchmark
 	save_history $HISTORY_AFTER
@@ -229,7 +236,8 @@ launch_benchmark_config()
 	echo "$BENCHMARK : $CONFIG completed."
 	echo ""
 	echo "Results saved to:"
-	echo "  Timing log:      $OUTFILE"
+	echo "  Main log:        $OUTFILE"
+	echo "  Time stats:      $TIMEFILE"
 	echo "  History before:  $HISTORY_BEFORE"
 	echo "  History after:   $HISTORY_AFTER"
 	
