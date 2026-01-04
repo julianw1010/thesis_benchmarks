@@ -13,6 +13,10 @@ GRAPH500_ARGS=" -- -s 29 -e 21"
 HASHJOIN_ARGS=" -- -o 1250000000 -i 10000000 -s 10000000"
 BENCH_ARGS=""
 
+# Proc interface paths (will be detected)
+CACHE_PROC=""
+HISTORY_PROC=""
+
 #***********************Script-Arguments***********************
 if [ $# -ne 2 ]; then
 	echo "Run as: $0 benchmark config"
@@ -21,6 +25,31 @@ fi
 
 BENCHMARK=$1
 CONFIG=$2
+
+detect_proc_interfaces()
+{
+	# Detect cache interface
+	if [ -e /proc/mitosis/cache ]; then
+		CACHE_PROC="/proc/mitosis/cache"
+	elif [ -e /proc/hydra/cache ]; then
+		CACHE_PROC="/proc/hydra/cache"
+	else
+		CACHE_PROC=""
+	fi
+
+	# Detect history interface
+	if [ -e /proc/mitosis/history ]; then
+		HISTORY_PROC="/proc/mitosis/history"
+	elif [ -e /proc/hydra/history ]; then
+		HISTORY_PROC="/proc/hydra/history"
+	else
+		HISTORY_PROC=""
+	fi
+
+	echo "Detected proc interfaces:"
+	echo "  Cache:   ${CACHE_PROC:-not found}"
+	echo "  History: ${HISTORY_PROC:-not found}"
+}
 
 validate_benchmark_config()
 {
@@ -65,13 +94,15 @@ test_and_set_pathnames()
 		echo "numactl is missing"
 		exit
 	fi
-	DATADIR=$ROOT"/evaluation/measured/figure9/$BENCHMARK"
-	RUNDIR=$DATADIR/$(hostname)-config-$BENCHMARK-$CONFIG-$(date +"%Y%m%d-%H%M%S")
+	DATADIR=$ROOT/results/$BENCHMARK
+	RUNDIR=$DATADIR/$(hostname)-$CONFIG-$(date +"%Y%m%d-%H%M%S")
 	mkdir -p $RUNDIR
 	if [ $? -ne 0 ]; then
 		echo "Error creating output directory: $RUNDIR"
 	fi
-	OUTFILE=$RUNDIR/timelog-$BENCHMARK-$(hostname)-$CONFIG.dat
+	OUTFILE=$RUNDIR/timelog-$BENCHMARK-$(hostname)-$CONFIG.txt
+	HISTORY_BEFORE=$RUNDIR/history-before-$BENCHMARK-$(hostname)-$CONFIG.txt
+	HISTORY_AFTER=$RUNDIR/history-after-$BENCHMARK-$(hostname)-$CONFIG.txt
 }
 
 test_and_set_configs()
@@ -90,12 +121,20 @@ test_and_set_configs()
 	LAST_CHAR="${CURR_CONFIG: -1}"
 	if [ $LAST_CHAR == "M" ]; then
 		CMD_PREFIX+=" --pgtablerepl=all "
-		echo -1 | sudo tee /proc/mitosis/cache
-		if [ $? -ne 0 ]; then
-			echo "ERROR setting cache to $0"
+		
+		# Check if cache interface is available
+		if [ -z "$CACHE_PROC" ]; then
+			echo "ERROR: Neither /proc/mitosis/cache nor /proc/hydra/cache found"
 			exit
 		fi
-		echo $NR_PTCACHE_PAGES | sudo tee /proc/mitosis/cache
+		
+		echo "Using cache interface: $CACHE_PROC"
+		echo -1 | sudo tee $CACHE_PROC
+		if [ $? -ne 0 ]; then
+			echo "ERROR setting cache to -1"
+			exit
+		fi
+		echo $NR_PTCACHE_PAGES | sudo tee $CACHE_PROC
 		if [ $? -ne 0 ]; then
 			echo "ERROR setting cache to $NR_PTCACHE_PAGES"
 			exit
@@ -120,14 +159,44 @@ prepare_datasets()
 	fi
 }
 
+reset_history()
+{
+	if [ -n "$HISTORY_PROC" ]; then
+		echo "Resetting history via $HISTORY_PROC"
+		echo -1 | sudo tee $HISTORY_PROC > /dev/null
+	fi
+}
+
+save_history()
+{
+	local output_file=$1
+	if [ -n "$HISTORY_PROC" ]; then
+		echo "Saving history to $output_file"
+		cat $HISTORY_PROC > $output_file
+	else
+		echo "History interface not available" > $output_file
+	fi
+}
+
 launch_benchmark_config()
 {
 	rm -f /tmp/alloctest-bench.ready
 	rm -f /tmp/alloctest-bench.done
 	killall bench_stream 2>/dev/null
 
+	# Sync and drop caches before run
+	sync
+	echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
+
+	# Reset and save history before benchmark
+	reset_history
+	save_history $HISTORY_BEFORE
+
 	LAUNCH_CMD="$CMD_PREFIX $BENCHPATH $BENCH_ARGS"
 	echo "Command: $LAUNCH_CMD" | tee $OUTFILE
+	echo "Run directory: $RUNDIR" | tee -a $OUTFILE
+	echo "Start time: $(date)" | tee -a $OUTFILE
+	echo "----------------------------------------" | tee -a $OUTFILE
 	
 	/usr/bin/time --verbose $LAUNCH_CMD 2>&1 | tee -a $OUTFILE &
 	BENCHMARK_PID=$!
@@ -144,12 +213,31 @@ launch_benchmark_config()
 	done
 	
 	wait $BENCHMARK_PID
+
+	echo "----------------------------------------" | tee -a $OUTFILE
+	echo "End time: $(date)" | tee -a $OUTFILE
+
+	# Save history after benchmark
+	save_history $HISTORY_AFTER
+
+	# Append history summary to output file
+	echo "----------------------------------------" >> $OUTFILE
+	echo "History after benchmark:" >> $OUTFILE
+	cat $HISTORY_AFTER >> $OUTFILE
 	
 	echo "****success****" | tee -a $OUTFILE
 	echo "$BENCHMARK : $CONFIG completed."
+	echo ""
+	echo "Results saved to:"
+	echo "  Timing log:      $OUTFILE"
+	echo "  History before:  $HISTORY_BEFORE"
+	echo "  History after:   $HISTORY_AFTER"
 	
 	killall bench_stream 2>/dev/null
 }
+
+# --- detect proc interfaces first
+detect_proc_interfaces
 
 # --- prepare the setup
 validate_benchmark_config $BENCHMARK $CONFIG
@@ -157,5 +245,6 @@ prepare_benchmark_name $BENCHMARK
 test_and_set_pathnames
 test_and_set_configs $CONFIG
 prepare_datasets $BENCHMARK
+
 # --- finally, launch the job
 launch_benchmark_config
