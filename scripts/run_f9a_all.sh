@@ -19,7 +19,7 @@ ROOT=$(dirname `readlink -f "$0"`)
 # List of all benchmarks to run
 BENCHMARKS="xsbench hashjoin btree"
 # List of all configs to run
-CONFIGS="FM IM"
+CONFIGS="F I"
 
 for bench in $BENCHMARKS; do
 	for config in $CONFIGS; do

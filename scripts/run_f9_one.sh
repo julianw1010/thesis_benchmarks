@@ -102,6 +102,7 @@ test_and_set_pathnames()
 	fi
 	OUTFILE=$RUNDIR/timelog-$BENCHMARK-$(hostname)-$CONFIG.txt
 	TIMEFILE=$RUNDIR/time-$BENCHMARK-$(hostname)-$CONFIG.txt
+	BENCHLOG=$RUNDIR/output-$BENCHMARK-$(hostname)-$CONFIG.txt
 	HISTORY_BEFORE=$RUNDIR/history-before-$BENCHMARK-$(hostname)-$CONFIG.txt
 	HISTORY_AFTER=$RUNDIR/history-after-$BENCHMARK-$(hostname)-$CONFIG.txt
 }
@@ -128,19 +129,19 @@ test_and_set_configs()
 			echo "ERROR: Neither /proc/mitosis/cache nor /proc/hydra/cache found"
 			exit
 		fi
-		
-		echo "Using cache interface: $CACHE_PROC"
-		echo -1 | sudo tee $CACHE_PROC
-		if [ $? -ne 0 ]; then
-			echo "ERROR setting cache to -1"
-			exit
-		fi
-		echo $NR_PTCACHE_PAGES | sudo tee $CACHE_PROC
-		if [ $? -ne 0 ]; then
-			echo "ERROR setting cache to $NR_PTCACHE_PAGES"
-			exit
-		fi
+	fi		
+	echo "Using cache interface: $CACHE_PROC"
+	echo -1 | sudo tee $CACHE_PROC
+	if [ $? -ne 0 ]; then
+		echo "ERROR setting cache to -1"
+		exit
 	fi
+	echo $NR_PTCACHE_PAGES | sudo tee $CACHE_PROC
+	if [ $? -ne 0 ]; then
+		echo "ERROR setting cache to $NR_PTCACHE_PAGES"
+		exit
+	fi
+	
 
 	if [ $BENCHMARK == "xsbench" ]; then
 		BENCH_ARGS=$XSBENCH_ARGS
@@ -199,25 +200,33 @@ launch_benchmark_config()
 	echo "Start time: $(date)" | tee -a $OUTFILE
 	echo "----------------------------------------" | tee -a $OUTFILE
 	
-	# Run benchmark directly (visible in htop), time output goes to separate file
-	/usr/bin/time --verbose --output=$TIMEFILE $LAUNCH_CMD &
-	BENCHMARK_PID=$!
-	echo "Waiting for benchmark: $BENCHMARK_PID to be ready"
+	# Run benchmark with script for proper terminal output capture
+	script -q -f -c "/usr/bin/time --verbose --output=$TIMEFILE $LAUNCH_CMD" $BENCHLOG &
+	SCRIPT_PID=$!
+	
+	echo "Waiting for benchmark to be ready"
 	
 	while [ ! -f /tmp/alloctest-bench.ready ]; do
 		sleep 0.1
 	done
 	
-	echo "Waiting for benchmark to be done"
+	# Start timing from ready signal
+	SECONDS=0
+	echo "Benchmark ready, starting timer..."
 	
 	while [ ! -f /tmp/alloctest-bench.done ]; do
 		sleep 0.1
 	done
 	
-	wait $BENCHMARK_PID
+	# Capture duration between ready and done
+	DURATION=$SECONDS
+	
+	# Wait for script/benchmark to finish
+	wait $SCRIPT_PID
 
 	echo "----------------------------------------" | tee -a $OUTFILE
 	echo "End time: $(date)" | tee -a $OUTFILE
+	echo "Execution time (ready to done): $DURATION seconds" | tee -a $OUTFILE
 	
 	# Append time output to main log
 	echo "----------------------------------------" | tee -a $OUTFILE
@@ -232,11 +241,17 @@ launch_benchmark_config()
 	echo "History after benchmark:" >> $OUTFILE
 	cat $HISTORY_AFTER >> $OUTFILE
 	
+	# Append benchmark output to main log
+	echo "----------------------------------------" >> $OUTFILE
+	echo "Benchmark output:" >> $OUTFILE
+	cat $BENCHLOG >> $OUTFILE
+	
 	echo "****success****" | tee -a $OUTFILE
 	echo "$BENCHMARK : $CONFIG completed."
 	echo ""
 	echo "Results saved to:"
 	echo "  Main log:        $OUTFILE"
+	echo "  Benchmark output: $BENCHLOG"
 	echo "  Time stats:      $TIMEFILE"
 	echo "  History before:  $HISTORY_BEFORE"
 	echo "  History after:   $HISTORY_AFTER"
