@@ -17,7 +17,6 @@ ROOT=$(dirname `readlink -f "$0"`)
 MAIN="$(dirname "$ROOT")"
 #source $ROOT/site_config.sh
 
-PERF_EVENTS=cycles,dTLB-loads,dTLB-load-misses,dTLB-stores,dTLB-store-misses,dtlb_load_misses.walk_duration,dtlb_store_misses.walk_duration,page_walker_loads.dtlb_l1,page_walker_loads.dtlb_l2,page_walker_loads.dtlb_l3,page_walker_loads.dtlb_memory,page_walker_loads.dtlb_l1,page_walker_loads.dtlb_l2,page_walker_loads.dtlb_l3,page_walker_loads.dtlb_memory,LLC-loads,LLC-load-misses,LLC-stores,LLC-store-misses
 XSBENCH_ARGS=" -- -t 16 -g 180000 -p 15000000"
 LIBLINEAR_ARGS=" -- -s 6 -n 28 $MAIN/datasets/kdd12 "
 CANNEAL_ARGS=" -- 1 150000 2000 $MAIN/datasets/canneal_small 500 "
@@ -78,37 +77,6 @@ prepare_benchmark_name()
 	BIN+=$POSTFIX
 }
 
-#prepare_basic_config_params()
-#{
-#	CURR_CONFIG=$1
-#	# --- setup page table node
-#	if [ $CURR_CONFIG == "LPLD" ] || [ $CURR_CONFIG == "LPRD" ] || [ $CURR_CONFIG == "LPRDI" ]; then
-#		PT_NODE=0
-#	else
-#		PT_NODE=1
-#	fi
-#
-#	# --- setup data node
-#	if [ $CURR_CONFIG == "LPLD" ] || [ $CURR_CONFIG == "RPLD" ] || [ $CURR_CONFIG == "RPILD" ]; then
-#		DATA_NODE=0
-#	else
-#		DATA_NODE=1
-#	fi
-#
-#	# --- setup cpu node
-#		CPU_NODE=0
-#
-#	# --- setup mitosis
-#	if [ $CURR_CONFIG == "RPILDM" ]; then
-#		PT_NODE=1
-#		DATA_NODE=0
-#		MITOSIS=1
-#	fi
-#
-#	# --- setup interference node
-#	INT_NODE=1
-#}
-
 prepare_basic_config_params()
 {
 	CURR_CONFIG=$1
@@ -129,21 +97,21 @@ prepare_basic_config_params()
 	fi
 
 	# --- setup cpu node
-        CPU_NODE=1
+        CPU_NODE=4
 	if [ $CURR_CONFIG == "LPLD" ] || [ $CURR_CONFIG == "LPRD" ] || [ $CURR_CONFIG == "LPRDI" ]; then
                 CPU_NODE=0
         fi
 	# --- setup mitosis
 	if [ $LAST_CHAR == "M" ]; then
 		MITOSIS=1
-                CPU_NODE=1
-                DATA_NODE=1
+                CPU_NODE=4
+                DATA_NODE=4
 	fi
 
 	# --- setup interference node
 	INT_NODE=0
         if [ $CURR_CONFIG == "LPRDI" ]; then
-                INT_NODE=1
+                INT_NODE=4
         fi
 
         if [ $BENCHMARK == "xsbench" ]; then
@@ -153,6 +121,9 @@ prepare_basic_config_params()
         elif [ $BENCHMARK == "canneal" ]; then
                 BENCH_ARGS=$CANNEAL_ARGS
         fi
+
+	echo -1 | sudo tee /proc/mitosis/cache
+
 }
 
 prepare_all_pathnames()
@@ -160,15 +131,10 @@ prepare_all_pathnames()
 	SCRIPTS=$(readlink -f "`dirname $(readlink -f "$0")`")
 	ROOT="$(dirname "$SCRIPTS")"
 	BENCHPATH=$ROOT"/bin/$BIN"
-	PERF=$ROOT"/bin/perf"
 	INT_BIN=$ROOT"/bin/bench_stream"
-	NUMACTL=$ROOT"/bin/numactl"
+	NUMACTL="/usr/local/bin/numactl"
         if [ ! -e $BENCHPATH ]; then
             echo "Benchmark binary is missing"
-            exit
-        fi
-        if [ ! -e $PERF ]; then
-            echo "Perf binary is missing"
             exit
         fi
         if [ ! -e $NUMACTL ]; then
@@ -195,7 +161,7 @@ prepare_all_pathnames()
         if [ $? -ne 0 ]; then
                 echo "Error creating output directory: $RUNDIR"
         fi
-	OUTFILE=$RUNDIR/perflog-$BENCHMARK-$(hostname)-$CONFIG.dat
+	OUTFILE=$RUNDIR/log-$BENCHMARK-$(hostname)-$CONFIG.dat
 }
 
 set_system_configs()
@@ -275,7 +241,7 @@ launch_benchmark_config()
         NODE_MAX=$(echo ${NODESTR##*: } | cut -d " " -f 1)
         NODE_MAX=`expr $NODE_MAX - 1`
         if [ $LAST_CHAR == "M" ]; then
-                CMD_PREFIX+=" --pgtablerepl=$NODE_MAX"
+                CMD_PREFIX+=" --pgtablerepl=all"
         fi
 	LAUNCH_CMD="$CMD_PREFIX $BENCHPATH $BENCH_ARGS"
 	echo $LAUNCH_CMD >> $OUTFILE
@@ -287,15 +253,11 @@ launch_benchmark_config()
 	done
 	SECONDS=0
 	launch_interference $CONFIG
-	$PERF stat -x, -o $OUTFILE --append -e $PERF_EVENTS -p $BENCHMARK_PID &
-	PERF_PID=$!
 	echo -e "\e[0mWaiting for benchmark to be done"
 	while [ ! -f /tmp/alloctest-bench.done ]; do
 		sleep 0.1
 	done
 	DURATION=$SECONDS
-	kill -INT $PERF_PID &> /dev/null
-	wait $PERF_PID
 	wait $BENCHMARK_PID 2>/dev/null
 	echo "Execution Time (seconds): $DURATION" >> $OUTFILE
 	echo "****success****" >> $OUTFILE

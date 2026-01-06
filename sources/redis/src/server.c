@@ -3716,12 +3716,12 @@ int redisIsSupervised(int mode) {
 #define BENCHMARK_VALUE_SIZE (8 * sizeof(long))
 
 #ifdef _OPENMP
-#define KEY_MAX ((64UL << 30) / (8 * 32))
+#define KEY_MAX (1UL << 29)
 #define ITER_MAX (50000000000UL)
 
 #else
-#define KEY_MAX (1UL << 30)
-#define ITER_MAX (60000000UL)
+#define KEY_MAX (1UL << 26)
+#define ITER_MAX (12000000UL)
 #endif
 
 

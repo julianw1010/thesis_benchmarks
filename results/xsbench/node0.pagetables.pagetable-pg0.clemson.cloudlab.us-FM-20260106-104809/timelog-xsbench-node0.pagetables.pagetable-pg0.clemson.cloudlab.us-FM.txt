@@ -1,0 +1,4 @@
+Command: /usr/local/bin/numactl --pgtablerepl=all  /mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_xsbench_mt  -- -p 25000000 -g 300000 
+Run directory: /mnt/mydata/mitosis-asplos20-artifact-fork/results/xsbench/node0.pagetables.pagetable-pg0.clemson.cloudlab.us-FM-20260106-104809
+Start time: Tue Jan  6 10:48:10 AM UTC 2026
+----------------------------------------

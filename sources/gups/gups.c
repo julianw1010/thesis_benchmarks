@@ -7,16 +7,13 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <sys/mman.h>
-
 #include <string.h>
 #include <numa.h>
 #include <time.h>
 #include <pthread.h>
-
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-
 
 extern FILE *opt_file_out;
 
@@ -26,22 +23,14 @@ extern FILE *opt_file_out;
  * ============================================================================
  */
 
-
-///< The number of updates to the table
-//#define NUPDATE (1 * TableSize)
-//#define NUPDATE (1UL << 28)
-
 #ifdef _OPENMP
-#define NUPDATE (1UL << 30)
+#define NUPDATE (1UL << 34)
 #else
 #define NUPDATE (1UL << 30)
 #endif
 
-
-///< parameters for ther andom table
 #define POLY 0x0000000000000007UL
 #define PERIOD 1317624576693539401L
-
 
 static uint64_t
 HPCC_starts(int64_t n)
@@ -67,10 +56,10 @@ HPCC_starts(int64_t n)
 
     ran = 0x2;
     while (i > 0) {
-    temp = 0;
-    for (j=0; j<64; j++)
-        if ((ran >> j) & 1)
-            temp ^= m2[j];
+        temp = 0;
+        for (j=0; j<64; j++)
+            if ((ran >> j) & 1)
+                temp ^= m2[j];
         ran = temp;
         i -= 1;
         if ((n >> i) & 1)
@@ -80,18 +69,18 @@ HPCC_starts(int64_t n)
     return ran;
 }
 
-///< the name of the shared memory file created
 #define CONFIG_SHM_FILE_NAME "/tmp/alloctest-bench"
 
-
 int real_main(int argc, char *argv[]);
+
 int real_main(int argc, char *argv[])
 {
     size_t mem = ((size_t)64UL << 30);
+
     if (argc == 2) {
-        mem = strtoull(argv[1], NULL, 10) << 30;    
+        mem = strtoull(argv[1], NULL, 10) << 30;
     }
-    
+
     for (int i = 0; i < 64; i++) {
         if (1ULL << i > mem) {
             mem = 1ULL << (i - 1);
@@ -99,11 +88,7 @@ int real_main(int argc, char *argv[])
         }
     }
 
-    
     fprintf(opt_file_out, "<gups tablesize=\"%zu\"></gups>\n", mem);
-
-    struct timespec time1, time2;
-
 
     uint64_t *Table = malloc(mem + 16);
     if (!Table) {
@@ -112,33 +97,70 @@ int real_main(int argc, char *argv[])
     }
 
     size_t TableSize = mem / sizeof(uint64_t);
-
     fprintf(opt_file_out, "<gups table=\"%p\" tablesize=\"%zu\"></gups>\n", Table, TableSize);
 
-
     /* Initialize main table */
+#ifdef _OPENMP
+    #pragma omp parallel for
+#endif
     for (size_t i=0; i<TableSize; i++) {
         Table[i] = i;
     }
 
     FILE *fd2 = fopen(CONFIG_SHM_FILE_NAME ".ready", "w");
-
     if (fd2 == NULL) {
-        fprintf (stderr, "ERROR: could not create the shared memory file descriptor\n");
+        fprintf(stderr, "ERROR: could not create the shared memory file descriptor\n");
         exit(-1);
     }
 
     usleep(250);
 
+#ifdef _OPENMP
+    /* Multithreaded version */
+    int nthreads;
+    #pragma omp parallel
+    {
+        #pragma omp single
+        nthreads = omp_get_num_threads();
+    }
+    fprintf(opt_file_out, "<gups threads=\"%d\"></gups>\n", nthreads);
 
-    /* Current random numbers */
+    #pragma omp parallel
+    {
+        int tid = omp_get_thread_num();
+        int nth = omp_get_num_threads();
+
+        /* Each thread gets its own chunk of updates */
+        uint64_t updates_per_thread = NUPDATE / nth;
+        uint64_t start_update = tid * updates_per_thread;
+
+        /* Each thread has its own random number stream */
+        uint64_t ran[128];
+        for (size_t j = 0; j < 128; j++) {
+            ran[j] = HPCC_starts(start_update + (updates_per_thread / 128) * j);
+        }
+
+        for (size_t i = 0; i < updates_per_thread / 128; i++) {
+            for (size_t j = 0; j < 128; j++) {
+                ran[j] = (ran[j] << 1) ^ ((int64_t) ran[j] < 0 ? POLY : 0);
+                size_t elm = ran[j] % TableSize;
+                #pragma omp atomic
+                Table[elm] ^= ran[j];
+                #pragma omp atomic
+                Table[TableSize - 1 - elm] ^= ran[j];
+            }
+        }
+    }
+#else
+    /* Single-threaded version */
+    fprintf(opt_file_out, "<gups threads=\"1\"></gups>\n");
+
     uint64_t *ran = calloc(128, sizeof(uint64_t));
     for (size_t j=0; j<128; j++) {
-        ran[j] = HPCC_starts ((NUPDATE/128) * j);
+        ran[j] = HPCC_starts((NUPDATE/128) * j);
     }
 
     for (size_t i=0; i<NUPDATE/128; i++) {
-        /* #pragma ivdep */
         for (size_t j=0; j<128; j++) {
             ran[j] = (ran[j] << 1) ^ ((int64_t) ran[j] < 0 ? POLY : 0);
             size_t elm = ran[j] % TableSize;
@@ -146,9 +168,8 @@ int real_main(int argc, char *argv[])
             Table[TableSize - elm] ^= ran[j];
         }
     }
-
-//  Don't free the table in the end, so we can check the page table
-//    free(Table);
+    free(ran);
+#endif
 
     return 0;
 }

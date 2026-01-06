@@ -1,0 +1,40 @@
+Script started on 2026-01-06 10:48:10+00:00 [COMMAND="/usr/bin/time --verbose --output=/mnt/mydata/mitosis-asplos20-artifact-fork/results/xsbench/node0.pagetables.pagetable-pg0.clemson.cloudlab.us-FM-20260106-104809/time-xsbench-node0.pagetables.pagetable-pg0.clemson.cloudlab.us-FM.txt /usr/local/bin/numactl --pgtablerepl=all  /mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_xsbench_mt  -- -p 25000000 -g 300000 " <not executed on terminal>]
+/mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_xsbench_mt -- -p 25000000 -g 300000 
+<benchmark exec="/mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_xsbench_mt">
+<config>
+  <openmp>on</openmp>  <memsize>1G <memsize>  <hugetlb>0</hugetlb>
+  <data>-1</data>  <interference>0</interference>
+</config>
+<run>
+================================================================================
+                   __   __ ___________                 _                        
+                   \ \ / //  ___| ___ \               | |                       
+                    \ V / \ `--.| |_/ / ___ _ __   ___| |__                     
+                    /   \  `--. \ ___ \/ _ \ '_ \ / __| '_ \                    
+                   / /^\ \/\__/ / |_/ /  __/ | | | (__| | | |                   
+                   \/   \/\____/\____/ \___|_| |_|\___|_| |_|                   
+
+================================================================================
+                    Developed at Argonne National Laboratory
+                                   Version: 18
+================================================================================
+                                  INPUT SUMMARY
+================================================================================
+Simulation Method:            History Based
+Grid Type:                    Unionized Grid
+Materials:                    12
+H-M Benchmark Size:           large
+Total Nuclides:               355
+Gridpoints (per Nuclide):     300,000
+Unionized Energy Gridpoints:  106,500,000
+Particle Histories:           25,000,000
+XS Lookups per Particle:      34
+Total XS Lookups:             34
+Threads:                      128
+Est. Memory Usage (MB):       150,724
+================================================================================
+                         INITIALIZATION - DO NOT PROFILE
+================================================================================
+Generating Nuclide Energy Grids...
+
+Script done on 2026-01-06 10:48:15+00:00 [COMMAND_EXIT_CODE="0"]

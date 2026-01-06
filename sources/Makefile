@@ -1,4 +1,4 @@
-#################################################################################
+################################################################################
 # Makefile to generate binaries for the paper
 #
 # Fast Local Page-Tables for Virtualized NUMA Servers with vMitosis [ASPLOS'21]
@@ -129,26 +129,32 @@ clean-graph500 :
 # Gups
 ###############################################################################
 
-gups/libgups.a : 
+gups/libgups.a :
 	+$(MAKE) -C gups libgups.a
 
-gups/libgupstoy.a : 
-	+$(MAKE) -C gups libgupstoy.a	
+gups/libgupsmp.a :
+	+$(MAKE) -C gups libgupsmp.a
+
+gups/libgupstoy.a :
+	+$(MAKE) -C gups libgupstoy.a
 
 bin/bench_gups_st: gups/libgups.a
 	$(CC) $(INCLUDES) -DDISABLE_SIGNAL_IN_MAIN $(CFLAGS) $(COMMON_MAIN_S) \
-		gups/libgups.a -o $@  $(COMMON_LIBS)
+		gups/libgups.a -o $@ $(COMMON_LIBS)
+
+bin/bench_gups_mt: gups/libgupsmp.a
+	$(CC) $(INCLUDES) -DDISABLE_SIGNAL_IN_MAIN $(CFLAGS) -fopenmp $(COMMON_MAIN_M) \
+		gups/libgupsmp.a -o $@ $(COMMON_LIBS)
 
 bin/bench_gups_toy: gups/libgupstoy.a
 	$(CC) $(INCLUDES) -DDISABLE_SIGNAL_IN_MAIN $(CFLAGS) $(COMMON_MAIN_S) \
-		gups/libgupstoy.a -o $@  $(COMMON_LIBS)		
+		gups/libgupstoy.a -o $@ $(COMMON_LIBS)
 
-gups : bin/bench_gups_st bin/bench_gups_toy
+gups: bin/bench_gups_st bin/bench_gups_mt bin/bench_gups_toy
 
-clean-gups :
+clean-gups:
 	+$(MAKE) -C gups clean
-	rm bin/bench_gups*
-
+	rm -f bin/bench_gups*
 
 ###############################################################################
 # HashJoin
@@ -221,12 +227,12 @@ clean-pagerank :
 ###############################################################################
 
 REDISLIBS=redis/src/libredis-server.a \
-		  redis/deps/lua/src/liblua.a \
-		  redis/deps/hiredis/libhiredis.a
+          redis/deps/lua/src/liblua.a \
+          redis/deps/hiredis/libhiredis.a
 
-REDISLIBSOMP=redis/src/libredis-server.a \
-		  	 redis/deps/lua/src/liblua.a \
-		  	 redis/deps/hiredis/libhiredis.a
+REDISLIBSOMP=redis/src/libredis-server-omp.a \
+             redis/deps/lua/src/liblua.a \
+             redis/deps/hiredis/libhiredis.a
 
 redis/src/libredis-server.a:
 	+$(MAKE) -C redis/src/ libredis-server.a
@@ -243,14 +249,18 @@ redis/deps/hiredis/libhiredis.a:
 bin/bench_redis_st: $(REDISLIBS) $(COMMON_MAIN_S)
 	$(CC) $(INCLUDES) $(CFLAGS) -DDISABLE_SIGNAL_IN_MAIN \
 		$(COMMON_MAIN_S) $(REDISLIBS) $(COMMON_LIBS) \
-		-o $@	
+		-o $@
 
-redis : bin/bench_redis_st
+bin/bench_redis_mt: $(REDISLIBSOMP) $(COMMON_MAIN_M)
+	$(CC) $(INCLUDES) $(CFLAGS) -fopenmp -DDISABLE_SIGNAL_IN_MAIN \
+		$(COMMON_MAIN_M) $(REDISLIBSOMP) $(COMMON_LIBS) \
+		-o $@
+
+redis : bin/bench_redis_st bin/bench_redis_mt
 
 clean-redis :
 	+$(MAKE) -C redis clean
-	rm bin/bench_redis*
-
+	rm -f bin/bench_redis*
 
 ###############################################################################
 # XSBench
@@ -261,27 +271,29 @@ XSBENCHSRC=xsbench/src
 $(XSBENCHSRC)/libxsbench.a : 
 	+$(MAKE) -C $(XSBENCHSRC) libxsbench.a 
 
-bin/bench_xsbench_mt: $(XSBENCHSRC)/libxsbench.a $(COMMON_MAIN_M)
+$(XSBENCHSRC)/libxsbenchomp.a : 
+	+$(MAKE) -C $(XSBENCHSRC) libxsbenchomp.a 
+
+bin/bench_xsbench_mt: $(XSBENCHSRC)/libxsbenchomp.a $(COMMON_MAIN_M)
 	$(CC) $(INCLUDES) $(CFLAGS) -fopenmp -DDISABLE_SIGNAL_IN_MAIN \
-		$(COMMON_MAIN_M) $(XSBENCHSRC)/libxsbench.a $(COMMON_LIBS) \
+		$(COMMON_MAIN_M) $(XSBENCHSRC)/libxsbenchomp.a $(COMMON_LIBS) \
 		-o $@
 
 bin/bench_xsbench_st: $(XSBENCHSRC)/libxsbench.a $(COMMON_MAIN_S)
 	$(CC) $(INCLUDES) $(CFLAGS) -DDISABLE_SIGNAL_IN_MAIN \
 		$(COMMON_MAIN_S) $(XSBENCHSRC)/libxsbench.a $(COMMON_LIBS) \
-		-o $@	
-
-bin/bench_xsbench_dump: $(XSBENCHSRC)/libxsbench.a $(COMMON_MAIN_D)
-	$(CC) $(INCLUDES) $(CFLAGS) -fopenmp -DDISABLE_SIGNAL_IN_MAIN \
-		$(COMMON_MAIN_M) $(XSBENCHSRC)/libxsbench.a $(COMMON_LIBS) \
 		-o $@
 
-xsbench : bin/bench_xsbench_mt bin/bench_xsbench_dump
+bin/bench_xsbench_dump: $(XSBENCHSRC)/libxsbenchomp.a $(COMMON_MAIN_D)
+	$(CC) $(INCLUDES) $(CFLAGS) -fopenmp -DDISABLE_SIGNAL_IN_MAIN \
+		$(COMMON_MAIN_D) $(XSBENCHSRC)/libxsbenchomp.a $(COMMON_LIBS) \
+		-o $@
+
+xsbench : bin/bench_xsbench_mt bin/bench_xsbench_st bin/bench_xsbench_dump
 
 clean-xsbench :
 	+$(MAKE) -C $(XSBENCHSRC) clean
-	rm bin/bench_xsbench*
-
+	rm -f bin/bench_xsbench*
 
 ###############################################################################
 # Memcached

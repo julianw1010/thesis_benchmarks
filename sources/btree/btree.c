@@ -66,9 +66,9 @@
 #define NLOOKUP 2000000000UL
 #else
 ///< the number of elements in the tree
-#define NELEMENTS (10000UL << 20)
+#define NELEMENTS (50UL << 20)  // ~20GB total
 ///< the number of lookups
-#define NLOOKUP 50000000
+#define NLOOKUP 20000000
 #endif
 
 

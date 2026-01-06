@@ -17,14 +17,14 @@ ROOT=$(dirname `readlink -f "$0"`)
 #source $ROOT/site_config.sh
 
 # List of all benchmarks to run
-BENCHMARKS="gups btree hashjoin redis xsbench pagerank liblinear canneal"
+BENCHMARKS="gups btree hashjoin redis xsbench"
 # List of all configs to run
 CONFIGS="LPLD LPRD LPRDI RPLD RPILD RPRD RPIRDI"
 
 for bench in $BENCHMARKS; do
 	for config in $CONFIGS; do
 		echo "******************$bench : $config***********************"
-		bash $ROOT/run_f6f10_one.sh $bench $config
+		bash $ROOT/run_f6_one.sh $bench $config
 	done
 done
 # --- process the output logs

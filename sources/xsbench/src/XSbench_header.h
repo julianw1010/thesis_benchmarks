@@ -7,7 +7,20 @@
 #include<string.h>
 #include<strings.h>
 #include<math.h>
+#ifdef _OPENMP
 #include<omp.h>
+#else
+#include<sys/time.h>
+static inline int omp_get_thread_num(void) { return 0; }
+static inline int omp_get_num_threads(void) { return 1; }
+static inline int omp_get_num_procs(void) { return 1; }
+static inline void omp_set_num_threads(int n) { (void)n; }
+static inline double omp_get_wtime(void) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec + tv.tv_usec * 1e-6;
+}
+#endif
 #include<unistd.h>
 #include<sys/time.h>
 #include<assert.h>

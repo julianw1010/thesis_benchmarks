@@ -1,8 +1,6 @@
 #===============================================================================
 # User Options
 #===============================================================================
-
-COMPILER    = gnu
 OPTIMIZE    = yes
 DEBUG       = no
 PROFILE     = no
@@ -16,7 +14,6 @@ BINARY_READ = no
 #===============================================================================
 # Program name & source code list
 #===============================================================================
-
 program = XSBench
 
 source = \
@@ -28,111 +25,99 @@ GridInit.c \
 XSutils.c \
 Materials.c
 
-obj = $(source:.c=.o)
-
 #===============================================================================
 # Sets Flags
 #===============================================================================
 
-# Standard Flags
-CFLAGS := -std=gnu99 -Wall
+CC = gcc
 
-# Linker Flags
-LDFLAGS = -lm
-
-# Regular gcc Compiler
-ifeq ($(COMPILER),gnu)
-  CC = gcc
-  CFLAGS += -fopenmp -flto
-endif
-
-# Intel Compiler
-ifeq ($(COMPILER),intel)
-  CC = icc
-  CFLAGS += -qopenmp
-endif
-
-# BG/Q gcc Cross-Compiler
-ifeq ($(MACHINE),bluegene)
-  CC = mpicc
-endif
+# Base flags
+BASE_CFLAGS := -std=gnu99 -Wall
 
 # Debug Flags
 ifeq ($(DEBUG),yes)
-  CFLAGS += -g
-  LDFLAGS  += -g
+  BASE_CFLAGS += -g
+  LDFLAGS += -g
 endif
 
 # Profiling Flags
 ifeq ($(PROFILE),yes)
-  CFLAGS += -pg
-  LDFLAGS  += -pg
+  BASE_CFLAGS += -pg
+  LDFLAGS += -pg
 endif
 
 # Optimization Flags
 ifeq ($(OPTIMIZE),yes)
-  CFLAGS += -O3
+  BASE_CFLAGS += -O3
 endif
 
-# Compiler Vectorization (needs -O3 flag) information
-ifeq ($(VEC_INFO),yes)
-  CFLAGS += -ftree-vectorizer-verbose=6
-endif
+# Linker Flags
+LDFLAGS = -lm
 
-# PAPI source (you may need to provide -I and -L pointing
-# to PAPI depending on your installation
+# PAPI
 ifeq ($(PAPI),yes)
   source += papi.c
-  CFLAGS += -DPAPI
-  #CFLAGS += -I/soft/apps/packages/papi/papi-5.1.1/include
-  #LDFLAGS += -L/soft/apps/packages/papi/papi-5.1.1/lib -lpapi
+  BASE_CFLAGS += -DPAPI
   LDFLAGS += -lpapi
 endif
 
 # MPI
 ifeq ($(MPI),yes)
   CC = mpicc
-  CFLAGS += -DMPI
+  BASE_CFLAGS += -DMPI
 endif
 
-# Verification of results mode
+# Verification
 ifeq ($(VERIFY),yes)
-  CFLAGS += -DVERIFICATION
+  BASE_CFLAGS += -DVERIFICATION
 endif
 
-# Binary dump for file I/O based initialization
+# Binary dump/read
 ifeq ($(BINARY_DUMP),yes)
-  CFLAGS += -DBINARY_DUMP
+  BASE_CFLAGS += -DBINARY_DUMP
 endif
-
-# Binary read for file I/O based initialization
 ifeq ($(BINARY_READ),yes)
-  CFLAGS += -DBINARY_READ
+  BASE_CFLAGS += -DBINARY_READ
 endif
 
+#===============================================================================
+# OpenMP and non-OpenMP flags
+#===============================================================================
+
+CFLAGS_OMP := $(BASE_CFLAGS) -fopenmp -flto
+CFLAGS_ST := $(BASE_CFLAGS) -flto
+
+#===============================================================================
+# Object files
+#===============================================================================
+
+obj_omp = $(source:.c=_omp.o)
+obj_st = $(source:.c=_st.o)
 
 #===============================================================================
 # Targets to Build
 #===============================================================================
 
-$(program): $(obj) XSbench_header.h Makefile
-	$(CC) $(CFLAGS) $(obj) -o $@ $(LDFLAGS)
+$(program): $(obj_omp) XSbench_header.h Makefile
+	$(CC) $(CFLAGS_OMP) $(obj_omp) -o $@ $(LDFLAGS)
 
-libxsbench.a: $(obj) XSbench_header.h Makefile
-	ar rcs $@ $(obj)
+libxsbenchomp.a: $(obj_omp) XSbench_header.h Makefile
+	ar rcs $@ $(obj_omp)
 
-%.o: %.c Makefile
-	$(CC) $(CFLAGS) -c $< -o $@
+libxsbench.a: $(obj_st) XSbench_header.h Makefile
+	ar rcs $@ $(obj_st)
+
+%_omp.o: %.c XSbench_header.h Makefile
+	$(CC) $(CFLAGS_OMP) -c $< -o $@
+
+%_st.o: %.c XSbench_header.h Makefile
+	$(CC) $(CFLAGS_ST) -c $< -o $@
 
 clean:
-	rm -rf $(program) $(obj)
-	rm -f *.a
+	rm -rf $(program) *_omp.o *_st.o *.a
 
 edit:
 	vim -p $(source) papi.c XSbench_header.h
 
 run:
 	./$(program)
-
-bgqrun:
-	qsub -t 10 -n 1 -O test XSBench
