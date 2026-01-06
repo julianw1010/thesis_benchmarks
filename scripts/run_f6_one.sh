@@ -7,6 +7,10 @@
 #                  for Large-Memory Machines
 # Authors: Reto Achermann, Jayneel Gandhi, Timothy Roscoe, 
 #          Abhishek Bhattacharjee, and Ashish Panwar
+#
+# MODIFIED FOR 8-NODE SYSTEM:
+#   Socket 1: nodes 0, 1, 2, 3
+#   Socket 2: nodes 4, 5, 6, 7
 ###############################################################################
 
 #echo "************************************************************************"
@@ -14,13 +18,14 @@
 #echo "************************************************************************"
 
 ROOT=$(dirname `readlink -f "$0"`)
-MAIN="$(dirname "$ROOT")")
+MAIN="$(dirname "$ROOT")"
 #source $ROOT/site_config.sh
 
 XSBENCH_ARGS=" -- -t 16 -g 18000 -p 1500000"
 LIBLINEAR_ARGS=" -- -s 6 -n 28 $MAIN/datasets/kdd12 "
 CANNEAL_ARGS=" -- 1 150000 2000 $MAIN/datasets/canneal_small 500 "
 HASHJOIN_ARGS=" -- -o 115000000 -i 10000000 -s 10000000 "
+GUPS_ARGS=" -- 16"
 BENCH_ARGS=""
 
 
@@ -77,39 +82,122 @@ prepare_benchmark_name()
 prepare_basic_config_params()
 {
 	CURR_CONFIG=$1
-        FIRST_CHAR=${CURR_CONFIG:0:1}
-        if [ $FIRST_CHAR == "T" ]; then
-                CURR_CONFIG=${CURR_CONFIG:1}
-        fi
-
-        PT_NODE=0
-	# --- setup data node
-        DATA_NODE=1
-	if [ $CURR_CONFIG == "LPLD" ] || [ $CURR_CONFIG == "RPRD" ] || [ $CURR_CONFIG == "RPIRDI" ]; then
-		DATA_NODE=0
+	FIRST_CHAR=${CURR_CONFIG:0:1}
+	if [ $FIRST_CHAR == "T" ]; then
+		CURR_CONFIG=${CURR_CONFIG:1}
 	fi
 
-	# --- setup cpu node
-        CPU_NODE=4
+	###########################################################################
+	# NODE ASSIGNMENT FOR 8-NODE SYSTEM
+	# Socket 1: nodes 0, 1, 2, 3
+	# Socket 2: nodes 4, 5, 6, 7
+	#
+	# We use node 0 to represent socket 1, node 4 to represent socket 2
+	#
+	# Configuration meanings (from paper Table 2, Figure 5):
+	#   LP = Local Page-table (PT on same socket as CPU)
+	#   RP = Remote Page-table (PT on different socket from CPU)
+	#   LD = Local Data (Data on same socket as CPU)
+	#   RD = Remote Data (Data on different socket from CPU)
+	#   I  = Interference (memory-intensive process on target resource's node)
+	#
+	# Workload Migration Scenario:
+	#   - Workload runs on CPU_NODE
+	#   - Page tables are allocated on PT_NODE
+	#   - Data is allocated on DATA_NODE
+	#   - Interference runs on INT_NODE (if applicable)
+	###########################################################################
+
+	# Page table node - always on socket 1 (node 0) as the "original" location
+	PT_NODE=0
+
+	# --- Setup CPU node ---
+	# "Local PT" configs (LP-*): CPU runs on same socket as PT (socket 1)
+	# "Remote PT" configs (RP-*): CPU runs on different socket from PT (socket 2)
 	if [ $CURR_CONFIG == "LPLD" ] || [ $CURR_CONFIG == "LPRD" ] || [ $CURR_CONFIG == "LPRDI" ]; then
-                CPU_NODE=0
-        fi
+		CPU_NODE=0   # Socket 1 - same as PT_NODE, so PT is LOCAL
+	else
+		CPU_NODE=4   # Socket 2 - different from PT_NODE, so PT is REMOTE
+	fi
 
-	# --- setup interference node
-	INT_NODE=0
-        if [ $CURR_CONFIG == "LPRDI" ]; then
-                INT_NODE=4
-        fi
+	# --- Setup data node ---
+	# "*LD" configs: Data should be LOCAL to CPU (same socket as CPU)
+	# "*RD" configs: Data should be REMOTE from CPU (different socket from CPU)
+	case $CURR_CONFIG in
+		"LPLD")
+			# Local PT, Local Data: CPU=0(S1), PT=0(S1), Data=0(S1)
+			DATA_NODE=0
+			;;
+		"LPRD")
+			# Local PT, Remote Data: CPU=0(S1), PT=0(S1), Data=4(S2)
+			DATA_NODE=4
+			;;
+		"LPRDI")
+			# Local PT, Remote Data + Interference: CPU=0(S1), PT=0(S1), Data=4(S2)
+			DATA_NODE=4
+			;;
+		"RPLD")
+			# Remote PT, Local Data: CPU=4(S2), PT=0(S1), Data=4(S2)
+			DATA_NODE=4
+			;;
+		"RPILD")
+			# Remote PT + Interference, Local Data: CPU=4(S2), PT=0(S1), Data=4(S2)
+			DATA_NODE=4
+			;;
+		"RPRD")
+			# Remote PT, Remote Data: CPU=4(S2), PT=0(S1), Data=0(S1)
+			DATA_NODE=0
+			;;
+		"RPIRDI")
+			# Remote PT + Interference, Remote Data + Interference: CPU=4(S2), PT=0(S1), Data=0(S1)
+			DATA_NODE=0
+			;;
+	esac
 
-        if [ $BENCHMARK == "xsbench" ]; then
-                BENCH_ARGS=$XSBENCH_ARGS
-        elif [ $BENCHMARK == "liblinear" ]; then
-                BENCH_ARGS=$LIBLINEAR_ARGS
-        elif [ $BENCHMARK == "canneal" ]; then
-                BENCH_ARGS=$CANNEAL_ARGS
-        elif [ $BENCHMARK == "hashjoin" ]; then
-                BENCH_ARGS=$HASJOIN_ARGS
-        fi
+	# --- Setup interference node ---
+	# Interference should run on the same node as the resource being stressed
+	# LPRDI: Interfere with remote DATA (on socket 2)
+	# RPILD: Interfere with remote PT (on socket 1)
+	# RPIRDI: Interfere with both PT and DATA (both on socket 1)
+	INT_NODE=0  # Default, not used unless interference config
+	case $CURR_CONFIG in
+		"LPRDI")
+			# Interfere on DATA node (socket 2, where data is remote from CPU)
+			INT_NODE=4
+			;;
+		"RPILD")
+			# Interfere on PT node (socket 1, where PT is remote from CPU)
+			INT_NODE=0
+			;;
+		"RPIRDI")
+			# Interfere on PT & DATA node (both on socket 1, remote from CPU)
+			INT_NODE=0
+			;;
+	esac
+
+	# --- Setup benchmark arguments ---
+	if [ $BENCHMARK == "xsbench" ]; then
+		BENCH_ARGS=$XSBENCH_ARGS
+	elif [ $BENCHMARK == "liblinear" ]; then
+		BENCH_ARGS=$LIBLINEAR_ARGS
+	elif [ $BENCHMARK == "canneal" ]; then
+		BENCH_ARGS=$CANNEAL_ARGS
+	elif [ $BENCHMARK == "hashjoin" ]; then
+		BENCH_ARGS=$HASHJOIN_ARGS
+	elif [ $BENCHMARK == "gups" ]; then
+                BENCH_ARGS=$GUPS_ARGS
+	fi
+
+	# Debug output
+	echo "=========================================="
+	echo "Configuration: $CURR_CONFIG"
+	echo "  PT_NODE:   $PT_NODE (Socket $((PT_NODE < 4 ? 1 : 2)))"
+	echo "  CPU_NODE:  $CPU_NODE (Socket $((CPU_NODE < 4 ? 1 : 2)))"
+	echo "  DATA_NODE: $DATA_NODE (Socket $((DATA_NODE < 4 ? 1 : 2)))"
+	echo "  INT_NODE:  $INT_NODE (Socket $((INT_NODE < 4 ? 1 : 2)))"
+	echo "  PT is $([ $PT_NODE -lt 4 ] && [ $CPU_NODE -lt 4 ] || [ $PT_NODE -ge 4 ] && [ $CPU_NODE -ge 4 ] && echo 'LOCAL' || echo 'REMOTE') to CPU"
+	echo "  Data is $([ $DATA_NODE -lt 4 ] && [ $CPU_NODE -lt 4 ] || [ $DATA_NODE -ge 4 ] && [ $CPU_NODE -ge 4 ] && echo 'LOCAL' || echo 'REMOTE') to CPU"
+	echo "=========================================="
 }
 
 prepare_all_pathnames()
@@ -120,15 +208,19 @@ prepare_all_pathnames()
 	INT_BIN=$ROOT"/bin/bench_stream"
 	NUMACTL="/usr/local/bin/numactl"
         if [ ! -e $BENCHPATH ]; then
-            echo "Benchmark binary is missing"
+            echo "Benchmark binary is missing: $BENCHPATH"
             exit
         fi
         if [ ! -e $NUMACTL ]; then
-            echo "numactl is missing"
-            exit
+            # Try system numactl
+            NUMACTL=$(which numactl)
+            if [ ! -e $NUMACTL ]; then
+                echo "numactl is missing"
+                exit
+            fi
         fi
         if [ ! -e $INT_BIN ]; then
-            echo "Interference binary is missing"
+            echo "Interference binary is missing: $INT_BIN"
             exit
         fi
         # where to put the output file (based on CONFIG)
@@ -167,12 +259,8 @@ set_system_configs()
                 echo "ERROR setting thp to: $thp"
                 exit
         fi
-        echo 0 | sudo tee /proc/sys/kernel/numa_balancing > /dev/null
-        if [ $? -ne 0 ]; then
-                echo "ERROR setting AutoNUMA to: 0"
-                exit
-        fi
-        echo $PT_NODE | sudo tee /proc/sys/kernel/pgtable_replication > /dev/null
+
+        echo $PT_NODE | sudo tee /proc/mitosis/mode > /dev/null
         if [ $? -ne 0 ]; then
                 echo "ERROR setting pgtable allocation to node: $PT_NODE"
                 exit
@@ -187,6 +275,7 @@ launch_interference()
 		CURR_CONFIG=${CURR_CONFIG:1}
 	fi
 	if [ $CURR_CONFIG == "LPRDI" ] || [ $CURR_CONFIG == "RPILD" ] || [ $CURR_CONFIG == "RPIRDI" ]; then
+		echo "Launching interference on node $INT_NODE"
 		$NUMACTL -c $INT_NODE -m $INT_NODE $INT_BIN > /dev/null 2>&1 &
 		if [ $? -ne 0 ]; then
 			echo "Failure launching interference."
@@ -217,6 +306,7 @@ launch_benchmark_config()
         CMD_PREFIX=$NUMACTL
         CMD_PREFIX+=" -m $DATA_NODE -c $CPU_NODE "
 	LAUNCH_CMD="$CMD_PREFIX $BENCHPATH $BENCH_ARGS"
+	echo "Launch command: $LAUNCH_CMD"
 	echo $LAUNCH_CMD >> $OUTFILE
 	$LAUNCH_CMD > /dev/null 2>&1 &
 	BENCHMARK_PID=$!
