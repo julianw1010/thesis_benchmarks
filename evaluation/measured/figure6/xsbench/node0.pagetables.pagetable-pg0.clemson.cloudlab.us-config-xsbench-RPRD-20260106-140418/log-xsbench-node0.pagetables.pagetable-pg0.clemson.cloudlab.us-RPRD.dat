@@ -1,0 +1,4 @@
+/usr/local/bin/numactl -m 0 -c 4 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_xsbench_st -- -t 16 -g 18000 -p 1500000
+Total Runtime (seconds): 240
+Execution Time (ready to done, seconds): 231
+****success****

@@ -1,0 +1,21 @@
+Script started on 2026-01-06 14:56:29+00:00 [COMMAND="/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure6/gups/node0.pagetables.pagetable-pg0.clemson.cloudlab.us-config-gups-RPLD-20260106-145629/time-gups-node0.pagetables.pagetable-pg0.clemson.cloudlab.us-RPLD.txt /usr/local/bin/numactl -m 4 -c 4  /mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_gups_st  -- 16" <not executed on terminal>]
+/mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_gups_st -- 16 
+prog_argv[0]=/mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_gups_st
+prog_argv[1]=16
+NO signalling readyness to /tmp/alloctest-bench.ready
+<benchmark exec="/mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_gups_st">
+<config>
+  <openmp>off</openmp>  <memsize>1G <memsize>  <hugetlb>0</hugetlb>
+  <data>0</data>  <pte>0</pte>  <run>0</run>
+  <interference>0</interference>
+</config>
+<run>
+<gups tablesize="17179869184"></gups>
+<gups table="0x7f423101d010" tablesize="2147483648"></gups>
+<gups threads="1"></gups>
+</run>
+Took: 105.699
+Took: 105.699
+</benchmark>
+
+Script done on 2026-01-06 14:58:15+00:00 [COMMAND_EXIT_CODE="0"]

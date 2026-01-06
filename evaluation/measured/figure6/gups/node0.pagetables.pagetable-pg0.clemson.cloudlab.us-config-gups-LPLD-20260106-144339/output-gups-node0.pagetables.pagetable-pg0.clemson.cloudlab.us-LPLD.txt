@@ -1,0 +1,1 @@
+NO signalling readyness to /tmp/alloctest-bench.ready

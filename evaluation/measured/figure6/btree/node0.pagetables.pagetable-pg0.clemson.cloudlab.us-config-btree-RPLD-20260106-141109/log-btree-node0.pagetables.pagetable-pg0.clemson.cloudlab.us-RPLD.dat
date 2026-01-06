@@ -1,0 +1,4 @@
+/usr/local/bin/numactl -m 4 -c 4 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_btree_st
+Total Runtime (seconds): 76
+Execution Time (ready to done, seconds): 69
+****success****

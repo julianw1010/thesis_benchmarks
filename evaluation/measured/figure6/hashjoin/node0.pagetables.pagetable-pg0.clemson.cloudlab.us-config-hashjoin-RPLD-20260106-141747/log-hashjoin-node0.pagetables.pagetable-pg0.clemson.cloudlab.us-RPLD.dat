@@ -1,0 +1,4 @@
+/usr/local/bin/numactl -m 4 -c 4 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_hashjoin_st -- -o 11500000 -i 1000000 -s 1000000
+Total Runtime (seconds): 65
+Execution Time (ready to done, seconds): 64
+****success****
