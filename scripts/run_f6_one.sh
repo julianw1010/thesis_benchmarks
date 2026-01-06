@@ -9,8 +9,8 @@
 #          Abhishek Bhattacharjee, and Ashish Panwar
 #
 # MODIFIED FOR 8-NODE SYSTEM:
-#   Socket 1: nodes 0, 1, 2, 3
-#   Socket 2: nodes 4, 5, 6, 7
+#   Socket 0: nodes 0, 1, 2, 3
+#   Socket 1: nodes 4, 5, 6, 7
 ###############################################################################
 
 #echo "************************************************************************"
@@ -24,7 +24,7 @@ MAIN="$(dirname "$ROOT")"
 XSBENCH_ARGS=" -- -t 16 -g 18000 -p 1500000"
 LIBLINEAR_ARGS=" -- -s 6 -n 28 $MAIN/datasets/kdd12 "
 CANNEAL_ARGS=" -- 1 150000 2000 $MAIN/datasets/canneal_small 500 "
-HASHJOIN_ARGS=" -- -o 115000000 -i 10000000 -s 10000000 "
+HASHJOIN_ARGS=" -- -o 11500000 -i 1000000 -s 1000000 "
 GUPS_ARGS=" -- 16"
 BENCH_ARGS=""
 
@@ -67,7 +67,7 @@ validate_benchmark_config()
 
 prepare_benchmark_name()
 {
-	if [ $1 == "gups" ] || 	[ $1 == "btree" ] || [ $1 == "redis" ] || [ $1 == "hashjoin" ]; then
+	if [ $1 == "gups" ] || 	[ $1 == "btree" ] || [ $1 == "redis" ] || [ $1 == "hashjoin" ] || [ $1 == "xsbench" ]; then
 		POSTFIX="_st"
 	else
 		POSTFIX="_mt"
@@ -89,10 +89,10 @@ prepare_basic_config_params()
 
 	###########################################################################
 	# NODE ASSIGNMENT FOR 8-NODE SYSTEM
-	# Socket 1: nodes 0, 1, 2, 3
-	# Socket 2: nodes 4, 5, 6, 7
+	# Socket 0: nodes 0, 1, 2, 3
+	# Socket 1: nodes 4, 5, 6, 7
 	#
-	# We use node 0 to represent socket 1, node 4 to represent socket 2
+	# We use node 0 to represent socket 0, node 4 to represent socket 1
 	#
 	# Configuration meanings (from paper Table 2, Figure 5):
 	#   LP = Local Page-table (PT on same socket as CPU)
@@ -108,16 +108,16 @@ prepare_basic_config_params()
 	#   - Interference runs on INT_NODE (if applicable)
 	###########################################################################
 
-	# Page table node - always on socket 1 (node 0) as the "original" location
+	# Page table node - always on socket 0 (node 0) as the "original" location
 	PT_NODE=0
 
 	# --- Setup CPU node ---
-	# "Local PT" configs (LP-*): CPU runs on same socket as PT (socket 1)
-	# "Remote PT" configs (RP-*): CPU runs on different socket from PT (socket 2)
+	# "Local PT" configs (LP-*): CPU runs on same socket as PT (socket 0)
+	# "Remote PT" configs (RP-*): CPU runs on different socket from PT (socket 1)
 	if [ $CURR_CONFIG == "LPLD" ] || [ $CURR_CONFIG == "LPRD" ] || [ $CURR_CONFIG == "LPRDI" ]; then
-		CPU_NODE=0   # Socket 1 - same as PT_NODE, so PT is LOCAL
+		CPU_NODE=0   # Socket 0 - same as PT_NODE, so PT is LOCAL
 	else
-		CPU_NODE=4   # Socket 2 - different from PT_NODE, so PT is REMOTE
+		CPU_NODE=4   # Socket 1 - different from PT_NODE, so PT is REMOTE
 	fi
 
 	# --- Setup data node ---
@@ -125,52 +125,52 @@ prepare_basic_config_params()
 	# "*RD" configs: Data should be REMOTE from CPU (different socket from CPU)
 	case $CURR_CONFIG in
 		"LPLD")
-			# Local PT, Local Data: CPU=0(S1), PT=0(S1), Data=0(S1)
+			# Local PT, Local Data: CPU=0(S0), PT=0(S0), Data=0(S0)
 			DATA_NODE=0
 			;;
 		"LPRD")
-			# Local PT, Remote Data: CPU=0(S1), PT=0(S1), Data=4(S2)
+			# Local PT, Remote Data: CPU=0(S0), PT=0(S0), Data=4(S1)
 			DATA_NODE=4
 			;;
 		"LPRDI")
-			# Local PT, Remote Data + Interference: CPU=0(S1), PT=0(S1), Data=4(S2)
+			# Local PT, Remote Data + Interference: CPU=0(S0), PT=0(S0), Data=4(S1)
 			DATA_NODE=4
 			;;
 		"RPLD")
-			# Remote PT, Local Data: CPU=4(S2), PT=0(S1), Data=4(S2)
+			# Remote PT, Local Data: CPU=4(S1), PT=0(S0), Data=4(S1)
 			DATA_NODE=4
 			;;
 		"RPILD")
-			# Remote PT + Interference, Local Data: CPU=4(S2), PT=0(S1), Data=4(S2)
+			# Remote PT + Interference, Local Data: CPU=4(S1), PT=0(S0), Data=4(S1)
 			DATA_NODE=4
 			;;
 		"RPRD")
-			# Remote PT, Remote Data: CPU=4(S2), PT=0(S1), Data=0(S1)
+			# Remote PT, Remote Data: CPU=4(S1), PT=0(S0), Data=0(S0)
 			DATA_NODE=0
 			;;
 		"RPIRDI")
-			# Remote PT + Interference, Remote Data + Interference: CPU=4(S2), PT=0(S1), Data=0(S1)
+			# Remote PT + Interference, Remote Data + Interference: CPU=4(S1), PT=0(S0), Data=0(S0)
 			DATA_NODE=0
 			;;
 	esac
 
 	# --- Setup interference node ---
 	# Interference should run on the same node as the resource being stressed
-	# LPRDI: Interfere with remote DATA (on socket 2)
-	# RPILD: Interfere with remote PT (on socket 1)
-	# RPIRDI: Interfere with both PT and DATA (both on socket 1)
+	# LPRDI: Interfere with remote DATA (on socket 1)
+	# RPILD: Interfere with remote PT (on socket 0)
+	# RPIRDI: Interfere with both PT and DATA (both on socket 0)
 	INT_NODE=0  # Default, not used unless interference config
 	case $CURR_CONFIG in
 		"LPRDI")
-			# Interfere on DATA node (socket 2, where data is remote from CPU)
+			# Interfere on DATA node (socket 1, where data is remote from CPU)
 			INT_NODE=4
 			;;
 		"RPILD")
-			# Interfere on PT node (socket 1, where PT is remote from CPU)
+			# Interfere on PT node (socket 0, where PT is remote from CPU)
 			INT_NODE=0
 			;;
 		"RPIRDI")
-			# Interfere on PT & DATA node (both on socket 1, remote from CPU)
+			# Interfere on PT & DATA node (both on socket 0, remote from CPU)
 			INT_NODE=0
 			;;
 	esac
@@ -185,18 +185,37 @@ prepare_basic_config_params()
 	elif [ $BENCHMARK == "hashjoin" ]; then
 		BENCH_ARGS=$HASHJOIN_ARGS
 	elif [ $BENCHMARK == "gups" ]; then
-                BENCH_ARGS=$GUPS_ARGS
+		BENCH_ARGS=$GUPS_ARGS
 	fi
 
 	# Debug output
+	# Determine socket numbers (nodes 0-3 = socket 0, nodes 4-7 = socket 1)
+	PT_SOCKET=$((PT_NODE / 4))
+	CPU_SOCKET=$((CPU_NODE / 4))
+	DATA_SOCKET=$((DATA_NODE / 4))
+	INT_SOCKET=$((INT_NODE / 4))
+
+	# Determine locality
+	if [ $((PT_NODE / 4)) -eq $((CPU_NODE / 4)) ]; then
+		PT_LOCALITY="LOCAL"
+	else
+		PT_LOCALITY="REMOTE"
+	fi
+
+	if [ $((DATA_NODE / 4)) -eq $((CPU_NODE / 4)) ]; then
+		DATA_LOCALITY="LOCAL"
+	else
+		DATA_LOCALITY="REMOTE"
+	fi
+
 	echo "=========================================="
 	echo "Configuration: $CURR_CONFIG"
-	echo "  PT_NODE:   $PT_NODE (Socket $((PT_NODE < 4 ? 1 : 2)))"
-	echo "  CPU_NODE:  $CPU_NODE (Socket $((CPU_NODE < 4 ? 1 : 2)))"
-	echo "  DATA_NODE: $DATA_NODE (Socket $((DATA_NODE < 4 ? 1 : 2)))"
-	echo "  INT_NODE:  $INT_NODE (Socket $((INT_NODE < 4 ? 1 : 2)))"
-	echo "  PT is $([ $PT_NODE -lt 4 ] && [ $CPU_NODE -lt 4 ] || [ $PT_NODE -ge 4 ] && [ $CPU_NODE -ge 4 ] && echo 'LOCAL' || echo 'REMOTE') to CPU"
-	echo "  Data is $([ $DATA_NODE -lt 4 ] && [ $CPU_NODE -lt 4 ] || [ $DATA_NODE -ge 4 ] && [ $CPU_NODE -ge 4 ] && echo 'LOCAL' || echo 'REMOTE') to CPU"
+	echo "  PT_NODE:   $PT_NODE (Socket $PT_SOCKET)"
+	echo "  CPU_NODE:  $CPU_NODE (Socket $CPU_SOCKET)"
+	echo "  DATA_NODE: $DATA_NODE (Socket $DATA_SOCKET)"
+	echo "  INT_NODE:  $INT_NODE (Socket $INT_SOCKET)"
+	echo "  PT is $PT_LOCALITY to CPU"
+	echo "  Data is $DATA_LOCALITY to CPU"
 	echo "=========================================="
 }
 
@@ -230,8 +249,6 @@ prepare_all_pathnames()
                 DIR_SUFFIX=10
         fi
 	DATADIR=$ROOT"/evaluation/measured/figure$DIR_SUFFIX/$BENCHMARK"
-        thp=$(cat /sys/kernel/mm/transparent_hugepage/enabled)
-        thp=$(echo $thp | awk '{print $1}')
         RUNDIR=$DATADIR/$(hostname)-config-$BENCHMARK-$CONFIG-$(date +"%Y%m%d-%H%M%S")
 
 	mkdir -p $RUNDIR
@@ -243,23 +260,6 @@ prepare_all_pathnames()
 
 set_system_configs()
 {
-        CURR_CONFIG=$1
-        FIRST_CHAR=${CURR_CONFIG:0:1}
-        thp="never"
-        if [ $FIRST_CHAR == "T" ]; then
-                thp="always"
-        fi
-        echo $thp | sudo tee /sys/kernel/mm/transparent_hugepage/enabled > /dev/null
-        if [ $? -ne 0 ]; then
-                echo  "ERROR setting thp to: $thp"
-                exit
-        fi
-        echo $thp | sudo tee /sys/kernel/mm/transparent_hugepage/defrag > /dev/null
-        if [ $? -ne 0 ]; then
-                echo "ERROR setting thp to: $thp"
-                exit
-        fi
-
         echo $PT_NODE | sudo tee /proc/mitosis/mode > /dev/null
         if [ $? -ne 0 ]; then
                 echo "ERROR setting pgtable allocation to node: $PT_NODE"
@@ -308,21 +308,46 @@ launch_benchmark_config()
 	LAUNCH_CMD="$CMD_PREFIX $BENCHPATH $BENCH_ARGS"
 	echo "Launch command: $LAUNCH_CMD"
 	echo $LAUNCH_CMD >> $OUTFILE
-	$LAUNCH_CMD > /dev/null 2>&1 &
+
+	# Record total start time
+	TOTAL_START=$SECONDS
+
+	$LAUNCH_CMD &
 	BENCHMARK_PID=$!
 	echo -e "\e[0mWaiting for benchmark: $BENCHMARK_PID to be ready"
 	while [ ! -f /tmp/alloctest-bench.ready ]; do
 		sleep 0.1
 	done
-	SECONDS=0
+
+	# Record ready time and start measuring ready-to-done time
+	READY_TIME=$SECONDS
+	READY_TO_DONE_START=$SECONDS
+
 	launch_interference $CONFIG
 	echo -e "\e[0mWaiting for benchmark to be done"
 	while [ ! -f /tmp/alloctest-bench.done ]; do
 		sleep 0.1
 	done
-	DURATION=$SECONDS
+
+	# Record done time
+	DONE_TIME=$SECONDS
+	READY_TO_DONE_DURATION=$((DONE_TIME - READY_TO_DONE_START))
+
 	wait $BENCHMARK_PID 2>/dev/null
-	echo "Execution Time (seconds): $DURATION" >> $OUTFILE
+
+	# Record total end time
+	TOTAL_END=$SECONDS
+	TOTAL_DURATION=$((TOTAL_END - TOTAL_START))
+
+	echo ""
+	echo "=========================================="
+	echo "TIMING RESULTS:"
+	echo "  Total runtime (start to finish): $TOTAL_DURATION seconds"
+	echo "  Execution time (ready to done):  $READY_TO_DONE_DURATION seconds"
+	echo "=========================================="
+
+	echo "Total Runtime (seconds): $TOTAL_DURATION" >> $OUTFILE
+	echo "Execution Time (ready to done, seconds): $READY_TO_DONE_DURATION" >> $OUTFILE
 	echo "****success****" >> $OUTFILE
 	echo "$BENCHMARK : $CONFIG completed."
         echo ""
