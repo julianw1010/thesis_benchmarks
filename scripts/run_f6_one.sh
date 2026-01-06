@@ -11,23 +11,23 @@
 # MODIFIED FOR 8-NODE SYSTEM:
 #   Socket 0: nodes 0, 1, 2, 3
 #   Socket 1: nodes 4, 5, 6, 7
+#
+# MODIFIED TO CAPTURE MAX RSS using /usr/bin/time -v
 ###############################################################################
-
-#echo "************************************************************************"
-#echo "ASPLOS'20 - Artifact Evaluation - Mitosis - Figure 6, 10"
-#echo "************************************************************************"
 
 ROOT=$(dirname `readlink -f "$0"`)
 MAIN="$(dirname "$ROOT")"
-#source $ROOT/site_config.sh
 
-XSBENCH_ARGS=" -- -t 16 -g 18000 -p 1500000"
+XSBENCH_ARGS=" -- -t 16 -g 32000 -p 1500000 "
 LIBLINEAR_ARGS=" -- -s 6 -n 28 $MAIN/datasets/kdd12 "
 CANNEAL_ARGS=" -- 1 150000 2000 $MAIN/datasets/canneal_small 500 "
-HASHJOIN_ARGS=" -- -o 11500000 -i 1000000 -s 1000000 "
+HASHJOIN_ARGS=" -- -o 135000000 -i 1000000 -s 1000000 "
+
 GUPS_ARGS=" -- 16"
 BENCH_ARGS=""
 
+# GNU time binary (not shell builtin)
+GNU_TIME="/usr/bin/time"
 
 #***********************Script-Arguments***********************
 if [ $# -ne 2 ]; then
@@ -73,7 +73,6 @@ prepare_benchmark_name()
 		POSTFIX="_mt"
 	fi
 	PREFIX="bench_"
-        #POSTFIX="_toy"
 	BIN=$PREFIX
 	BIN+=$BENCHMARK
 	BIN+=$POSTFIX
@@ -87,95 +86,51 @@ prepare_basic_config_params()
 		CURR_CONFIG=${CURR_CONFIG:1}
 	fi
 
-	###########################################################################
-	# NODE ASSIGNMENT FOR 8-NODE SYSTEM
-	# Socket 0: nodes 0, 1, 2, 3
-	# Socket 1: nodes 4, 5, 6, 7
-	#
-	# We use node 0 to represent socket 0, node 4 to represent socket 1
-	#
-	# Configuration meanings (from paper Table 2, Figure 5):
-	#   LP = Local Page-table (PT on same socket as CPU)
-	#   RP = Remote Page-table (PT on different socket from CPU)
-	#   LD = Local Data (Data on same socket as CPU)
-	#   RD = Remote Data (Data on different socket from CPU)
-	#   I  = Interference (memory-intensive process on target resource's node)
-	#
-	# Workload Migration Scenario:
-	#   - Workload runs on CPU_NODE
-	#   - Page tables are allocated on PT_NODE
-	#   - Data is allocated on DATA_NODE
-	#   - Interference runs on INT_NODE (if applicable)
-	###########################################################################
-
-	# Page table node - always on socket 0 (node 0) as the "original" location
 	PT_NODE=0
 
-	# --- Setup CPU node ---
-	# "Local PT" configs (LP-*): CPU runs on same socket as PT (socket 0)
-	# "Remote PT" configs (RP-*): CPU runs on different socket from PT (socket 1)
 	if [ $CURR_CONFIG == "LPLD" ] || [ $CURR_CONFIG == "LPRD" ] || [ $CURR_CONFIG == "LPRDI" ]; then
-		CPU_NODE=0   # Socket 0 - same as PT_NODE, so PT is LOCAL
+		CPU_NODE=0
 	else
-		CPU_NODE=4   # Socket 1 - different from PT_NODE, so PT is REMOTE
+		CPU_NODE=4
 	fi
 
-	# --- Setup data node ---
-	# "*LD" configs: Data should be LOCAL to CPU (same socket as CPU)
-	# "*RD" configs: Data should be REMOTE from CPU (different socket from CPU)
 	case $CURR_CONFIG in
 		"LPLD")
-			# Local PT, Local Data: CPU=0(S0), PT=0(S0), Data=0(S0)
 			DATA_NODE=0
 			;;
 		"LPRD")
-			# Local PT, Remote Data: CPU=0(S0), PT=0(S0), Data=4(S1)
 			DATA_NODE=4
 			;;
 		"LPRDI")
-			# Local PT, Remote Data + Interference: CPU=0(S0), PT=0(S0), Data=4(S1)
 			DATA_NODE=4
 			;;
 		"RPLD")
-			# Remote PT, Local Data: CPU=4(S1), PT=0(S0), Data=4(S1)
 			DATA_NODE=4
 			;;
 		"RPILD")
-			# Remote PT + Interference, Local Data: CPU=4(S1), PT=0(S0), Data=4(S1)
 			DATA_NODE=4
 			;;
 		"RPRD")
-			# Remote PT, Remote Data: CPU=4(S1), PT=0(S0), Data=0(S0)
 			DATA_NODE=0
 			;;
 		"RPIRDI")
-			# Remote PT + Interference, Remote Data + Interference: CPU=4(S1), PT=0(S0), Data=0(S0)
 			DATA_NODE=0
 			;;
 	esac
 
-	# --- Setup interference node ---
-	# Interference should run on the same node as the resource being stressed
-	# LPRDI: Interfere with remote DATA (on socket 1)
-	# RPILD: Interfere with remote PT (on socket 0)
-	# RPIRDI: Interfere with both PT and DATA (both on socket 0)
-	INT_NODE=0  # Default, not used unless interference config
+	INT_NODE=0
 	case $CURR_CONFIG in
 		"LPRDI")
-			# Interfere on DATA node (socket 1, where data is remote from CPU)
 			INT_NODE=4
 			;;
 		"RPILD")
-			# Interfere on PT node (socket 0, where PT is remote from CPU)
 			INT_NODE=0
 			;;
 		"RPIRDI")
-			# Interfere on PT & DATA node (both on socket 0, remote from CPU)
 			INT_NODE=0
 			;;
 	esac
 
-	# --- Setup benchmark arguments ---
 	if [ $BENCHMARK == "xsbench" ]; then
 		BENCH_ARGS=$XSBENCH_ARGS
 	elif [ $BENCHMARK == "liblinear" ]; then
@@ -188,14 +143,11 @@ prepare_basic_config_params()
 		BENCH_ARGS=$GUPS_ARGS
 	fi
 
-	# Debug output
-	# Determine socket numbers (nodes 0-3 = socket 0, nodes 4-7 = socket 1)
 	PT_SOCKET=$((PT_NODE / 4))
 	CPU_SOCKET=$((CPU_NODE / 4))
 	DATA_SOCKET=$((DATA_NODE / 4))
 	INT_SOCKET=$((INT_NODE / 4))
 
-	# Determine locality
 	if [ $((PT_NODE / 4)) -eq $((CPU_NODE / 4)) ]; then
 		PT_LOCALITY="LOCAL"
 	else
@@ -231,7 +183,6 @@ prepare_all_pathnames()
             exit
         fi
         if [ ! -e $NUMACTL ]; then
-            # Try system numactl
             NUMACTL=$(which numactl)
             if [ ! -e $NUMACTL ]; then
                 echo "numactl is missing"
@@ -242,7 +193,11 @@ prepare_all_pathnames()
             echo "Interference binary is missing: $INT_BIN"
             exit
         fi
-        # where to put the output file (based on CONFIG)
+        if [ ! -e $GNU_TIME ]; then
+            echo "GNU time is missing at $GNU_TIME"
+            echo "Install with: sudo apt install time"
+            exit
+        fi
         DIR_SUFFIX=6
         FIRST_CHAR=${CONFIG:0:1}
         if [ $FIRST_CHAR == "T" ]; then
@@ -256,6 +211,8 @@ prepare_all_pathnames()
                 echo "Error creating output directory: $RUNDIR"
         fi
 	OUTFILE=$RUNDIR/log-$BENCHMARK-$(hostname)-$CONFIG.dat
+	TIME_FILE=$RUNDIR/time-$BENCHMARK-$(hostname)-$CONFIG.txt
+	BENCH_OUTPUT=$RUNDIR/output-$BENCHMARK-$(hostname)-$CONFIG.txt
 }
 
 set_system_configs()
@@ -288,7 +245,6 @@ prepare_datasets()
 {
 	SCRIPTS=$(readlink -f "`dirname $(readlink -f "$0")`")
         ROOT="$(dirname "$SCRIPTS")"
-	# --- only for canneal and liblinear
 	if [ $1 == "canneal" ]; then
 		$ROOT/datasets/prepare_canneal_datasets.sh small
 	elif [ $1 == "liblinear" ]; then
@@ -305,21 +261,27 @@ launch_benchmark_config()
 
         CMD_PREFIX=$NUMACTL
         CMD_PREFIX+=" -m $DATA_NODE -c $CPU_NODE "
-	LAUNCH_CMD="$CMD_PREFIX $BENCHPATH $BENCH_ARGS"
+	
+	# Wrap with GNU time -v, output to TIME_FILE
+	LAUNCH_CMD="$GNU_TIME -v -o $TIME_FILE $CMD_PREFIX $BENCHPATH $BENCH_ARGS"
+	
 	echo "Launch command: $LAUNCH_CMD"
+	echo "Time output file: $TIME_FILE"
+	echo "Benchmark output file: $BENCH_OUTPUT"
 	echo $LAUNCH_CMD >> $OUTFILE
 
 	# Record total start time
 	TOTAL_START=$SECONDS
 
-	$LAUNCH_CMD &
+	# Run benchmark, capture all output (stdout+stderr) to file AND screen
+	# Using 'script' for unbuffered real-time output to both terminal and file
+	script -q -f -c "$LAUNCH_CMD" $BENCH_OUTPUT &
 	BENCHMARK_PID=$!
 	echo -e "\e[0mWaiting for benchmark: $BENCHMARK_PID to be ready"
 	while [ ! -f /tmp/alloctest-bench.ready ]; do
 		sleep 0.1
 	done
 
-	# Record ready time and start measuring ready-to-done time
 	READY_TIME=$SECONDS
 	READY_TO_DONE_START=$SECONDS
 
@@ -329,28 +291,63 @@ launch_benchmark_config()
 		sleep 0.1
 	done
 
-	# Record done time
 	DONE_TIME=$SECONDS
 	READY_TO_DONE_DURATION=$((DONE_TIME - READY_TO_DONE_START))
 
 	wait $BENCHMARK_PID 2>/dev/null
 
-	# Record total end time
 	TOTAL_END=$SECONDS
 	TOTAL_DURATION=$((TOTAL_END - TOTAL_START))
+
+	# Parse max RSS from time output
+	MAX_RSS_KB=""
+	if [ -f $TIME_FILE ]; then
+		MAX_RSS_KB=$(grep "Maximum resident set size" $TIME_FILE | awk '{print $NF}')
+	fi
+
+	# Convert to human readable
+	if [ -n "$MAX_RSS_KB" ]; then
+		MAX_RSS_MB=$((MAX_RSS_KB / 1024))
+		MAX_RSS_GB=$(echo "scale=2; $MAX_RSS_KB / 1048576" | bc)
+		MAX_RSS_DISPLAY="$MAX_RSS_KB kB ($MAX_RSS_MB MB / $MAX_RSS_GB GB)"
+	else
+		MAX_RSS_DISPLAY="N/A"
+	fi
 
 	echo ""
 	echo "=========================================="
 	echo "TIMING RESULTS:"
 	echo "  Total runtime (start to finish): $TOTAL_DURATION seconds"
 	echo "  Execution time (ready to done):  $READY_TO_DONE_DURATION seconds"
+	echo "  Maximum Resident Set Size:       $MAX_RSS_DISPLAY"
 	echo "=========================================="
+	
+	# Print full time -v output to screen
+	echo ""
+	echo "========== /usr/bin/time -v output =========="
+	cat $TIME_FILE
+	echo "============================================="
 
+	# Save to log file
 	echo "Total Runtime (seconds): $TOTAL_DURATION" >> $OUTFILE
 	echo "Execution Time (ready to done, seconds): $READY_TO_DONE_DURATION" >> $OUTFILE
+	echo "Maximum Resident Set Size (kB): $MAX_RSS_KB" >> $OUTFILE
+	echo "Maximum Resident Set Size (MB): $MAX_RSS_MB" >> $OUTFILE
+	echo "" >> $OUTFILE
+	echo "===== TIME OUTPUT =====" >> $OUTFILE
+	cat $TIME_FILE >> $OUTFILE
+	echo "" >> $OUTFILE
+	echo "===== BENCHMARK OUTPUT =====" >> $OUTFILE
+	cat $BENCH_OUTPUT >> $OUTFILE
+	echo "" >> $OUTFILE
 	echo "****success****" >> $OUTFILE
 	echo "$BENCHMARK : $CONFIG completed."
-        echo ""
+	echo ""
+	echo "Output files saved to: $RUNDIR"
+	echo "  - Log file:       $(basename $OUTFILE)"
+	echo "  - Time stats:     $(basename $TIME_FILE)"
+	echo "  - Bench output:   $(basename $BENCH_OUTPUT)"
+	echo ""
 	killall bench_stream &>/dev/null
 }
 
