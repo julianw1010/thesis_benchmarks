@@ -59,14 +59,13 @@
 
 
 #ifdef _OPENMP
-///< the number of elements in the tree
-//#define NELEMENTS (8UL << 30)
-#define NELEMENTS (2000UL << 20)
+///< the number of elements in the tree (~200GB)
+#define NELEMENTS (3100UL << 20)
 ///< the number of lookups
 #define NLOOKUP 2000000000UL
 #else
 ///< the number of elements in the tree
-#define NELEMENTS (200UL << 20)  // ~20GB total
+#define NELEMENTS (200UL << 20)
 ///< the number of lookups
 #define NLOOKUP 20000000
 #endif
@@ -85,6 +84,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <sys/mman.h>
 #include <string.h>
 
 #ifdef _OPENMP
@@ -107,33 +107,31 @@
 
 size_t allocator_stat = 0;
 
-///> this allocates memory aligned to a large page size
+///> this allocates memory using mmap (no memset, lazy zero-fill)
 static inline void *allocate(size_t size)
 {
-	void *memptr;
-	if (posix_memalign(&memptr, ALIGNMET, size)) {
+	void *memptr = mmap(NULL, size, PROT_READ | PROT_WRITE,
+	                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
+	if (memptr == MAP_FAILED) {
 		printf("ENOMEM\n");
 		exit(1);
 	}
 
 	allocator_stat += size;
-
-	memset(memptr, 0, size);
+	// No memset - pages are zero-filled lazily by kernel on first access
 	return memptr;
 }
 
-///> this allocates cache-line sized memory
+///> this allocates cache-line sized memory (small allocations, memset is fine)
 static inline void *allocate_align64(size_t size)
 {
 	void *memptr;
-	//printf("allocating %zu kB memory\n", size >> 10);
 	if (posix_memalign(&memptr, 64, size)) {
 		printf("ENOMEM\n");
 		exit(1);
 	}
 
 	allocator_stat += size;
-
 	memset(memptr, 0, size);
 	return memptr;
 }
@@ -1555,14 +1553,22 @@ int real_main(int argc, char ** argv) {
 	struct element *elms = allocate((NELEMENTS / 2) * sizeof(struct element));
 	struct element *elms2 = allocate((NELEMENTS / 2) * sizeof(struct element));
 
-	//printf("Btree Fanout: %zu\n", order);
 	printf("Allocator: %zu MB\n", allocator_stat >> 20);
 
+	// Progress tracking for insertion phase
+	size_t progress_interval = NELEMENTS / 10;
+	
+	printf("Starting insertion phase...\n");
 	for (size_t i = 0; i < NELEMENTS; i += 2) {
-
 		root = insert(root, i, (uint64_t)&elms[i/2]);
 		root = insert(root, NELEMENTS - i - 1, (uint64_t)&elms2[i/2]);
+		
+		if (i % progress_interval == 0) {
+			printf("  Inserted %zu%% (%zuM elements)\n", 
+			       (i * 100) / NELEMENTS, i / 1000000);
+		}
 	}
+	printf("Insertion complete.\n");
 
 
 	fprintf(stderr, "signalling readyness to %s\n",
@@ -1583,7 +1589,7 @@ int real_main(int argc, char ** argv) {
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
 #ifdef _OPENMP
-#pragma omp parallel for
+#pragma omp parallel for reduction(+:sum)
 #endif
 	for (size_t i = 0; i < NLOOKUP; i++) {
 		size_t rdn = redisLrand48();
