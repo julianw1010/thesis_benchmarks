@@ -1,22 +1,5 @@
 #!/bin/bash
 
-###############################################################################
-# Script to run Figure 6 & 10 Evaluation of the paper
-# 
-# Paper: Mitosis - Mitosis: Transparently Self-Replicating Page-Tables 
-#                  for Large-Memory Machines
-# Authors: Reto Achermann, Jayneel Gandhi, Timothy Roscoe, 
-#          Abhishek Bhattacharjee, and Ashish Panwar
-#
-# MODIFIED FOR 8-NODE SYSTEM:
-#   Socket 0: nodes 0, 1, 2, 3
-#   Socket 1: nodes 4, 5, 6, 7
-#
-# MODIFIED TO USE NODE 7 INSTEAD OF NODE 4
-#
-# MODIFIED TO CAPTURE MAX RSS using /usr/bin/time -v
-###############################################################################
-
 ROOT=$(dirname `readlink -f "$0"`)
 MAIN="$(dirname "$ROOT")"
 

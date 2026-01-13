@@ -3721,7 +3721,7 @@ int redisIsSupervised(int mode) {
 
 #else
 #define KEY_MAX (1UL << 26)
-#define ITER_MAX (12000000UL)
+#define ITER_MAX (15000000UL)
 #endif
 
 
@@ -3977,6 +3977,9 @@ int real_main(int argc, char **argv) {
 
     usleep(250);
 
+    struct timeval bench_start, bench_end;
+    gettimeofday(&bench_start, NULL);
+
     redisSrand48(0xcafebabe);
 
     #ifdef _OPENMP
@@ -4045,6 +4048,18 @@ int real_main(int argc, char **argv) {
 
     pthread_join(reader_thread, NULL);
     #endif
+
+    gettimeofday(&bench_end, NULL);
+    double elapsed_sec = (bench_end.tv_sec - bench_start.tv_sec) + 
+                         (bench_end.tv_usec - bench_start.tv_usec) / 1000000.0;
+    fprintf(stderr, "Benchmark completed in %.3f seconds\n", elapsed_sec);
+
+    fprintf(stderr, "signalling done to %s\n", CONFIG_SHM_FILE_NAME ".done");
+    FILE *fd_done = fopen(CONFIG_SHM_FILE_NAME ".done", "w");
+    if (fd_done != NULL) {
+        fprintf(fd_done, "%.3f\n", elapsed_sec);
+        fclose(fd_done);
+    }
 
     #else
     aeSetBeforeSleepProc(server.el,beforeSleep);
