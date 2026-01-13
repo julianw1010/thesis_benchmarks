@@ -16,7 +16,7 @@
 #define NLOOKUP 2000000000UL
 #else
 #define NELEMENTS (200UL << 20)
-#define NLOOKUP 20000000
+#define NLOOKUP 20000000UL
 #endif
 
 #include <stdbool.h>
