@@ -18,7 +18,7 @@ stream_numa : stream.c
 	$(CC) $(CFLAGS) stream.c -o stream_numa -DSTREAM_ARRAY_SIZE=1342177280 -lnuma
 
 stream : stream.c
-	$(CC) $(CFLAGS) stream.c -o stream -D__RUN_FOREVER__ -DSTREAM_ARRAY_SIZE=1000000000
+	$(CC) $(CFLAGS) stream.c -o stream -D__RUN_FOREVER__ -DSTREAM_ARRAY_SIZE=100000000
 
 
 clean:
