@@ -267,6 +267,9 @@ format_memory_size() {
 run_benchmark() {
     cleanup
 
+    sync
+    echo 3 | sudo tee /proc/sys/vm/drop_caches
+
     local launch_cmd="$GNU_TIME -v -o $TIME_FILE $NUMACTL -m $DATA_NODE -c $CPU_NODE $BENCHPATH $BENCH_ARGS"
 
     echo "Launch command: $launch_cmd"
