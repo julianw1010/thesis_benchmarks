@@ -12,6 +12,8 @@
 #   Socket 0: nodes 0, 1, 2, 3
 #   Socket 1: nodes 4, 5, 6, 7
 #
+# MODIFIED TO USE NODE 7 INSTEAD OF NODE 4
+#
 # MODIFIED TO CAPTURE MAX RSS using /usr/bin/time -v
 ###############################################################################
 
@@ -91,7 +93,7 @@ prepare_basic_config_params()
 	if [ $CURR_CONFIG == "LPLD" ] || [ $CURR_CONFIG == "LPRD" ] || [ $CURR_CONFIG == "LPRDI" ]; then
 		CPU_NODE=0
 	else
-		CPU_NODE=4
+		CPU_NODE=7
 	fi
 
 	case $CURR_CONFIG in
@@ -99,16 +101,16 @@ prepare_basic_config_params()
 			DATA_NODE=0
 			;;
 		"LPRD")
-			DATA_NODE=4
+			DATA_NODE=7
 			;;
 		"LPRDI")
-			DATA_NODE=4
+			DATA_NODE=7
 			;;
 		"RPLD")
-			DATA_NODE=4
+			DATA_NODE=7
 			;;
 		"RPILD")
-			DATA_NODE=4
+			DATA_NODE=7
 			;;
 		"RPRD")
 			DATA_NODE=0
@@ -121,7 +123,7 @@ prepare_basic_config_params()
 	INT_NODE=0
 	case $CURR_CONFIG in
 		"LPRDI")
-			INT_NODE=4
+			INT_NODE=7
 			;;
 		"RPILD")
 			INT_NODE=0
@@ -175,7 +177,7 @@ prepare_all_pathnames()
 {
 	SCRIPTS=$(readlink -f "`dirname $(readlink -f "$0")`")
 	ROOT="$(dirname "$SCRIPTS")"
-	BENCHPATH=$ROOT"/bin/$BIN"
+	BENCHPATH=$ROOT"/bin/$BENCHMARK/$BIN"
 	INT_BIN=$ROOT"/bin/bench_stream"
 	NUMACTL="/usr/local/bin/numactl"
         if [ ! -e $BENCHPATH ]; then
