@@ -115,6 +115,8 @@ int real_main(int argc, char *argv[])
 
     usleep(250);
 
+    struct timespec t_start, t_end;
+
 #ifdef _OPENMP
     /* Multithreaded version */
     int nthreads;
@@ -124,6 +126,8 @@ int real_main(int argc, char *argv[])
         nthreads = omp_get_num_threads();
     }
     fprintf(opt_file_out, "<gups threads=\"%d\"></gups>\n", nthreads);
+
+    clock_gettime(CLOCK_MONOTONIC, &t_start);
 
     #pragma omp parallel
     {
@@ -151,9 +155,13 @@ int real_main(int argc, char *argv[])
             }
         }
     }
+
+    clock_gettime(CLOCK_MONOTONIC, &t_end);
 #else
     /* Single-threaded version */
     fprintf(opt_file_out, "<gups threads=\"1\"></gups>\n");
+
+    clock_gettime(CLOCK_MONOTONIC, &t_start);
 
     uint64_t *ran = calloc(128, sizeof(uint64_t));
     for (size_t j=0; j<128; j++) {
@@ -169,7 +177,15 @@ int real_main(int argc, char *argv[])
         }
     }
     free(ran);
+
+    clock_gettime(CLOCK_MONOTONIC, &t_end);
 #endif
+
+    double runtime = (t_end.tv_sec - t_start.tv_sec) + (t_end.tv_nsec - t_start.tv_nsec) / 1e9;
+    double gups = (double)NUPDATE / runtime / 1e9;
+    fprintf(opt_file_out, "<gups_runtime>%.3f</gups_runtime>\n", runtime);
+    fprintf(opt_file_out, "<gups_rate>%.6f GUPS</gups_rate>\n", gups);
+    fprintf(opt_file_out, "<gups_updates>%lu</gups_updates>\n", NUPDATE);
 
     return 0;
 }
