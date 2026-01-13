@@ -1,335 +1,385 @@
 #!/bin/bash
+#
+# run_f6_one.sh - Run a single benchmark with a specific NUMA configuration
+#
+# Usage: ./run_f6_one.sh <benchmark> <config>
+#
+# Benchmarks: gups, btree, hashjoin, redis, xsbench, pagerank, liblinear, canneal
+# Configs:    LPLD, LPRD, LPRDI, RPLD, RPILD, RPRD, RPIRDI (optionally prefixed with 'T')
+#
+# Configuration naming convention:
+#   L/R = Local/Remote CPU
+#   P   = Page table (always local to node 0)
+#   L/R = Local/Remote Data
+#   D   = Data
+#   I   = Interference (memory bandwidth contention)
 
-ROOT=$(dirname `readlink -f "$0"`)
-MAIN="$(dirname "$ROOT")"
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
 
-XSBENCH_ARGS=" -- -t 16 -g 32000 -p 500000 "
-LIBLINEAR_ARGS=" -- -s 6 -n 28 $MAIN/datasets/kdd12 "
-CANNEAL_ARGS=" -- 1 84000 2000 $MAIN/datasets/canneal_3gb_int 400 "
-HASHJOIN_ARGS=" -- -o 135000000 -i 1000000 -s 1000000 -n 3 "
-GUPS_ARGS=" -- 16"
+readonly ROOT=$(dirname "$(readlink -f "$0")")
+readonly MAIN=$(dirname "$ROOT")
+readonly GNU_TIME="/usr/bin/time"
+
+# Benchmark-specific arguments
+declare -A BENCH_ARGS_MAP=(
+    [xsbench]=" -- -t 16 -g 32000 -p 500000 "
+    [liblinear]=" -- -s 6 -n 28 $MAIN/datasets/kdd12 "
+    [canneal]=" -- 1 84000 2000 $MAIN/datasets/canneal_3gb_int 400 "
+    [hashjoin]=" -- -o 135000000 -i 1000000 -s 1000000 -n 3 "
+    [gups]=" -- 16"
+)
+
+# Single-threaded benchmarks (others are multi-threaded)
+readonly SINGLE_THREADED_BENCHMARKS="gups btree redis hashjoin xsbench canneal"
+
+# Valid benchmarks and configs for validation
+readonly VALID_BENCHMARKS="gups btree hashjoin redis xsbench pagerank liblinear canneal"
+readonly VALID_CONFIGS="LPLD LPRD LPRDI RPLD RPILD RPRD RPIRDI"
+
+# ==============================================================================
+# GLOBAL VARIABLES (set during initialization)
+# ==============================================================================
+
+BENCHMARK=""
+CONFIG=""
+CONFIG_BASE=""        # Config without optional 'T' prefix
+HAS_T_PREFIX=false
+
+# NUMA node assignments
+PT_NODE=0             # Page table node (always 0)
+CPU_NODE=0
+DATA_NODE=0
+INT_NODE=0
+
+# Derived values
 BENCH_ARGS=""
+BIN=""
+BENCHPATH=""
+INT_BIN=""
+NUMACTL=""
+DATADIR=""
+RUNDIR=""
+OUTFILE=""
+TIME_FILE=""
+BENCH_OUTPUT=""
 
-# GNU time binary (not shell builtin)
-GNU_TIME="/usr/bin/time"
+# ==============================================================================
+# UTILITY FUNCTIONS
+# ==============================================================================
 
-#***********************Script-Arguments***********************
-if [ $# -ne 2 ]; then
-	echo "Run as: $0 benchmark config"
-	exit
-fi
-
-BENCHMARK=$1
-CONFIG=$2
-
-validate_benchmark_config()
-{
-	CURR_BENCH=$1
-	CURR_CONFIG=$2
-        FIRST_CHAR=${CURR_CONFIG:0:1}
-        if [ $FIRST_CHAR == "T" ]; then
-                CURR_CONFIG=${CURR_CONFIG:1}
-        fi
-	if [ $CURR_BENCH == "gups" ] || [ $CURR_BENCH == "btree" ] || [ $CURR_BENCH == "hashjoin" ] ||
-		[ $CURR_BENCH == "redis" ] || [ $CURR_BENCH == "xsbench" ] || [ $CURR_BENCH == "pagerank" ] ||
-		[ $CURR_BENCH == "liblinear" ] || [ $CURR_BENCH == "canneal" ]; then
-		: #echo "Benchmark: $CURR_BENCH"
-	else
-		echo "Invalid benchmark: $CURR_BENCH"
-		exit
-	fi
-
-	if [ $CURR_CONFIG == "LPLD" ] || [ $CURR_CONFIG == "LPRD" ] || [ $CURR_CONFIG == "LPRDI" ] ||
-		[ $CURR_CONFIG == "RPLD" ] || [ $CURR_CONFIG == "RPILD" ] || [ $CURR_CONFIG == "RPRD" ] ||
-		[ $CURR_CONFIG == "RPIRDI" ]; then
-		: #echo "Config: $CURR_CONFIG"
-	else
-		echo "Invalid config: $CURR_CONFIG"
-		exit
-	fi
+die() {
+    echo "ERROR: $1" >&2
+    exit 1
 }
 
-prepare_benchmark_name()
-{
-	if [ $1 == "gups" ] || 	[ $1 == "btree" ] || [ $1 == "redis" ] || [ $1 == "hashjoin" ] || [ $1 == "xsbench" ]; then
-		POSTFIX="_st"
-	else
-		POSTFIX="_mt"
-	fi
-	PREFIX="bench_"
-	BIN=$PREFIX
-	BIN+=$BENCHMARK
-	BIN+=$POSTFIX
+is_in_list() {
+    local item="$1"
+    local list="$2"
+    [[ " $list " == *" $item "* ]]
 }
 
-prepare_basic_config_params()
-{
-	CURR_CONFIG=$1
-	FIRST_CHAR=${CURR_CONFIG:0:1}
-	if [ $FIRST_CHAR == "T" ]; then
-		CURR_CONFIG=${CURR_CONFIG:1}
-	fi
+# ==============================================================================
+# VALIDATION
+# ==============================================================================
 
-	PT_NODE=0
+validate_arguments() {
+    if [[ $# -ne 2 ]]; then
+        echo "Usage: $0 <benchmark> <config>"
+        exit 1
+    fi
 
-	if [ $CURR_CONFIG == "LPLD" ] || [ $CURR_CONFIG == "LPRD" ] || [ $CURR_CONFIG == "LPRDI" ]; then
-		CPU_NODE=0
-	else
-		CPU_NODE=7
-	fi
+    BENCHMARK="$1"
+    CONFIG="$2"
 
-	case $CURR_CONFIG in
-		"LPLD")
-			DATA_NODE=0
-			;;
-		"LPRD")
-			DATA_NODE=7
-			;;
-		"LPRDI")
-			DATA_NODE=7
-			;;
-		"RPLD")
-			DATA_NODE=7
-			;;
-		"RPILD")
-			DATA_NODE=7
-			;;
-		"RPRD")
-			DATA_NODE=0
-			;;
-		"RPIRDI")
-			DATA_NODE=0
-			;;
-	esac
+    # Strip optional 'T' prefix to get base config
+    if [[ "${CONFIG:0:1}" == "T" ]]; then
+        HAS_T_PREFIX=true
+        CONFIG_BASE="${CONFIG:1}"
+    else
+        HAS_T_PREFIX=false
+        CONFIG_BASE="$CONFIG"
+    fi
 
-	INT_NODE=0
-	case $CURR_CONFIG in
-		"LPRDI")
-			INT_NODE=7
-			;;
-		"RPILD")
-			INT_NODE=0
-			;;
-		"RPIRDI")
-			INT_NODE=0
-			;;
-	esac
+    # Validate benchmark
+    if ! is_in_list "$BENCHMARK" "$VALID_BENCHMARKS"; then
+        die "Invalid benchmark: $BENCHMARK (valid: $VALID_BENCHMARKS)"
+    fi
 
-	if [ $BENCHMARK == "xsbench" ]; then
-		BENCH_ARGS=$XSBENCH_ARGS
-	elif [ $BENCHMARK == "liblinear" ]; then
-		BENCH_ARGS=$LIBLINEAR_ARGS
-	elif [ $BENCHMARK == "canneal" ]; then
-		BENCH_ARGS=$CANNEAL_ARGS
-	elif [ $BENCHMARK == "hashjoin" ]; then
-		BENCH_ARGS=$HASHJOIN_ARGS
-	elif [ $BENCHMARK == "gups" ]; then
-		BENCH_ARGS=$GUPS_ARGS
-	fi
-
-	PT_SOCKET=$((PT_NODE / 4))
-	CPU_SOCKET=$((CPU_NODE / 4))
-	DATA_SOCKET=$((DATA_NODE / 4))
-	INT_SOCKET=$((INT_NODE / 4))
-
-	if [ $((PT_NODE / 4)) -eq $((CPU_NODE / 4)) ]; then
-		PT_LOCALITY="LOCAL"
-	else
-		PT_LOCALITY="REMOTE"
-	fi
-
-	if [ $((DATA_NODE / 4)) -eq $((CPU_NODE / 4)) ]; then
-		DATA_LOCALITY="LOCAL"
-	else
-		DATA_LOCALITY="REMOTE"
-	fi
-
-	echo "=========================================="
-	echo "Configuration: $CURR_CONFIG"
-	echo "  PT_NODE:   $PT_NODE (Socket $PT_SOCKET)"
-	echo "  CPU_NODE:  $CPU_NODE (Socket $CPU_SOCKET)"
-	echo "  DATA_NODE: $DATA_NODE (Socket $DATA_SOCKET)"
-	echo "  INT_NODE:  $INT_NODE (Socket $INT_SOCKET)"
-	echo "  PT is $PT_LOCALITY to CPU"
-	echo "  Data is $DATA_LOCALITY to CPU"
-	echo "=========================================="
+    # Validate config
+    if ! is_in_list "$CONFIG_BASE" "$VALID_CONFIGS"; then
+        die "Invalid config: $CONFIG (valid: $VALID_CONFIGS, optionally prefixed with 'T')"
+    fi
 }
 
-prepare_all_pathnames()
-{
-	SCRIPTS=$(readlink -f "`dirname $(readlink -f "$0")`")
-	ROOT="$(dirname "$SCRIPTS")"
-	BENCHPATH=$ROOT"/bin/$BENCHMARK/$BIN"
-	INT_BIN=$ROOT"/bin/stream/bench_stream"
-	NUMACTL="/usr/local/bin/numactl"
-        if [ ! -e $BENCHPATH ]; then
-            echo "Benchmark binary is missing: $BENCHPATH"
-            exit
-        fi
-        if [ ! -e $NUMACTL ]; then
-            NUMACTL=$(which numactl)
-            if [ ! -e $NUMACTL ]; then
-                echo "numactl is missing"
-                exit
-            fi
-        fi
-        if [ ! -e $INT_BIN ]; then
-            echo "Interference binary is missing: $INT_BIN"
-            exit
-        fi
-        if [ ! -e $GNU_TIME ]; then
-            echo "GNU time is missing at $GNU_TIME"
-            echo "Install with: sudo apt install time"
-            exit
-        fi
-        DIR_SUFFIX=6
-        FIRST_CHAR=${CONFIG:0:1}
-        if [ $FIRST_CHAR == "T" ]; then
-                DIR_SUFFIX=10
-        fi
-	DATADIR=$ROOT"/evaluation/measured/figure$DIR_SUFFIX/$BENCHMARK"
-        RUNDIR=$DATADIR/$(hostname)-config-$BENCHMARK-$CONFIG-$(date +"%Y%m%d-%H%M%S")
+validate_dependencies() {
+    [[ -e "$BENCHPATH" ]] || die "Benchmark binary missing: $BENCHPATH"
+    [[ -e "$INT_BIN" ]]   || die "Interference binary missing: $INT_BIN"
+    [[ -e "$GNU_TIME" ]]  || die "GNU time missing at $GNU_TIME (install with: sudo apt install time)"
 
-	mkdir -p $RUNDIR
-        if [ $? -ne 0 ]; then
-                echo "Error creating output directory: $RUNDIR"
-        fi
-	OUTFILE=$RUNDIR/log-$BENCHMARK-$(hostname)-$CONFIG.dat
-	TIME_FILE=$RUNDIR/time-$BENCHMARK-$(hostname)-$CONFIG.txt
-	BENCH_OUTPUT=$RUNDIR/output-$BENCHMARK-$(hostname)-$CONFIG.txt
+    # Find numactl
+    if [[ -e "/usr/local/bin/numactl" ]]; then
+        NUMACTL="/usr/local/bin/numactl"
+    else
+        NUMACTL=$(which numactl) || die "numactl not found"
+    fi
 }
 
-set_system_configs()
-{
-        echo $PT_NODE | sudo tee /proc/mitosis/mode > /dev/null
-        if [ $? -ne 0 ]; then
-                echo "ERROR setting pgtable allocation to node: $PT_NODE"
-                exit
-        fi
+# ==============================================================================
+# CONFIGURATION SETUP
+# ==============================================================================
+
+setup_numa_nodes() {
+    # Page table node is always 0
+    PT_NODE=0
+
+    # CPU node: Local (0) for LP* configs, Remote (7) for RP* configs
+    if [[ "$CONFIG_BASE" == LP* ]]; then
+        CPU_NODE=0
+    else
+        CPU_NODE=7
+    fi
+
+    # Data node assignment
+    case "$CONFIG_BASE" in
+        LPLD)   DATA_NODE=0 ;;
+        LPRD)   DATA_NODE=7 ;;
+        LPRDI)  DATA_NODE=7 ;;
+        RPLD)   DATA_NODE=7 ;;
+        RPILD)  DATA_NODE=7 ;;
+        RPRD)   DATA_NODE=0 ;;
+        RPIRDI) DATA_NODE=0 ;;
+    esac
+
+    # Interference node (only for configs with 'I' suffix)
+    INT_NODE=0
+    case "$CONFIG_BASE" in
+        LPRDI)  INT_NODE=7 ;;
+        RPILD)  INT_NODE=0 ;;
+        RPIRDI) INT_NODE=0 ;;
+    esac
 }
 
-launch_interference()
-{
-	CURR_CONFIG=$1
-	FIRST_CHAR=${CURR_CONFIG:0:1}
-	if [ $FIRST_CHAR == "T" ]; then
-		CURR_CONFIG=${CURR_CONFIG:1}
-	fi
-	if [ $CURR_CONFIG == "LPRDI" ] || [ $CURR_CONFIG == "RPILD" ] || [ $CURR_CONFIG == "RPIRDI" ]; then
-		echo "Launching interference on node $INT_NODE"
-		$NUMACTL -N $INT_NODE -m $INT_NODE $INT_BIN > /dev/null 2>&1 &
-		if [ $? -ne 0 ]; then
-			echo "Failure launching interference."
-			exit
-		fi
-	fi
+setup_benchmark_binary() {
+    # Determine binary suffix based on threading model
+    local suffix="_mt"
+    if is_in_list "$BENCHMARK" "$SINGLE_THREADED_BENCHMARKS"; then
+        suffix="_st"
+    fi
+
+    BIN="bench_${BENCHMARK}${suffix}"
 }
 
-launch_benchmark_config()
-{
-	# --- clean up exisiting state/processes
-	rm /tmp/alloctest-bench.ready &>/dev/null
-	rm /tmp/alloctest-bench.done &> /dev/null
-	killall bench_stream &>/dev/null
-
-        CMD_PREFIX=$NUMACTL
-        CMD_PREFIX+=" -m $DATA_NODE -c $CPU_NODE "
-	
-	# Wrap with GNU time -v, output to TIME_FILE
-	LAUNCH_CMD="$GNU_TIME -v -o $TIME_FILE $CMD_PREFIX $BENCHPATH $BENCH_ARGS"
-	
-	echo "Launch command: $LAUNCH_CMD"
-	echo "Time output file: $TIME_FILE"
-	echo "Benchmark output file: $BENCH_OUTPUT"
-	echo $LAUNCH_CMD >> $OUTFILE
-
-	# Record total start time
-	TOTAL_START=$SECONDS
-
-	# Run benchmark, capture all output (stdout+stderr) to file AND screen
-	# Using 'script' for unbuffered real-time output to both terminal and file
-	script -q -f -c "$LAUNCH_CMD" $BENCH_OUTPUT &
-	BENCHMARK_PID=$!
-	echo -e "\e[0mWaiting for benchmark: $BENCHMARK_PID to be ready"
-	while [ ! -f /tmp/alloctest-bench.ready ]; do
-		sleep 0.1
-	done
-
-	READY_TIME=$SECONDS
-	READY_TO_DONE_START=$SECONDS
-
-	launch_interference $CONFIG
-	echo -e "\e[0mWaiting for benchmark to be done"
-	while [ ! -f /tmp/alloctest-bench.done ]; do
-		sleep 0.1
-	done
-
-	DONE_TIME=$SECONDS
-	READY_TO_DONE_DURATION=$((DONE_TIME - READY_TO_DONE_START))
-
-	wait $BENCHMARK_PID 2>/dev/null
-
-	TOTAL_END=$SECONDS
-	TOTAL_DURATION=$((TOTAL_END - TOTAL_START))
-
-	# Parse max RSS from time output
-	MAX_RSS_KB=""
-	if [ -f $TIME_FILE ]; then
-		MAX_RSS_KB=$(grep "Maximum resident set size" $TIME_FILE | awk '{print $NF}')
-	fi
-
-	# Convert to human readable
-	if [ -n "$MAX_RSS_KB" ]; then
-		MAX_RSS_MB=$((MAX_RSS_KB / 1024))
-		MAX_RSS_GB=$(echo "scale=2; $MAX_RSS_KB / 1048576" | bc)
-		MAX_RSS_DISPLAY="$MAX_RSS_KB kB ($MAX_RSS_MB MB / $MAX_RSS_GB GB)"
-	else
-		MAX_RSS_DISPLAY="N/A"
-	fi
-
-	echo ""
-	echo "=========================================="
-	echo "TIMING RESULTS:"
-	echo "  Total runtime (start to finish): $TOTAL_DURATION seconds"
-	echo "  Execution time (ready to done):  $READY_TO_DONE_DURATION seconds"
-	echo "  Maximum Resident Set Size:       $MAX_RSS_DISPLAY"
-	echo "=========================================="
-	
-	# Print full time -v output to screen
-	echo ""
-	echo "========== /usr/bin/time -v output =========="
-	cat $TIME_FILE
-	echo "============================================="
-
-	# Save to log file
-	echo "Total Runtime (seconds): $TOTAL_DURATION" >> $OUTFILE
-	echo "Execution Time (ready to done, seconds): $READY_TO_DONE_DURATION" >> $OUTFILE
-	echo "Maximum Resident Set Size (kB): $MAX_RSS_KB" >> $OUTFILE
-	echo "Maximum Resident Set Size (MB): $MAX_RSS_MB" >> $OUTFILE
-	echo "" >> $OUTFILE
-	echo "===== TIME OUTPUT =====" >> $OUTFILE
-	cat $TIME_FILE >> $OUTFILE
-	echo "" >> $OUTFILE
-	echo "===== BENCHMARK OUTPUT =====" >> $OUTFILE
-	cat $BENCH_OUTPUT >> $OUTFILE
-	echo "" >> $OUTFILE
-	echo "****success****" >> $OUTFILE
-	echo "$BENCHMARK : $CONFIG completed."
-	echo ""
-	echo "Output files saved to: $RUNDIR"
-	echo "  - Log file:       $(basename $OUTFILE)"
-	echo "  - Time stats:     $(basename $TIME_FILE)"
-	echo "  - Bench output:   $(basename $BENCH_OUTPUT)"
-	echo ""
-	killall bench_stream &>/dev/null
+setup_benchmark_args() {
+    BENCH_ARGS="${BENCH_ARGS_MAP[$BENCHMARK]:-}"
 }
 
-# --- prepare setup
-validate_benchmark_config $BENCHMARK $CONFIG
-prepare_benchmark_name $BENCHMARK
-prepare_basic_config_params $CONFIG
-prepare_all_pathnames
-set_system_configs $CONFIG
+setup_paths() {
+    local scripts_dir
+    scripts_dir=$(readlink -f "$(dirname "$(readlink -f "$0")")")
+    local root_dir
+    root_dir=$(dirname "$scripts_dir")
 
-# --- finally, launch the job
-launch_benchmark_config
+    BENCHPATH="$root_dir/bin/$BENCHMARK/$BIN"
+    INT_BIN="$root_dir/bin/stream/bench_stream"
+
+    # Output directory: figure6 normally, figure10 with 'T' prefix
+    local dir_suffix=6
+    if $HAS_T_PREFIX; then
+        dir_suffix=10
+    fi
+
+    DATADIR="$root_dir/evaluation/measured/figure$dir_suffix/$BENCHMARK"
+    RUNDIR="$DATADIR/$(hostname)-config-$BENCHMARK-$CONFIG-$(date +"%Y%m%d-%H%M%S")"
+
+    mkdir -p "$RUNDIR" || die "Failed to create output directory: $RUNDIR"
+
+    OUTFILE="$RUNDIR/log-$BENCHMARK-$(hostname)-$CONFIG.dat"
+    TIME_FILE="$RUNDIR/time-$BENCHMARK-$(hostname)-$CONFIG.txt"
+    BENCH_OUTPUT="$RUNDIR/output-$BENCHMARK-$(hostname)-$CONFIG.txt"
+}
+
+print_configuration() {
+    local pt_socket=$((PT_NODE / 4))
+    local cpu_socket=$((CPU_NODE / 4))
+    local data_socket=$((DATA_NODE / 4))
+    local int_socket=$((INT_NODE / 4))
+
+    local pt_locality="REMOTE"
+    local data_locality="REMOTE"
+    [[ $((PT_NODE / 4)) -eq $((CPU_NODE / 4)) ]] && pt_locality="LOCAL"
+    [[ $((DATA_NODE / 4)) -eq $((CPU_NODE / 4)) ]] && data_locality="LOCAL"
+
+    echo "=========================================="
+    echo "Configuration: $CONFIG_BASE"
+    echo "  PT_NODE:   $PT_NODE (Socket $pt_socket)"
+    echo "  CPU_NODE:  $CPU_NODE (Socket $cpu_socket)"
+    echo "  DATA_NODE: $DATA_NODE (Socket $data_socket)"
+    echo "  INT_NODE:  $INT_NODE (Socket $int_socket)"
+    echo "  PT is $pt_locality to CPU"
+    echo "  Data is $data_locality to CPU"
+    echo "=========================================="
+}
+
+# ==============================================================================
+# SYSTEM CONFIGURATION
+# ==============================================================================
+
+configure_system() {
+    echo "$PT_NODE" | sudo tee /proc/mitosis/mode > /dev/null \
+        || die "Failed to set page table allocation to node: $PT_NODE"
+}
+
+# ==============================================================================
+# BENCHMARK EXECUTION
+# ==============================================================================
+
+uses_interference() {
+    [[ "$CONFIG_BASE" == "LPRDI" || "$CONFIG_BASE" == "RPILD" || "$CONFIG_BASE" == "RPIRDI" ]]
+}
+
+launch_interference() {
+    if uses_interference; then
+        echo "Launching interference on node $INT_NODE"
+        $NUMACTL -N "$INT_NODE" -m "$INT_NODE" "$INT_BIN" > /dev/null 2>&1 &
+        [[ $? -eq 0 ]] || die "Failed to launch interference"
+    fi
+}
+
+cleanup() {
+    rm -f /tmp/alloctest-bench.ready /tmp/alloctest-bench.done
+    killall bench_stream &>/dev/null || true
+}
+
+format_memory_size() {
+    local kb="$1"
+    if [[ -n "$kb" ]]; then
+        local mb=$((kb / 1024))
+        local gb
+        gb=$(echo "scale=2; $kb / 1048576" | bc)
+        echo "$kb kB ($mb MB / $gb GB)"
+    else
+        echo "N/A"
+    fi
+}
+
+run_benchmark() {
+    cleanup
+
+    local launch_cmd="$GNU_TIME -v -o $TIME_FILE $NUMACTL -m $DATA_NODE -c $CPU_NODE $BENCHPATH $BENCH_ARGS"
+
+    echo "Launch command: $launch_cmd"
+    echo "Time output file: $TIME_FILE"
+    echo "Benchmark output file: $BENCH_OUTPUT"
+    echo "$launch_cmd" >> "$OUTFILE"
+
+    # Start benchmark
+    local total_start=$SECONDS
+    script -q -f -c "$launch_cmd" "$BENCH_OUTPUT" &
+    local benchmark_pid=$!
+
+    # Wait for benchmark to be ready
+    echo -e "\e[0mWaiting for benchmark: $benchmark_pid to be ready"
+    while [[ ! -f /tmp/alloctest-bench.ready ]]; do
+        sleep 0.1
+    done
+    local ready_to_done_start=$SECONDS
+
+    # Launch interference (if applicable)
+    launch_interference
+
+    # Wait for benchmark to complete
+    echo -e "\e[0mWaiting for benchmark to be done"
+    while [[ ! -f /tmp/alloctest-bench.done ]]; do
+        sleep 0.1
+    done
+    local done_time=$SECONDS
+
+    wait "$benchmark_pid" 2>/dev/null || true
+
+    # Calculate timings
+    local total_duration=$((SECONDS - total_start))
+    local ready_to_done_duration=$((done_time - ready_to_done_start))
+
+    # Parse memory usage from time output
+    local max_rss_kb=""
+    if [[ -f "$TIME_FILE" ]]; then
+        max_rss_kb=$(grep "Maximum resident set size" "$TIME_FILE" | awk '{print $NF}')
+    fi
+
+    print_results "$total_duration" "$ready_to_done_duration" "$max_rss_kb"
+    save_results "$total_duration" "$ready_to_done_duration" "$max_rss_kb"
+
+    cleanup
+}
+
+print_results() {
+    local total_duration="$1"
+    local exec_duration="$2"
+    local max_rss_kb="$3"
+
+    echo ""
+    echo "=========================================="
+    echo "TIMING RESULTS:"
+    echo "  Total runtime (start to finish): $total_duration seconds"
+    echo "  Execution time (ready to done):  $exec_duration seconds"
+    echo "  Maximum Resident Set Size:       $(format_memory_size "$max_rss_kb")"
+    echo "=========================================="
+    echo ""
+    echo "========== /usr/bin/time -v output =========="
+    cat "$TIME_FILE"
+    echo "============================================="
+}
+
+save_results() {
+    local total_duration="$1"
+    local exec_duration="$2"
+    local max_rss_kb="$3"
+    local max_rss_mb=$((max_rss_kb / 1024))
+
+    {
+        echo "Total Runtime (seconds): $total_duration"
+        echo "Execution Time (ready to done, seconds): $exec_duration"
+        echo "Maximum Resident Set Size (kB): $max_rss_kb"
+        echo "Maximum Resident Set Size (MB): $max_rss_mb"
+        echo ""
+        echo "===== TIME OUTPUT ====="
+        cat "$TIME_FILE"
+        echo ""
+        echo "===== BENCHMARK OUTPUT ====="
+        cat "$BENCH_OUTPUT"
+        echo ""
+        echo "****success****"
+    } >> "$OUTFILE"
+
+    echo "$BENCHMARK : $CONFIG completed."
+    echo ""
+    echo "Output files saved to: $RUNDIR"
+    echo "  - Log file:       $(basename "$OUTFILE")"
+    echo "  - Time stats:     $(basename "$TIME_FILE")"
+    echo "  - Bench output:   $(basename "$BENCH_OUTPUT")"
+    echo ""
+}
+
+# ==============================================================================
+# MAIN
+# ==============================================================================
+
+main() {
+    validate_arguments "$@"
+
+    setup_benchmark_binary
+    setup_benchmark_args
+    setup_numa_nodes
+    setup_paths
+
+    validate_dependencies
+
+    print_configuration
+    configure_system
+
+    run_benchmark
+}
+
+main "$@"
