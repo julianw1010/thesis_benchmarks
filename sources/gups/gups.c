@@ -17,16 +17,10 @@
 
 extern FILE *opt_file_out;
 
-/*
- * ============================================================================
- * HPCC RandomAccess
- * ============================================================================
- */
-
 #ifdef _OPENMP
 #define NUPDATE (1UL << 34)
 #else
-#define NUPDATE (1UL << 30)
+#define NUPDATE (1UL << 29)
 #endif
 
 #define POLY 0x0000000000000007UL
@@ -99,7 +93,6 @@ int real_main(int argc, char *argv[])
     size_t TableSize = mem / sizeof(uint64_t);
     fprintf(opt_file_out, "<gups table=\"%p\" tablesize=\"%zu\"></gups>\n", Table, TableSize);
 
-    /* Initialize main table */
 #ifdef _OPENMP
     #pragma omp parallel for
 #endif
@@ -118,7 +111,6 @@ int real_main(int argc, char *argv[])
     struct timespec t_start, t_end;
 
 #ifdef _OPENMP
-    /* Multithreaded version */
     int nthreads;
     #pragma omp parallel
     {
@@ -134,11 +126,9 @@ int real_main(int argc, char *argv[])
         int tid = omp_get_thread_num();
         int nth = omp_get_num_threads();
 
-        /* Each thread gets its own chunk of updates */
         uint64_t updates_per_thread = NUPDATE / nth;
         uint64_t start_update = tid * updates_per_thread;
 
-        /* Each thread has its own random number stream */
         uint64_t ran[128];
         for (size_t j = 0; j < 128; j++) {
             ran[j] = HPCC_starts(start_update + (updates_per_thread / 128) * j);
@@ -158,7 +148,6 @@ int real_main(int argc, char *argv[])
 
     clock_gettime(CLOCK_MONOTONIC, &t_end);
 #else
-    /* Single-threaded version */
     fprintf(opt_file_out, "<gups threads=\"1\"></gups>\n");
 
     clock_gettime(CLOCK_MONOTONIC, &t_start);
