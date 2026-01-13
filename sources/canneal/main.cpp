@@ -101,7 +101,7 @@ static int ___main (int argc, char * argv[]) {
         }
 
 	//now that we've read in the commandline, run the program
-	auto start_time = std::chrono::high_resolution_clock::now();
+	auto total_start = std::chrono::high_resolution_clock::now();
 	netlist my_netlist(filename);
         #define CONFIG_SHM_FILE_NAME "/tmp/alloctest-bench"
         FILE *fd2 = fopen(CONFIG_SHM_FILE_NAME ".ready", "w");
@@ -114,6 +114,8 @@ static int ___main (int argc, char * argv[]) {
 #ifdef ENABLE_PARSEC_HOOKS
 	__parsec_roi_begin();
 #endif
+
+	auto anneal_start = std::chrono::high_resolution_clock::now();
 #ifdef ENABLE_THREADS
 	std::vector<pthread_t> threads(num_threads);
 	void* thread_in = static_cast<void*>(&a_thread);
@@ -126,6 +128,8 @@ static int ___main (int argc, char * argv[]) {
 #else
 	a_thread.Run();
 #endif
+	auto anneal_end = std::chrono::high_resolution_clock::now();
+
 #ifdef ENABLE_PARSEC_HOOKS
 	__parsec_roi_end();
 #endif
@@ -136,9 +140,11 @@ static int ___main (int argc, char * argv[]) {
         }
 	cout << "Final routing is: " << my_netlist.total_routing_cost() << endl;
 
-	auto end_time = std::chrono::high_resolution_clock::now();  // ADD THIS
-	std::chrono::duration<double> elapsed = end_time - start_time;
-	cout << "Took: " << elapsed.count() << " seconds" << endl;
+	auto total_end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> anneal_time = anneal_end - anneal_start;
+	std::chrono::duration<double> total_time = total_end - total_start;
+	cout << "Annealing took: " << anneal_time.count() << " seconds" << endl;
+	cout << "Total took: " << total_time.count() << " seconds" << endl;
 
 #ifdef ENABLE_PARSEC_HOOKS
 	__parsec_bench_end();
