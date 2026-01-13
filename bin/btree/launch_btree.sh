@@ -1,1 +1,1 @@
-/usr/bin/tim --verbose -- numactl -P ./bench_btree_mt
+/usr/bin/time --verbose -- numactl -P ./bench_btree_mt
