@@ -22,7 +22,7 @@ MAIN="$(dirname "$ROOT")"
 
 XSBENCH_ARGS=" -- -t 16 -g 32000 -p 1500000 "
 LIBLINEAR_ARGS=" -- -s 6 -n 28 $MAIN/datasets/kdd12 "
-CANNEAL_ARGS=" -- 1 150000 2000 $MAIN/datasets/canneal_small 500 "
+CANNEAL_ARGS=" -- 1 50000 2000 $MAIN/datasets/canneal_3gb_int 400 "
 HASHJOIN_ARGS=" -- -o 135000000 -i 1000000 -s 1000000 "
 
 GUPS_ARGS=" -- 16"
