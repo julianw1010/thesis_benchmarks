@@ -81,8 +81,8 @@ canneal/libcannealmt.a :
 
 
 bin/bench_canneal_mt : canneal/libcannealmt.a  $(COMMON_MAIN_M)
-	$(CXX) $(INCLUDES) -DDISABLE_SIGNAL_IN_MAIN $(CFLAGS) $(COMMON_MAIN_M) \
-		canneal/libcannealmt.a  -o $@  $(COMMON_LIBS) 
+	$(CXX) $(INCLUDES) -DDISABLE_SIGNAL_IN_MAIN $(CFLAGS) -fopenmp $(COMMON_MAIN_M) \
+		canneal/libcannealmt.a  -o $@  $(COMMON_LIBS) -lgomp
 
 bin/bench_canneal_st : canneal/libcanneal.a  $(COMMON_MAIN_S) 
 	$(CXX) $(INCLUDES) -DDISABLE_SIGNAL_IN_MAIN $(CFLAGS) $(COMMON_MAIN_S) \

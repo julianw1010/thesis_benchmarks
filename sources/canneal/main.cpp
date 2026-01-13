@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
+#include <chrono>
 
 #ifdef ENABLE_THREADS
 #include <pthread.h>
@@ -100,6 +101,7 @@ static int ___main (int argc, char * argv[]) {
         }
 
 	//now that we've read in the commandline, run the program
+	auto start_time = std::chrono::high_resolution_clock::now();
 	netlist my_netlist(filename);
         #define CONFIG_SHM_FILE_NAME "/tmp/alloctest-bench"
         FILE *fd2 = fopen(CONFIG_SHM_FILE_NAME ".ready", "w");
@@ -134,10 +136,15 @@ static int ___main (int argc, char * argv[]) {
         }
 	cout << "Final routing is: " << my_netlist.total_routing_cost() << endl;
 
+	auto end_time = std::chrono::high_resolution_clock::now();  // ADD THIS
+	std::chrono::duration<double> elapsed = end_time - start_time;
+	cout << "Took: " << elapsed.count() << " seconds" << endl;
+
 #ifdef ENABLE_PARSEC_HOOKS
 	__parsec_bench_end();
 #endif
 
+	_exit(0);  // Skip slow destructors
 	return 0;
 }
 
@@ -160,4 +167,5 @@ void* entry_pt(void* data)
 {
 	annealer_thread* ptr = static_cast<annealer_thread*>(data);
 	ptr->Run();
+	return NULL;
 }
