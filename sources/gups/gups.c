@@ -20,7 +20,7 @@ extern FILE *opt_file_out;
 #ifdef _OPENMP
 #define NUPDATE (1UL << 34)
 #else
-#define NUPDATE (1UL << 29)
+#define NUPDATE (3UL << 29)
 #endif
 
 #define POLY 0x0000000000000007UL
