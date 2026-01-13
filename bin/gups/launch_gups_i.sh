@@ -1,1 +1,1 @@
-numactl -P -i all ./bench_gups_mt -- 128
+numactl -P -i all /usr/bin/time --verbose -- ./bench_gups_mt -- 128
