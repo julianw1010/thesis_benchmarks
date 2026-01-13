@@ -17,15 +17,9 @@ ROOT=$(dirname `readlink -f "$0"`)
 #source $ROOT/site_config.sh
 
 # List of all benchmarks to run
-BENCHMARKS="gups btree hashjoin redis xsbench pagerank liblinear canneal"
-# List of all configs to run
-CONFIGS="LPLD RPILD RPILDM"
+BENCHMARKS="gups btree hashjoin redis xsbench canneal"
 
 for bench in $BENCHMARKS; do
-	for config in $CONFIGS; do
-		echo "******************$bench : $config***********************"
-		bash $ROOT/run_f6f10_one.sh $bench $config
-	done
+	echo "******************$bench : $config***********************"
+	bash $ROOT/run_f10_one.sh $bench
 done
-# --- process the output logs
-$ROOT/process_logs_core.py --quiet
