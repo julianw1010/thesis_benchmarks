@@ -1,4 +1,0 @@
-/usr/local/bin/numactl -m 0 -c 4 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/bench_redis_st
-Total Runtime (seconds): 238
-Execution Time (ready to done, seconds): 66
-****success****
