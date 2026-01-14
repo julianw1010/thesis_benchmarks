@@ -22,7 +22,7 @@ pushd $ROOT/precompiled > /dev/null
 
 if [[ ! -f artifactfiles.list ]]; then
     echo "> Downloading artifact list using zenodo_get"
-    zenodo_get.py -w artifactfiles.list $ZENODO_DOI
+    zenodo_get -w artifactfiles.list $ZENODO_DOI
 else
     echo "> Reusing artifact list"
 fi
