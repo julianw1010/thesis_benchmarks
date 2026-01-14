@@ -37,11 +37,12 @@ declare -A BENCH_ARGS_MAP=(
     [canneal]=" -- 1 84000 2000 $MAIN/datasets/canneal_3gb_int 400 "
     [hashjoin]=" -- -o 135000000 -i 1000000 -s 1000000 -n 3 "
     [gups]=" -- 16"
+    [pr]=" -f $MAIN/datasets/kron27.sg -n 1"
 )
 
 # Single-threaded benchmarks
-readonly SINGLE_THREADED_BENCHMARKS="gups btree redis hashjoin xsbench canneal liblinear"
-readonly VALID_BENCHMARKS="gups btree hashjoin redis xsbench pagerank liblinear canneal"
+readonly SINGLE_THREADED_BENCHMARKS="gups btree redis hashjoin xsbench canneal liblinear pr"
+readonly VALID_BENCHMARKS="gups btree hashjoin redis xsbench pr liblinear canneal"
 
 # ==============================================================================
 # GLOBAL VARIABLES
