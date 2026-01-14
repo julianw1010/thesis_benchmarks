@@ -40,7 +40,7 @@ declare -A BENCH_ARGS_MAP=(
 )
 
 # Single-threaded benchmarks
-readonly SINGLE_THREADED_BENCHMARKS="gups btree redis hashjoin xsbench canneal"
+readonly SINGLE_THREADED_BENCHMARKS="gups btree redis hashjoin xsbench canneal liblinear"
 readonly VALID_BENCHMARKS="gups btree hashjoin redis xsbench pagerank liblinear canneal"
 
 # ==============================================================================
