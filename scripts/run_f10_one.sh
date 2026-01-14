@@ -33,7 +33,7 @@ readonly INT_NODE=0
 # Benchmark-specific arguments
 declare -A BENCH_ARGS_MAP=(
     [xsbench]=" -- -t 16 -g 32000 -p 500000 "
-    [liblinear]=" -- -s 6 -n 28 $MAIN/datasets/kdd12 "
+    [liblinear]=" -s 6 -n 28 $MAIN/datasets/kdd12_5gb "
     [canneal]=" -- 1 84000 2000 $MAIN/datasets/canneal_3gb_int 400 "
     [hashjoin]=" -- -o 135000000 -i 1000000 -s 1000000 -n 3 "
     [gups]=" -- 16"
