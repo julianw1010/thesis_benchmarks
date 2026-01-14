@@ -185,23 +185,21 @@ clean-hashjoin :
 	+$(MAKE) -C hashjoin clean
 	rm bin/bench_hashjoin*
 
-
 ###############################################################################
 # LibLinear
 ###############################################################################
 
-liblinear/liblinear.a :
-	+$(MAKE) -C liblinear liblinear.a
+liblinear/train :
+	+$(MAKE) -C liblinear train
 
-bin/bench_liblinear_mt : liblinear/liblinear.a 
-	$(CXX) $(INCLUDES) -DDISABLE_SIGNAL_IN_MAIN $(CFLAGS) -fopenmp \
-		$(COMMON_MAIN_M) liblinear/liblinear.a  -o $@  $(COMMON_LIBS)	
+bin/bench_liblinear_st : liblinear/train
+	cp liblinear/train $@
 
-liblinear : bin/bench_liblinear_mt 
+liblinear : bin/bench_liblinear_st
 
 clean-liblinear :
 	+$(MAKE) -C liblinear clean
-	rm bin/bench_liblinear*
+	rm -f bin/bench_liblinear*
 
 ###############################################################################
 # PageRank
