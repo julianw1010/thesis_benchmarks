@@ -29,13 +29,14 @@ declare -A BENCH_ARGS_MAP=(
     [canneal]=" -- 1 84000 2000 $MAIN/datasets/canneal_3gb_int 400 "
     [hashjoin]=" -- -o 135000000 -i 1000000 -s 1000000 -n 3 "
     [gups]=" -- 16"
+    [pr]=" -f $MAIN/datasets/kron26.sg"
 )
 
 # Single-threaded benchmarks (others are multi-threaded)
-readonly SINGLE_THREADED_BENCHMARKS="gups btree redis hashjoin xsbench canneal liblinear"
+readonly SINGLE_THREADED_BENCHMARKS="gups btree redis hashjoin xsbench canneal liblinear pr"
 
 # Valid benchmarks and configs for validation
-readonly VALID_BENCHMARKS="gups btree hashjoin redis xsbench pagerank liblinear canneal"
+readonly VALID_BENCHMARKS="gups btree hashjoin redis xsbench pagerank liblinear canneal pr"
 readonly VALID_CONFIGS="LPLD LPRD LPRDI RPLD RPILD RPRD RPIRDI"
 
 # ==============================================================================
