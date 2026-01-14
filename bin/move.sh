@@ -6,3 +6,4 @@ mv bench_redis_* redis
 mv bench_xsbench_* xsbench
 mv bench_graph500_* graph500
 mv bench_stream stream
+mv bench_liblinear_* liblinear

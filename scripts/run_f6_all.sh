@@ -17,7 +17,7 @@ ROOT=$(dirname `readlink -f "$0"`)
 #source $ROOT/site_config.sh
 
 # List of all benchmarks to run
-BENCHMARKS="canneal gups xsbench btree hashjoin redis"
+BENCHMARKS="pagerank"
 # List of all configs to run
 CONFIGS="LPLD LPRD RPLD RPRD LPRDI RPILD RPIRDI"
 
