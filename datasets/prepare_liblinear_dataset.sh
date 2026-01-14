@@ -21,3 +21,5 @@ if [ ! -e $ROOT/kdd12 ]; then
 else
 	echo "Dataset found. Reusing the existing one."
 fi
+
+head -c 5G kdd12 | head -n -1 > kdd12_5gb
