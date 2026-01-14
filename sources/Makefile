@@ -7,10 +7,10 @@
 #          K. Gopinath and Jayneel Gandhi
 #################################################################################
 
-all: btree canneal graph500 gups xsbench redis stream hashjoin liblinear
+all: btree canneal gups xsbench redis stream hashjoin liblinear pr
 
-clean-all: clean-btree clean-canneal clean-graph500 clean-gups clean-xsbench \
-	clean-redis clean-hashjoin
+clean-all: clean-btree clean-canneal clean-gups clean-xsbench \
+	clean-redis clean-stream clean-hashjoin clean-liblinear clean-pr
 
 
 ###############################################################################
@@ -94,36 +94,21 @@ clean-canneal :
 	+$(MAKE) -C canneal clean
 	rm bin/bench_canneal*
 
-
 ###############################################################################
-# Graph500
+# PR (GAPBS PageRank standalone)
 ###############################################################################
 
+gapbs/pr :
+	+$(MAKE) -C gapbs pr
 
-graph500/seq-list/seq-list.a:
-	+$(MAKE) -C graph500 seq-list/seq-list.a
+bin/bench_pr_st : gapbs/pr
+	cp gapbs/pr $@
 
-graph500/omp-csr/omp-csr.a:
-	+$(MAKE) -C graph500 omp-csr/omp-csr.a
+pr : bin/bench_pr_st
 
-graph500/seq-csr/seq-csr.a:
-	+$(MAKE) -C graph500 seq-csr/seq-csr.a
-
-
-bin/bench_graph500_st : graph500/seq-csr/seq-csr.a $(COMMON_MAIN_S)
-	$(CC) $(INCLUDES) -DDISABLE_SIGNAL_IN_MAIN $(CFLAGS) $(COMMON_MAIN_S) \
-		graph500/seq-csr/seq-csr.a -o $@  $(COMMON_LIBS) 
-
-bin/bench_graph500_mt  : graph500/omp-csr/omp-csr.a $(COMMON_MAIN_M) 
-	$(CC) $(INCLUDES) -DDISABLE_SIGNAL_IN_MAIN $(CFLAGS) $(COMMON_MAIN_M) \
-		graph500/omp-csr/omp-csr.a -fopenmp -o $@  $(COMMON_LIBS) 		
-
-graph500 : bin/bench_graph500_mt bin/bench_graph500_st
-
-clean-graph500 :
-	+$(MAKE) -C graph500 clean
-	rm bin/bench_graph500*
-
+clean-pr :
+	+$(MAKE) -C gapbs clean
+	rm -f bin/bench_pr*
 
 ###############################################################################
 # Gups
