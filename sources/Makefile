@@ -7,7 +7,7 @@
 #          K. Gopinath and Jayneel Gandhi
 #################################################################################
 
-all: btree canneal graph500 gups xsbench redis stream hashjoin
+all: btree canneal graph500 gups xsbench redis stream hashjoin liblinear
 
 clean-all: clean-btree clean-canneal clean-graph500 clean-gups clean-xsbench \
 	clean-redis clean-hashjoin
