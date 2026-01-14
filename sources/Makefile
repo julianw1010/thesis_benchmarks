@@ -95,14 +95,14 @@ clean-canneal :
 	rm bin/bench_canneal*
 
 ###############################################################################
-# PR (GAPBS PageRank standalone)
+# PR (GAPBS PageRank standalone - single threaded)
 ###############################################################################
 
-gapbs/pr :
-	+$(MAKE) -C gapbs pr
+gapbs/bench_pr_st :
+	+$(MAKE) -C gapbs bench_pr_st
 
-bin/bench_pr_st : gapbs/pr
-	cp gapbs/pr $@
+bin/bench_pr_st : gapbs/bench_pr_st
+	cp gapbs/bench_pr_st $@
 
 pr : bin/bench_pr_st
 
