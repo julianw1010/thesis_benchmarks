@@ -29,7 +29,7 @@ declare -A BENCH_ARGS_MAP=(
     [canneal]=" -- 1 84000 2000 $MAIN/datasets/canneal_3gb_int 400 "
     [hashjoin]=" -- -o 135000000 -i 1000000 -s 1000000 -n 3 "
     [gups]=" -- 16"
-    [pr]=" -f $MAIN/datasets/kron26.sg"
+    [pr]=" -f $MAIN/datasets/kron26.sg -n 1"
 )
 
 # Single-threaded benchmarks (others are multi-threaded)
