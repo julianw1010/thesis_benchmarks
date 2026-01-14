@@ -25,14 +25,14 @@ readonly GNU_TIME="/usr/bin/time"
 # Benchmark-specific arguments
 declare -A BENCH_ARGS_MAP=(
     [xsbench]=" -- -t 16 -g 32000 -p 500000 "
-    [liblinear]=" -- -s 6 -n 28 $MAIN/datasets/kdd12 "
+    [liblinear]=" -s 6 -n 28 $MAIN/datasets/kdd12_5gb "
     [canneal]=" -- 1 84000 2000 $MAIN/datasets/canneal_3gb_int 400 "
     [hashjoin]=" -- -o 135000000 -i 1000000 -s 1000000 -n 3 "
     [gups]=" -- 16"
 )
 
 # Single-threaded benchmarks (others are multi-threaded)
-readonly SINGLE_THREADED_BENCHMARKS="gups btree redis hashjoin xsbench canneal"
+readonly SINGLE_THREADED_BENCHMARKS="gups btree redis hashjoin xsbench canneal liblinear"
 
 # Valid benchmarks and configs for validation
 readonly VALID_BENCHMARKS="gups btree hashjoin redis xsbench pagerank liblinear canneal"
