@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/time.h>
 #include "linear.h"
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 #define INF HUGE_VAL
@@ -113,6 +114,8 @@ int main(int argc, char **argv)
 	char model_file_name[1024];
 	const char *error_msg;
 	FILE *fd;
+	struct timeval start, end;
+	double runtime;
 
 	parse_command_line(argc, argv, input_file_name, model_file_name);
 	read_problem(input_file_name);
@@ -134,6 +137,8 @@ int main(int argc, char **argv)
 	fclose(fd);
 	usleep(250);
 
+	gettimeofday(&start, NULL);
+
 	if (flag_find_parameters)
 	{
 		do_find_parameters();
@@ -152,6 +157,10 @@ int main(int argc, char **argv)
 		}
 		free_and_destroy_model(&model_);
 	}
+
+	gettimeofday(&end, NULL);
+	runtime = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
+	printf("Runtime: %.2f seconds\n", runtime);
 
 	// Signal done
 	fprintf(stderr, "signalling done to %s\n", CONFIG_SHM_FILE_NAME ".done");
