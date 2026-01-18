@@ -13,7 +13,7 @@ for i in {0..9}; do
     echo $i | sudo tee /proc/hydra/repl_order
     
     # Run benchmark
-    numactl -r all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000
+    script -q -c "numactl -r all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000" output_${i}.txt
     
     # Save history with suffix
     cat /proc/hydra/history > history_${i}.txt
