@@ -23,7 +23,7 @@ if [[ $start -gt 9 ]]; then
 fi
 echo "Continuing from i=$start"
 for i in $(seq $start 9); do
-    [[ $interrupted -eq 1 ]] && exit 1
+    [[ $? -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
     echo "=== Running with repl_order=$i ==="
     
     # Reset history
@@ -33,8 +33,8 @@ for i in $(seq $start 9); do
     echo $i | sudo tee /proc/hydra/repl_order
     
     # Run benchmark
-    script -q -c "numactl -r all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000" output_${i}.txt
-    [[ $interrupted -eq 1 ]] && exit 1
+    script -e -q -c "numactl -r all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000" output_${i}.txt
+    [[ $? -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
     
     # Save history with suffix
     cat /proc/hydra/history > history_${i}.txt
