@@ -1,4 +1,6 @@
 #!/bin/bash
+echo -1 | sudo tee /proc/hydra/cache
+echo 500000 | sudo tee /proc/hydra/cache
 
 sync
 echo 3 | sudo tee /proc/sys/vm/drop_caches

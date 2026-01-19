@@ -1,0 +1,74 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #26
+Process: numactl (PID: 3443, TGID: 3443) [HISTORICAL - CACHE-ONLY]
+Cmdline: numactl -P -i all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0      [   0]      1/0      [   2]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   2]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/0      [   0]      2/0      [   3]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      2/0      [   3]
+PMD           0/0      [   0]      3/0      [   5]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      3/0      [   5]
+PTE           0/0      [   0]      5/0      [ 474]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      5/0      [ 474]
+
+Memory: 11 primary pages (44 KB), 0 replica pages (0 KB)
+Total:  11 pages (44 KB)
+
+================================================================================
+History Entry #27
+Process: bench_xsbench_m (PID: 3444, TGID: 3444) [HISTORICAL - CACHE-ONLY]
+Cmdline: ../bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 1034 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   3]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/0      [   0]      1/0      [   2]      0/0      [   0]      1/0      [   2]      0/0      [   0]      0/0      [   0]      1/0      [   1]      0/0      [   0]      3/0      [   5]
+PMD           0/0      [   0]      1/0      [ 154]      1/0      [   1]      0/0      [   0]      2/0      [ 125]      0/0      [   0]      0/0      [   0]      1/0      [   2]      5/0      [ 282]
+PTE          35/0      [17920]     35/0      [17723]     36/0      [17926]     35/0      [17821]     34/0      [17408]     36/0      [17652]     35/0      [17920]     35/0      [17920]    281/0      [142290]
+
+Memory: 290 primary pages (1160 KB), 0 replica pages (0 KB)
+Total:  290 pages (1160 KB)
+
+================================================================================
+History Entry #28
+Process: time (PID: 3443, TGID: 3443) [HISTORICAL - CACHE-ONLY]
+Cmdline: /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 1052 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   2]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   2]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/0      [   0]      1/0      [   2]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   1]      0/0      [   0]      2/0      [   3]
+PMD           0/0      [   0]      0/0      [   0]      1/0      [   3]      0/0      [   0]      1/0      [   1]      0/0      [   0]      0/0      [   0]      1/0      [   2]      3/0      [   6]
+PTE           1/0      [   0]      1/0      [   8]      0/0      [   0]      1/0      [  21]      1/0      [ 321]      2/0      [  73]      1/0      [   1]      0/0      [   0]      7/0      [ 424]
+
+Memory: 13 primary pages (52 KB), 0 replica pages (0 KB)
+Total:  13 pages (52 KB)
+
+Total historical entries: 3 (max: 64)

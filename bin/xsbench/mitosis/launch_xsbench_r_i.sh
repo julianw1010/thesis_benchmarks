@@ -1,3 +1,5 @@
+echo -1 | sudo tee /proc/mitosis/cache
+echo 500000 | sudo tee /proc/mitosis/cache
 sync
 echo 3 | sudo tee /proc/sys/vm/drop_caches
 echo -1 | sudo tee /proc/mitosis/history
