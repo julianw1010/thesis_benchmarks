@@ -2,18 +2,25 @@
 #
 # run_f10_one.sh - Run a single benchmark with Mitosis page table replication
 #
-# Usage: ./run_f10_one.sh <benchmark>
+# Usage: ./run_f10_one.sh <benchmark> <config>
 #
 # Benchmarks: gups, btree, hashjoin, redis, xsbench, pagerank, liblinear, canneal
+# Configs:    RPILD-M, RPLDI-M, RPLDI-W
 #
-# This script runs the RPI-LD configuration with Mitosis replication enabled (-r all).
-# This tests whether replicating page tables eliminates the PT walk penalty.
+# This script runs the specified configuration with or without Mitosis replication.
 #
-# Configuration:
-#   CPU_NODE=7   (Remote CPU)
-#   DATA_NODE=7  (Local to CPU)
-#   PT_NODE=0    (Page tables on node 0, but replicated to all nodes via -r all)
-#   INT_NODE=0   (Interference on node 0)
+# Configurations:
+#   RPILD-M (Remote PT, Interference, Local Data + Mitosis):
+#     CPU_NODE=7, DATA_NODE=7, PT_NODE=0, INT_NODE=0 (remote interference)
+#     Uses -r all for Mitosis replication
+#
+#   RPLDI-M (Remote PT, Local Data, Interference + Mitosis):
+#     CPU_NODE=7, DATA_NODE=7, PT_NODE=0, INT_NODE=7 (local interference)
+#     Uses -r all for Mitosis replication
+#
+#   RPLDI-W (Remote PT, Local Data, Interference + WASP):
+#     CPU_NODE=7, DATA_NODE=7, PT_NODE=0, INT_NODE=7 (local interference)
+#     No -r all flag; WASP userspace daemon handles replication externally
 
 # ==============================================================================
 # CONSTANTS
@@ -22,13 +29,11 @@
 readonly ROOT=$(dirname "$(readlink -f "$0")")
 readonly MAIN=$(dirname "$ROOT")
 readonly GNU_TIME="/usr/bin/time"
-readonly CONFIG="RPILD_MITOSIS"
 
-# NUMA node assignments (fixed for RPI-LD)
+# NUMA node assignments (fixed for RP*LD configurations)
 readonly PT_NODE=0
 readonly CPU_NODE=7
 readonly DATA_NODE=7
-readonly INT_NODE=0
 
 # Benchmark-specific arguments
 declare -A BENCH_ARGS_MAP=(
@@ -43,12 +48,16 @@ declare -A BENCH_ARGS_MAP=(
 # Single-threaded benchmarks
 readonly SINGLE_THREADED_BENCHMARKS="gups btree redis hashjoin xsbench canneal liblinear pr"
 readonly VALID_BENCHMARKS="gups btree hashjoin redis xsbench pr liblinear canneal"
+readonly VALID_CONFIGS="RPILD-M RPLDI-M RPLDI-W"
 
 # ==============================================================================
 # GLOBAL VARIABLES
 # ==============================================================================
 
 BENCHMARK=""
+CONFIG=""
+INT_NODE=0
+USE_MITOSIS_REPLICATION=true
 BENCH_ARGS=""
 BIN=""
 BENCHPATH=""
@@ -80,16 +89,22 @@ is_in_list() {
 # ==============================================================================
 
 validate_arguments() {
-    if [[ $# -ne 1 ]]; then
-        echo "Usage: $0 <benchmark>"
+    if [[ $# -ne 2 ]]; then
+        echo "Usage: $0 <benchmark> <config>"
         echo "Benchmarks: $VALID_BENCHMARKS"
+        echo "Configs:    $VALID_CONFIGS"
         exit 1
     fi
 
     BENCHMARK="$1"
+    CONFIG="$2"
 
     if ! is_in_list "$BENCHMARK" "$VALID_BENCHMARKS"; then
         die "Invalid benchmark: $BENCHMARK (valid: $VALID_BENCHMARKS)"
+    fi
+
+    if ! is_in_list "$CONFIG" "$VALID_CONFIGS"; then
+        die "Invalid config: $CONFIG (valid: $VALID_CONFIGS)"
     fi
 }
 
@@ -108,6 +123,23 @@ validate_dependencies() {
 # ==============================================================================
 # CONFIGURATION SETUP
 # ==============================================================================
+
+setup_numa_nodes() {
+    case "$CONFIG" in
+        RPILD-M)
+            INT_NODE=0  # Remote interference (on node 0, away from CPU/data on node 7)
+            USE_MITOSIS_REPLICATION=true
+            ;;
+        RPLDI-M)
+            INT_NODE=7  # Local interference (on node 7, same as CPU/data)
+            USE_MITOSIS_REPLICATION=true
+            ;;
+        RPLDI-W)
+            INT_NODE=7  # Local interference (on node 7, same as CPU/data)
+            USE_MITOSIS_REPLICATION=false
+            ;;
+    esac
+}
 
 setup_benchmark_binary() {
     local suffix="_mt"
@@ -141,13 +173,24 @@ setup_paths() {
 }
 
 print_configuration() {
+    local int_locality="REMOTE"
+    [[ $INT_NODE -eq $CPU_NODE ]] && int_locality="LOCAL"
+
+    local replication_mode="Mitosis (-r all)"
+    local numactl_flags="-m $DATA_NODE -N $CPU_NODE -r all"
+    if ! $USE_MITOSIS_REPLICATION; then
+        replication_mode="WASP (external daemon)"
+        numactl_flags="-m $DATA_NODE -N $CPU_NODE"
+    fi
+
     echo "=========================================="
-    echo "Configuration: RPI-LD with Mitosis Replication"
-    echo "  PT_NODE:   $PT_NODE (with -r all replication)"
+    echo "Configuration: $CONFIG"
+    echo "  PT_NODE:   $PT_NODE"
     echo "  CPU_NODE:  $CPU_NODE"
     echo "  DATA_NODE: $DATA_NODE (LOCAL to CPU)"
-    echo "  INT_NODE:  $INT_NODE"
-    echo "  numactl flags: -m $DATA_NODE -N $CPU_NODE -r all"
+    echo "  INT_NODE:  $INT_NODE ($int_locality to CPU)"
+    echo "  Replication: $replication_mode"
+    echo "  numactl flags: $numactl_flags"
     echo "=========================================="
 }
 
@@ -187,14 +230,25 @@ format_memory_size() {
     fi
 }
 
+build_launch_command() {
+    local cmd="$GNU_TIME -v -o $TIME_FILE $NUMACTL -m $DATA_NODE -N $CPU_NODE"
+
+    if $USE_MITOSIS_REPLICATION; then
+        cmd="$cmd -r all"
+    fi
+
+    cmd="$cmd $BENCHPATH $BENCH_ARGS"
+    echo "$cmd"
+}
+
 run_benchmark() {
     cleanup
 
     sync
     echo 3 | sudo tee /proc/sys/vm/drop_caches
 
-    # Key difference: -r all enables Mitosis page table replication
-    local launch_cmd="$GNU_TIME -v -o $TIME_FILE $NUMACTL -m $DATA_NODE -N $CPU_NODE -r all $BENCHPATH $BENCH_ARGS"
+    local launch_cmd
+    launch_cmd=$(build_launch_command)
 
     echo "Launch command: $launch_cmd"
     echo "Time output file: $TIME_FILE"
@@ -240,9 +294,12 @@ print_results() {
     local exec_duration="$2"
     local max_rss_kb="$3"
 
+    local replication_label="Mitosis"
+    $USE_MITOSIS_REPLICATION || replication_label="WASP"
+
     echo ""
     echo "=========================================="
-    echo "TIMING RESULTS (RPI-LD + Mitosis Replication):"
+    echo "TIMING RESULTS ($CONFIG + $replication_label):"
     echo "  Total runtime (start to finish): $total_duration seconds"
     echo "  Execution time (ready to done):  $exec_duration seconds"
     echo "  Maximum Resident Set Size:       $(format_memory_size "$max_rss_kb")"
@@ -290,6 +347,7 @@ save_results() {
 main() {
     validate_arguments "$@"
 
+    setup_numa_nodes
     setup_benchmark_binary
     setup_benchmark_args
     setup_paths
