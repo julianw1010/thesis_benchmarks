@@ -5,7 +5,7 @@
 # Usage: ./run_f6_one.sh <benchmark> <config>
 #
 # Benchmarks: gups, btree, hashjoin, redis, xsbench, pagerank, liblinear, canneal
-# Configs:    LPLD, LPRD, LPRDI, RPLD, RPILD, RPRD, RPIRDI (optionally prefixed with 'T')
+# Configs:    LPLD, LPRD, LPRDI, RPLD, RPLDI, RPILD, RPRD, RPIRDI (optionally prefixed with 'T')
 #
 # Configuration naming convention:
 #   L/R = Local/Remote CPU
@@ -37,7 +37,7 @@ readonly SINGLE_THREADED_BENCHMARKS="gups btree redis hashjoin xsbench canneal l
 
 # Valid benchmarks and configs for validation
 readonly VALID_BENCHMARKS="gups btree hashjoin redis xsbench pagerank liblinear canneal pr"
-readonly VALID_CONFIGS="LPLD LPRD LPRDI RPLD RPILD RPRD RPIRDI"
+readonly VALID_CONFIGS="LPLD LPRD LPRDI RPLD RPLDI RPILD RPRD RPIRDI"
 
 # ==============================================================================
 # GLOBAL VARIABLES (set during initialization)
@@ -148,6 +148,7 @@ setup_numa_nodes() {
         LPRD)   DATA_NODE=7 ;;
         LPRDI)  DATA_NODE=7 ;;
         RPLD)   DATA_NODE=7 ;;
+        RPLDI)  DATA_NODE=7 ;;  # Local data (same node as CPU)
         RPILD)  DATA_NODE=7 ;;
         RPRD)   DATA_NODE=0 ;;
         RPIRDI) DATA_NODE=0 ;;
@@ -157,6 +158,7 @@ setup_numa_nodes() {
     INT_NODE=0
     case "$CONFIG_BASE" in
         LPRDI)  INT_NODE=7 ;;
+        RPLDI)  INT_NODE=7 ;;  # Local interference (same node as CPU/data)
         RPILD)  INT_NODE=0 ;;
         RPIRDI) INT_NODE=0 ;;
     esac
@@ -237,7 +239,7 @@ configure_system() {
 # ==============================================================================
 
 uses_interference() {
-    [[ "$CONFIG_BASE" == "LPRDI" || "$CONFIG_BASE" == "RPILD" || "$CONFIG_BASE" == "RPIRDI" ]]
+    [[ "$CONFIG_BASE" == "LPRDI" || "$CONFIG_BASE" == "RPLDI" || "$CONFIG_BASE" == "RPILD" || "$CONFIG_BASE" == "RPIRDI" ]]
 }
 
 launch_interference() {
