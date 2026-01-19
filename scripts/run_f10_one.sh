@@ -160,7 +160,7 @@ setup_paths() {
     root_dir=$(dirname "$scripts_dir")
 
     BENCHPATH="$root_dir/bin/$BENCHMARK/$BIN"
-    INT_BIN="$root_dir/bin/stream/mem_saturate"
+    INT_BIN="$root_dir/bin/mem_saturate"
 
     DATADIR="$root_dir/evaluation/measured/figure10/$BENCHMARK"
     RUNDIR="$DATADIR/$(hostname)-config-$BENCHMARK-$CONFIG-$(date +"%Y%m%d-%H%M%S")"
