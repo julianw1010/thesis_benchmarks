@@ -209,7 +209,7 @@ configure_system() {
 
 launch_interference() {
     echo "Launching interference on node $INT_NODE"
-    OMP_NUM_THREADS=8 $NUMACTL -N "$INT_NODE" -m "$INT_NODE" "$INT_BIN" > /dev/null 2>&1 &
+    OMP_NUM_THREADS=7 $NUMACTL -N "$INT_NODE" -m "$INT_NODE" "$INT_BIN" > /dev/null 2>&1 &
     [[ $? -eq 0 ]] || die "Failed to launch interference"
 }
 
