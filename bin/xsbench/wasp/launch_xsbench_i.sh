@@ -1,5 +1,3 @@
-interrupted=0
-trap "interrupted=1; echo 'Interrupted. Exiting...'" SIGINT
 echo -1 | sudo tee /proc/mitosis/cache
 echo 500000 | sudo tee /proc/mitosis/cache
 sync

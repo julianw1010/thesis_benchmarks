@@ -1,8 +1,4 @@
 #!/bin/bash
-interrupted=0
-trap "interrupted=1; echo 'Interrupted. Exiting...'" SIGINT
-
-
 echo -1 | sudo tee /proc/hydra/cache
 echo 500000 | sudo tee /proc/hydra/cache
 sync
