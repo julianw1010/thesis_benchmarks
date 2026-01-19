@@ -1,5 +1,6 @@
 #!/bin/bash
-trap "echo 'Interrupted. Exiting...'; exit 1" SIGINT
+interrupted=0
+trap "interrupted=1; echo 'Interrupted. Exiting...'" SIGINT
 echo -1 | sudo tee /proc/hydra/cache
 echo 500000 | sudo tee /proc/hydra/cache
 
@@ -26,6 +27,7 @@ fi
 echo "Continuing from i=$start"
 
 for i in $(seq $start 9); do
+    [[ $interrupted -eq 1 ]] && exit 1
     echo "=== Running with repl_order=$i ==="
     
     # Reset history
@@ -36,6 +38,7 @@ for i in $(seq $start 9); do
     
     # Run benchmark
     script -q -c "numactl -r all -i all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000" output_i_${i}.txt
+    [[ $interrupted -eq 1 ]] && exit 1
     
     # Save history with suffix
     cat /proc/hydra/history > history_i_${i}.txt
