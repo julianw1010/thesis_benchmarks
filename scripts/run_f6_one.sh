@@ -185,7 +185,7 @@ setup_paths() {
     root_dir=$(dirname "$scripts_dir")
 
     BENCHPATH="$root_dir/bin/$BENCHMARK/$BIN"
-    INT_BIN="$root_dir/bin/stream/bench_stream"
+    INT_BIN="$root_dir/bin/mem_saturate"
 
     # Output directory: figure6 normally, figure10 with 'T' prefix
     local dir_suffix=6
