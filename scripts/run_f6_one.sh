@@ -245,7 +245,7 @@ uses_interference() {
 launch_interference() {
     if uses_interference; then
         echo "Launching interference on node $INT_NODE"
-        OMP_NUM_THREADS=7 $NUMACTL -N "$INT_NODE" -m "$INT_NODE" "$INT_BIN" > /dev/null 2>&1 &
+        OMP_NUM_THREADS=7 $NUMACTL -N "$INT_NODE" -m "$INT_NODE" "$INT_BIN" -t 7 > /dev/null 2>&1 &
         [[ $? -eq 0 ]] || die "Failed to launch interference"
     fi
 }
