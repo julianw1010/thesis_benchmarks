@@ -153,7 +153,6 @@ int main(int argc, char **argv) {
     uint64_t last_total = 0;
     printf("Running until Ctrl+C...\n\n");
     while (running) {
-        sleep(1);
         if (!running) break;
         uint64_t total = 0;
         for (int i = 0; i < nthreads; i++) total += args[i].bytes_written;
