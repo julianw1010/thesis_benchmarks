@@ -17,7 +17,7 @@ ROOT=$(dirname `readlink -f "$0"`)
 #source $ROOT/site_config.sh
 
 # List of all benchmarks to run
-BENCHMARKS="pr"
+BENCHMARKS="gups btree hashjoin redis xsbench pr liblinear canneal"
 
 for bench in $BENCHMARKS; do
 	echo "******************$bench : $config***********************"
