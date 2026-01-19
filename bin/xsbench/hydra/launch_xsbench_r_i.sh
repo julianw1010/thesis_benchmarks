@@ -1,9 +1,28 @@
 #!/bin/bash
 
+sync
+echo 3 | sudo tee /proc/sys/vm/drop_caches
+
 # Set tlbflush opt once
 echo 1 | sudo tee /proc/hydra/tlbflush_opt
 
-for i in {0..9}; do
+# Find the starting point based on existing history files
+start=0
+for i in {9..0}; do
+    if [[ -f "history_i_${i}.txt" ]]; then
+        start=$((i + 1))
+        break
+    fi
+done
+
+if [[ $start -gt 9 ]]; then
+    echo "All runs (0-9) already completed."
+    exit 0
+fi
+
+echo "Continuing from i=$start"
+
+for i in $(seq $start 9); do
     echo "=== Running with repl_order=$i ==="
     
     # Reset history
