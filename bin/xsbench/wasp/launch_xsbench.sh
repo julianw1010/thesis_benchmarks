@@ -1,4 +1,5 @@
 echo -1 | sudo tee /proc/mitosis/cache
+trap "echo 'Interrupted. Exiting...'; exit 1" SIGINT
 echo 500000 | sudo tee /proc/mitosis/cache
 sync
 echo 3 | sudo tee /proc/sys/vm/drop_caches
