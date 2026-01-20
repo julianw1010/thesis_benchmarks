@@ -1,9 +1,38 @@
+#!/bin/bash
 echo -1 | sudo tee /proc/mitosis/cache
 echo 500000 | sudo tee /proc/mitosis/cache
-sync
-echo 3 | sudo tee /proc/sys/vm/drop_caches
-echo -1 | sudo tee /proc/mitosis/history
-rm history_r.txt output_r.txt
-script -e -q -c "numactl -r all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000" output_r.txt
-[[ $? -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
-cat /proc/mitosis/history > history_r.txt
+
+# Find the starting point based on existing history files
+start=0
+for i in {2..0}; do
+    if [[ -f "history_r_${i}.txt" ]]; then
+        start=$((i + 1))
+        break
+    fi
+done
+
+if [[ $start -gt 2 ]]; then
+    echo "All runs (0-2) already completed."
+    exit 0
+fi
+
+echo "Continuing from i=$start"
+
+for i in $(seq $start 2); do
+    [[ $? -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
+    echo "=== Running iteration=$i ==="
+    
+    # Flush caches before every benchmark run
+    sync
+    echo 3 | sudo tee /proc/sys/vm/drop_caches
+    
+    # Reset history
+    echo -1 | sudo tee /proc/mitosis/history
+    
+    # Run benchmark
+    script -e -q -c "numactl -r all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000" output_r_${i}.txt
+    [[ $? -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
+    
+    # Save history with suffix
+    cat /proc/mitosis/history > history_r_${i}.txt
+done
