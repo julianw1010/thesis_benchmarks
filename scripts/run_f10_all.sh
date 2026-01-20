@@ -21,5 +21,5 @@ BENCHMARKS="gups btree hashjoin redis xsbench pr liblinear canneal"
 
 for bench in $BENCHMARKS; do
 	echo "******************$bench : $config***********************"
-	bash $ROOT/run_f10_one.sh $bench
+	bash $ROOT/run_f10_one.sh $bench RPLDI-M
 done
