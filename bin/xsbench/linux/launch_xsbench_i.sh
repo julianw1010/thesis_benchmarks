@@ -5,7 +5,7 @@ echo 500000 | sudo tee /proc/mitosis/cache
 # Find the starting point based on existing history files
 start=0
 for i in {4..0}; do
-    if [[ -f "history_${i}.txt" ]]; then
+    if [[ -f "history_i_${i}.txt" ]]; then
         start=$((i + 1))
         break
     fi
@@ -34,5 +34,5 @@ for i in $(seq $start 4); do
     [[ $? -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
     
     # Save history with suffix
-    cat /proc/mitosis/history > history_${i}.txt
+    cat /proc/mitosis/history > history_i_${i}.txt
 done
