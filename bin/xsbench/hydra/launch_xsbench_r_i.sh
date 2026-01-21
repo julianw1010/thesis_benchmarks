@@ -9,7 +9,7 @@ start_i=0
 start_j=0
 for i in {9..0}; do
     for j in {4..0}; do
-        if [[ -f "history_${i}_${j}.txt" ]]; then
+        if [[ -f "history_r_i_${i}_${j}.txt" ]]; then
             if [[ $j -eq 2 ]]; then
                 start_i=$((i + 1))
                 start_j=0

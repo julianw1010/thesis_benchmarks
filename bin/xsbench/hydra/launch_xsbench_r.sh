@@ -9,7 +9,7 @@ start_i=0
 start_j=0
 for i in {9..0}; do
     for j in {4..0}; do
-        if [[ -f "history_${i}_${j}.txt" ]]; then
+        if [[ -f "history_r_${i}_${j}.txt" ]]; then
             if [[ $j -eq 2 ]]; then
                 start_i=$((i + 1))
                 start_j=0
@@ -48,10 +48,10 @@ for i in $(seq $start_i 9); do
         echo $i | sudo tee /proc/hydra/repl_order
         
         # Run benchmark
-        script -e -q -c "numactl -r all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000" output_${i}_${j}.txt
+        script -e -q -c "numactl -r all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000" output_r_${i}_${j}.txt
         [[ $? -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
         
         # Save history with suffix
-        cat /proc/hydra/history > history_${i}_${j}.txt
+        cat /proc/hydra/history > history_r_${i}_${j}.txt
     done
 done
