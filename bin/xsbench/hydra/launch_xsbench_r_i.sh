@@ -48,10 +48,10 @@ for i in $(seq $start_i 9); do
         echo $i | sudo tee /proc/hydra/repl_order
         
         # Run benchmark
-        script -e -q -c "numactl -r all -i all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000" output_${i}_${j}.txt
+        script -e -q -c "numactl -r all -i all /usr/bin/time --verbose -- ../bench_xsbench_mt -- -p 25000000 -g 400000" output_r_i_${i}_${j}.txt
         [[ $? -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
         
         # Save history with suffix
-        cat /proc/hydra/history > history_${i}_${j}.txt
+        cat /proc/hydra/history > history_r_i_${i}_${j}.txt
     done
 done
