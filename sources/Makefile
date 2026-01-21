@@ -7,10 +7,10 @@
 #          K. Gopinath and Jayneel Gandhi
 #################################################################################
 
-all: btree canneal gups xsbench redis stream hashjoin liblinear pr
+all: btree canneal gups xsbench redis stream hashjoin liblinear gapbs-all
 
 clean-all: clean-btree clean-canneal clean-gups clean-xsbench \
-	clean-redis clean-stream clean-hashjoin clean-liblinear clean-pr
+	clean-redis clean-stream clean-hashjoin clean-liblinear clean-gapbs
 
 
 ###############################################################################
@@ -95,20 +95,86 @@ clean-canneal :
 	rm bin/bench_canneal*
 
 ###############################################################################
-# PR (GAPBS PageRank standalone - single threaded)
+# GAPBS Benchmarks (pr, cc, cc_sv, pr_spmv, bc, bfs)
 ###############################################################################
 
-gapbs/bench_pr_st :
+GAP_KERNELS = pr cc cc_sv pr_spmv bc bfs
+
+# Single-threaded versions
+gapbs/bench_pr_st:
 	+$(MAKE) -C gapbs bench_pr_st
+gapbs/bench_cc_st:
+	+$(MAKE) -C gapbs bench_cc_st
+gapbs/bench_cc_sv_st:
+	+$(MAKE) -C gapbs bench_cc_sv_st
+gapbs/bench_pr_spmv_st:
+	+$(MAKE) -C gapbs bench_pr_spmv_st
+gapbs/bench_bc_st:
+	+$(MAKE) -C gapbs bench_bc_st
+gapbs/bench_bfs_st:
+	+$(MAKE) -C gapbs bench_bfs_st
 
-bin/bench_pr_st : gapbs/bench_pr_st
+# Multi-threaded versions
+gapbs/bench_pr_mt:
+	+$(MAKE) -C gapbs bench_pr_mt
+gapbs/bench_cc_mt:
+	+$(MAKE) -C gapbs bench_cc_mt
+gapbs/bench_cc_sv_mt:
+	+$(MAKE) -C gapbs bench_cc_sv_mt
+gapbs/bench_pr_spmv_mt:
+	+$(MAKE) -C gapbs bench_pr_spmv_mt
+gapbs/bench_bc_mt:
+	+$(MAKE) -C gapbs bench_bc_mt
+gapbs/bench_bfs_mt:
+	+$(MAKE) -C gapbs bench_bfs_mt
+
+# Copy to bin directory - single-threaded
+bin/bench_pr_st: gapbs/bench_pr_st
 	cp gapbs/bench_pr_st $@
+bin/bench_cc_st: gapbs/bench_cc_st
+	cp gapbs/bench_cc_st $@
+bin/bench_cc_sv_st: gapbs/bench_cc_sv_st
+	cp gapbs/bench_cc_sv_st $@
+bin/bench_pr_spmv_st: gapbs/bench_pr_spmv_st
+	cp gapbs/bench_pr_spmv_st $@
+bin/bench_bc_st: gapbs/bench_bc_st
+	cp gapbs/bench_bc_st $@
+bin/bench_bfs_st: gapbs/bench_bfs_st
+	cp gapbs/bench_bfs_st $@
 
-pr : bin/bench_pr_st
+# Copy to bin directory - multi-threaded
+bin/bench_pr_mt: gapbs/bench_pr_mt
+	cp gapbs/bench_pr_mt $@
+bin/bench_cc_mt: gapbs/bench_cc_mt
+	cp gapbs/bench_cc_mt $@
+bin/bench_cc_sv_mt: gapbs/bench_cc_sv_mt
+	cp gapbs/bench_cc_sv_mt $@
+bin/bench_pr_spmv_mt: gapbs/bench_pr_spmv_mt
+	cp gapbs/bench_pr_spmv_mt $@
+bin/bench_bc_mt: gapbs/bench_bc_mt
+	cp gapbs/bench_bc_mt $@
+bin/bench_bfs_mt: gapbs/bench_bfs_mt
+	cp gapbs/bench_bfs_mt $@
 
-clean-pr :
+# Aggregate targets
+gapbs-st: bin/bench_pr_st bin/bench_cc_st bin/bench_cc_sv_st bin/bench_pr_spmv_st bin/bench_bc_st bin/bench_bfs_st
+gapbs-mt: bin/bench_pr_mt bin/bench_cc_mt bin/bench_cc_sv_mt bin/bench_pr_spmv_mt bin/bench_bc_mt bin/bench_bfs_mt
+gapbs-all: gapbs-st gapbs-mt
+
+# Legacy target (keep for backward compatibility)
+pr: bin/bench_pr_st
+
+clean-gapbs:
 	+$(MAKE) -C gapbs clean
-	rm -f bin/bench_pr*
+	rm -f bin/bench_pr_st bin/bench_pr_mt \
+	      bin/bench_cc_st bin/bench_cc_mt \
+	      bin/bench_cc_sv_st bin/bench_cc_sv_mt \
+	      bin/bench_pr_spmv_st bin/bench_pr_spmv_mt \
+	      bin/bench_bc_st bin/bench_bc_mt \
+	      bin/bench_bfs_st bin/bench_bfs_mt
+
+# Keep old clean-pr for backward compatibility
+clean-pr: clean-gapbs
 
 ###############################################################################
 # Gups
@@ -187,7 +253,7 @@ clean-liblinear :
 	rm -f bin/bench_liblinear*
 
 ###############################################################################
-# PageRank
+# PageRank (legacy - uses library approach)
 ###############################################################################
 
 
