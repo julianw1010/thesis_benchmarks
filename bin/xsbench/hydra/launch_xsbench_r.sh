@@ -8,7 +8,7 @@ echo 1 | sudo tee /proc/hydra/tlbflush_opt
 start_i=0
 start_j=0
 for i in {9..0}; do
-    for j in {2..0}; do
+    for j in {4..0}; do
         if [[ -f "history_${i}_${j}.txt" ]]; then
             if [[ $j -eq 2 ]]; then
                 start_i=$((i + 1))
@@ -23,7 +23,7 @@ for i in {9..0}; do
 done
 
 if [[ $start_i -gt 9 ]]; then
-    echo "All runs (0-9, 3 iterations each) already completed."
+    echo "All runs (0-9, 5 iterations each) already completed."
     exit 0
 fi
 
@@ -33,7 +33,7 @@ for i in $(seq $start_i 9); do
     j_start=0
     [[ $i -eq $start_i ]] && j_start=$start_j
     
-    for j in $(seq $j_start 2); do
+    for j in $(seq $j_start 4); do
         [[ $? -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
         echo "=== Running with repl_order=$i, iteration=$j ==="
         
