@@ -17,15 +17,16 @@ SUITE = $(KERNELS) converter
 all: $(SUITE)
 % : src/%.cc src/*.h
 	$(CXX) $(CXX_FLAGS) $< -o $@
-
 # Single-threaded benchmark versions
 bench_%_st: src/%.cc src/*.h
 	$(CXX) -std=c++11 -O3 -Wall $< -o $@
-
+# Multi-threaded benchmark versions (with OpenMP)
+bench_%_mt: src/%.cc src/*.h
+	$(CXX) -std=c++11 -O3 -Wall $(PAR_FLAG) $< -o $@
 # Testing
 include test/test.mk
 # Benchmark Automation
 include benchmark/bench.mk
 .PHONY: clean
 clean:
-	rm -f $(SUITE) test/out/* bench_*_st
+	rm -f $(SUITE) test/out/* bench_*_st bench_*_mt
