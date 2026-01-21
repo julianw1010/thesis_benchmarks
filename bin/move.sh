@@ -14,10 +14,10 @@ mv bench_xsbench_* xsbench/ 2>/dev/null
 mv bench_liblinear_* liblinear/ 2>/dev/null
 mv bench_stream stream/ 2>/dev/null
 
-# GAP benchmarks
+# GAP benchmarks (order matters: longer prefixes first)
+mv bench_pr_spmv_* pr_spmv/ 2>/dev/null
 mv bench_pr_* pr/ 2>/dev/null
 mv bench_bc_* bc/ 2>/dev/null
 mv bench_bfs_* bfs/ 2>/dev/null
 mv bench_cc_sv_* cc_sv/ 2>/dev/null
 mv bench_cc_* cc/ 2>/dev/null
-mv bench_pr_spmv_* pr_spmv/ 2>/dev/null
