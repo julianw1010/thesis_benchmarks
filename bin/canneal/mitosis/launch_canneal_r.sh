@@ -30,7 +30,7 @@ for i in $(seq $start 4); do
     echo -1 | sudo tee /proc/mitosis/history
     
     # Run benchmark
-    script -e -q -c "numactl -r all /usr/bin/time --verbose -- ../bench_canneal_mt 64 50000 2000 ../../../datasets/canneal_35gb_int 400" output_r_${i}.txt
+    script -e -q -c "numactl -r all /usr/bin/time --verbose -- ../bench_canneal_mt 128 200000 2000 ../../../datasets/canneal_35gb_int 1000" output_r_${i}.txt
     [[ $? -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
     
     # Save history with suffix
