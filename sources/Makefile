@@ -253,25 +253,6 @@ clean-liblinear :
 	rm -f bin/bench_liblinear*
 
 ###############################################################################
-# PageRank (legacy - uses library approach)
-###############################################################################
-
-
-gapbs/libpagerank.a :
-	+$(MAKE) -C gapbs libpagerank.a
-
-bin/bench_pagerank_mt : gapbs/libpagerank.a
-	$(CXX) $(INCLUDES) -DDISABLE_SIGNAL_IN_MAIN $(CFLAGS) -fopenmp \
-		$(COMMON_MAIN_M) gapbs/libpagerank.a -o $@  $(COMMON_LIBS)	
-
-pagerank : bin/bench_pagerank_mt 
-
-clean-pagerank :
-	+$(MAKE) -C gapbs clean
-	rm bin/bench_pagerank*
-
-
-###############################################################################
 # Redis
 ###############################################################################
 
