@@ -159,10 +159,7 @@ bin/bench_bfs_mt: gapbs/bench_bfs_mt
 # Aggregate targets
 gapbs-st: bin/bench_pr_st bin/bench_cc_st bin/bench_cc_sv_st bin/bench_pr_spmv_st bin/bench_bc_st bin/bench_bfs_st
 gapbs-mt: bin/bench_pr_mt bin/bench_cc_mt bin/bench_cc_sv_mt bin/bench_pr_spmv_mt bin/bench_bc_mt bin/bench_bfs_mt
-gapbs-all: gapbs-st gapbs-mt
-
-# Legacy target (keep for backward compatibility)
-pr: bin/bench_pr_st
+gapbs-all: gapbs-st gapbs-mt converter
 
 clean-gapbs:
 	+$(MAKE) -C gapbs clean
@@ -171,10 +168,20 @@ clean-gapbs:
 	      bin/bench_cc_sv_st bin/bench_cc_sv_mt \
 	      bin/bench_pr_spmv_st bin/bench_pr_spmv_mt \
 	      bin/bench_bc_st bin/bench_bc_mt \
-	      bin/bench_bfs_st bin/bench_bfs_mt
+	      bin/bench_bfs_st bin/bench_bfs_mt \
+	      bin/converter
 
-# Keep old clean-pr for backward compatibility
-clean-pr: clean-gapbs
+###############################################################################
+# Converter (GAPBS graph format converter)
+###############################################################################
+
+gapbs/converter:
+	+$(MAKE) -C gapbs converter
+
+bin/converter: gapbs/converter
+	cp gapbs/converter $@
+
+converter: bin/converter
 
 ###############################################################################
 # Gups
@@ -326,39 +333,6 @@ clean-xsbench :
 	rm -f bin/bench_xsbench*
 
 ###############################################################################
-# Memcached
-###############################################################################
-
-memcached/libmemcached.a : 
-	+$(MAKE) -C memcached libmemcached.a 
-
-bin/bench_memcached_mt: memcached/libmemcached.a  $(COMMON_MAIN_M)
-	$(CC) $(INCLUDES) $(CFLAGS) -fopenmp -DDISABLE_SIGNAL_IN_MAIN \
-		$(COMMON_MAIN_M) memcached/libmemcached.a $(COMMON_LIBS) -levent \
-		-o $@
-
-memcached : bin/bench_memcached_mt
-
-clean-memcached :
-	+$(MAKE) -C memcached clean
-	rm bin/bench_memcached*
-
-
-###############################################################################
-# Memops
-###############################################################################
-
-bin/bench_memops :
-	+$(MAKE) -C memops bench_memops
-	cp memops/bench_memops bin
-
-memops: bin/bench_memops 
-	
-clean-memops :
-	+$(MAKE) -C memops clean
-
-
-###############################################################################
 # Stream
 ###############################################################################
 
@@ -366,11 +340,7 @@ bin/bench_stream :
 	+$(MAKE) -C stream stream
 	cp stream/stream bin/bench_stream
 
-#bin/bench_stream_numa :
-#	+$(MAKE) -C stream stream_numa
-#	cp stream/stream_numa bin/bench_stream_numa	
-
-stream: bin/bench_stream #bin/bench_stream_numa 
+stream: bin/bench_stream
 
 clean-stream :
 	+$(MAKE) -C stream clean
