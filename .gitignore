@@ -5,3 +5,4 @@
 *.model
 *.sg
 datasets/graphs/raw
+!*/Makefile
