@@ -1,0 +1,268 @@
+Script started on 2026-01-24 14:36:14+00:00 [COMMAND="/usr/bin/time --verbose -- ./bench_memtier         -s localhost -p 11211 --protocol=memcache_text         --key-minimum=1 --key-maximum=500000000 --key-pattern=R:R         --ratio=0:1 --data-size=24 --threads=32 --clients=20         --pipeline=100 --test-time=300" TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="93" LINES="46"]
+Writing results to stdout
+[RUN #1] Preparing benchmark client...
+[RUN #1] Launching threads now...
+[RUN #1 0%,   1 secs] 32 threads 20 conns:    30069735 ops, 29980124 (avg: 29980124) ops/sec, 849.97MB/sec (avg: 849.97MB/sec),  2.11 (avg:  2.11) msec latency[RUN #1 1%,   2 secs] 32 threads 20 conns:    58702061 ops, 28621392 (avg: 29301642) ops/sec, 811.48MB/sec (avg: 830.75MB/sec),  2.22 (avg:  2.16) msec latency[RUN #1 1%,   3 secs] 32 threads 20 conns:    86689318 ops, 27976569 (avg: 28860335) ops/sec, 793.24MB/sec (avg: 818.26MB/sec),  2.27 (avg:  2.20) msec latency[RUN #1 1%,   4 secs] 32 threads 20 conns:   114584390 ops, 27884587 (avg: 28616558) ops/sec, 788.92MB/sec (avg: 810.93MB/sec),  2.28 (avg:  2.22) msec latency^C
+[RUN #1] Interrupted by user (Ctrl+C) after 4.5 secs, stopping threads...
+
+
+32        Threads
+20        Connections per thread
+300       Seconds
+
+
+ALL STATS
+============================================================================================================================
+Type         Ops/sec     Hits/sec   Misses/sec    Avg. Latency     p50 Latency     p99 Latency   p99.9 Latency       KB/sec 
+----------------------------------------------------------------------------------------------------------------------------
+Sets            0.00          ---          ---             ---             ---             ---             ---         0.00 
+Gets     28360848.50    982851.47  27377997.03         2.22078         2.14300         3.96700        15.61500    822878.66 
+Waits           0.00          ---          ---             ---             ---             ---             ---          --- 
+Totals   28360848.50    982851.47  27377997.03         2.22078         2.14300         3.96700        15.61500    822878.66 
+
+
+Request Latency Distribution
+Type     <= msec         Percent
+------------------------------------------------------------------------
+SET       0.000      100.000
+---
+GET       0.207        0.000
+GET       1.399        5.000
+GET       1.575       10.000
+GET       1.735       15.000
+GET       1.823       20.000
+GET       1.887       25.000
+GET       1.943       30.000
+GET       1.991       35.000
+GET       2.039       40.000
+GET       2.095       45.000
+GET       2.143       50.000
+GET       2.159       52.500
+GET       2.191       55.000
+GET       2.207       57.500
+GET       2.239       60.000
+GET       2.271       62.500
+GET       2.303       65.000
+GET       2.335       67.500
+GET       2.383       70.000
+GET       2.415       72.500
+GET       2.447       75.000
+GET       2.479       76.250
+GET       2.495       77.500
+GET       2.511       78.750
+GET       2.527       80.000
+GET       2.559       81.250
+GET       2.575       82.500
+GET       2.607       83.750
+GET       2.623       85.000
+GET       2.655       86.250
+GET       2.671       87.500
+GET       2.687       88.125
+GET       2.703       88.750
+GET       2.719       89.375
+GET       2.735       90.000
+GET       2.751       90.625
+GET       2.767       91.250
+GET       2.783       91.875
+GET       2.815       92.500
+GET       2.831       93.125
+GET       2.847       93.750
+GET       2.863       94.062
+GET       2.879       94.375
+GET       2.895       94.688
+GET       2.911       95.000
+GET       2.927       95.312
+GET       2.943       95.625
+GET       2.959       95.938
+GET       2.975       96.250
+GET       3.007       96.562
+GET       3.023       96.875
+GET       3.039       97.031
+GET       3.055       97.188
+GET       3.071       97.344
+GET       3.087       97.500
+GET       3.119       97.656
+GET       3.135       97.812
+GET       3.167       97.969
+GET       3.199       98.125
+GET       3.231       98.281
+GET       3.279       98.438
+GET       3.311       98.516
+GET       3.343       98.594
+GET       3.391       98.672
+GET       3.455       98.750
+GET       3.535       98.828
+GET       3.679       98.906
+GET       3.903       98.984
+GET       4.223       99.062
+GET       4.639       99.141
+GET       5.215       99.219
+GET       5.599       99.258
+GET       6.047       99.297
+GET       6.495       99.336
+GET       7.039       99.375
+GET       7.647       99.414
+GET       8.255       99.453
+GET       8.831       99.492
+GET       9.279       99.531
+GET       9.727       99.570
+GET      10.239       99.609
+GET      10.559       99.629
+GET      10.943       99.648
+GET      11.263       99.668
+GET      11.583       99.688
+GET      11.903       99.707
+GET      12.287       99.727
+GET      12.607       99.746
+GET      13.055       99.766
+GET      13.439       99.785
+GET      13.887       99.805
+GET      14.143       99.814
+GET      14.335       99.824
+GET      14.527       99.834
+GET      14.719       99.844
+GET      14.847       99.854
+GET      15.039       99.863
+GET      15.167       99.873
+GET      15.359       99.883
+GET      15.487       99.893
+GET      15.679       99.902
+GET      15.807       99.907
+GET      15.871       99.912
+GET      15.999       99.917
+GET      16.191       99.922
+GET      16.319       99.927
+GET      16.511       99.932
+GET      16.767       99.937
+GET      17.023       99.941
+GET      17.151       99.946
+GET      17.279       99.951
+GET      17.407       99.954
+GET      17.535       99.956
+GET      17.663       99.958
+GET      17.791       99.961
+GET      17.919       99.963
+GET      18.047       99.966
+GET      18.303       99.968
+GET      18.559       99.971
+GET      19.071       99.973
+GET      19.583       99.976
+GET      19.967       99.977
+GET      20.223       99.978
+GET      20.735       99.979
+GET      21.119       99.980
+GET      21.375       99.982
+GET      21.631       99.983
+GET      21.887       99.984
+GET      22.271       99.985
+GET      22.655       99.987
+GET      23.039       99.988
+GET      23.167       99.988
+GET      23.423       99.989
+GET      23.551       99.990
+GET      23.551       99.990
+GET      23.807       99.991
+GET      23.935       99.991
+GET      24.063       99.992
+GET      24.319       99.993
+GET      24.447       99.993
+GET      24.703       99.994
+GET      24.959       99.994
+GET      25.471       99.995
+GET      26.239       99.995
+GET      26.367       99.995
+GET      26.367       99.995
+GET      26.751       99.996
+GET      26.879       99.996
+GET      27.007       99.996
+GET      27.135       99.997
+GET      27.391       99.997
+GET      27.519       99.997
+GET      27.519       99.997
+GET      27.647       99.997
+GET      27.647       99.998
+GET      27.775       99.998
+GET      27.903       99.998
+GET      27.903       99.998
+GET      28.031       99.998
+GET      28.415       99.998
+GET      29.055       99.998
+GET      29.055       99.999
+GET      29.183       99.999
+GET      29.183       99.999
+GET      29.311       99.999
+GET      29.311       99.999
+GET      29.439       99.999
+GET      29.439       99.999
+GET      29.567       99.999
+GET      29.567       99.999
+GET      29.567       99.999
+GET      29.567       99.999
+GET      29.567       99.999
+GET      29.567       99.999
+GET      29.695       99.999
+GET      29.695       99.999
+GET      29.695       99.999
+GET      29.951      100.000
+GET      30.079      100.000
+GET      30.079      100.000
+GET      30.335      100.000
+GET      30.335      100.000
+GET      30.335      100.000
+GET      30.335      100.000
+GET      30.335      100.000
+GET      30.335      100.000
+GET      30.463      100.000
+GET      30.463      100.000
+GET      30.719      100.000
+GET      30.719      100.000
+GET      30.847      100.000
+GET      30.975      100.000
+GET      30.975      100.000
+GET      30.975      100.000
+GET      31.359      100.000
+GET      31.359      100.000
+GET      31.359      100.000
+GET      31.359      100.000
+GET      31.359      100.000
+GET      31.359      100.000
+GET      31.359      100.000
+GET      31.359      100.000
+GET      31.359      100.000
+GET      31.359      100.000
+GET      41.983      100.000
+GET      41.983      100.000
+GET      41.983      100.000
+GET      41.983      100.000
+GET      41.983      100.000
+GET      41.983      100.000
+GET      41.983      100.000
+GET      52.991      100.000
+GET      52.991      100.000
+---
+WAIT      0.000      100.000
+	Command being timed: "./bench_memtier -s localhost -p 11211 --protocol=memcache_text --key-minimum=1 --key-maximum=500000000 --key-pattern=R:R --ratio=0:1 --data-size=24 --threads=32 --clients=20 --pipeline=100 --test-time=300"
+	User time (seconds): 93.96
+	System time (seconds): 49.37
+	Percent of CPU this job got: 3079%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.65
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 124928
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 32897
+	Voluntary context switches: 277
+	Involuntary context switches: 1759
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+Script done on 2026-01-24 14:36:19+00:00 [COMMAND_EXIT_CODE="0"]
