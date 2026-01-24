@@ -14,6 +14,7 @@ mv bench_xsbench_* xsbench/ 2>/dev/null
 mv bench_liblinear_* liblinear/ 2>/dev/null
 mv bench_stream stream/ 2>/dev/null
 mv bench_memcached memcached/ 2>/dev/null
+mv bench_memtier memcached/ 2>/dev/null
 
 # GAP benchmarks (order matters: longer prefixes first)
 mv bench_pr_spmv_* pr_spmv/ 2>/dev/null
