@@ -82,7 +82,7 @@ for ((i=start; i<=max_index; i++)); do
     echo "=== Running iteration=$i ==="
 
     # Kill any existing memcached
-    sudo pkill memcached
+    sudo pkill bench_memcached
     sleep 1
 
     # Flush caches
@@ -94,18 +94,18 @@ for ((i=start; i<=max_index; i++)); do
 
     # Launch memcached with appropriate numactl options (daemon mode, suppress output)
     echo "Starting memcached with numactl $numactl_opts..."
-    numactl $numactl_opts -- memcached -m 220000 -t 32 -p 11211 -c 8192 -o hashpower=31 -d > /dev/null 2>&1
+    numactl $numactl_opts -- ./bench_memcached -m 220000 -t 32 -p 11211 -c 8192 -o hashpower=31 -d > /dev/null 2>&1
     sleep 2
 
     # Check if memcached started successfully
-    if ! pgrep -x memcached > /dev/null; then
+    if ! pgrep -x bench_memcached > /dev/null; then
         echo "Error: memcached failed to start"
         exit 1
     fi
 
     # Populate memcached (SET operations)
     echo "Populating memcached..."
-    memtier_benchmark \
+    ./bench_memtier \
         -s localhost -p 11211 --protocol=memcache_text \
         --key-minimum=1 --key-maximum=1730000000 --key-pattern=P:P \
         --ratio=1:0 --data-size=24 --threads=128 --clients=20 \
@@ -115,7 +115,7 @@ for ((i=start; i<=max_index; i++)); do
 
     # Run benchmark (GET operations) with timing
     echo "Running benchmark..."
-    script -e -q -c "/usr/bin/time --verbose -- memtier_benchmark \
+    script -e -q -c "/usr/bin/time --verbose -- ./bench_memtier \
         -s localhost -p 11211 --protocol=memcache_text \
         --key-minimum=1 --key-maximum=1730000000 --key-pattern=R:R \
         --ratio=0:1 --data-size=24 --threads=32 --clients=20 \
@@ -130,6 +130,6 @@ for ((i=start; i<=max_index; i++)); do
 done
 
 # Cleanup: kill memcached at the end
-sudo pkill memcached
+sudo pkill bench_memcached
 
 echo "All runs completed. Results saved to: $output_folder"
