@@ -7,10 +7,10 @@
 #          K. Gopinath and Jayneel Gandhi
 #################################################################################
 
-all: btree canneal gups xsbench redis stream hashjoin liblinear gapbs-all
+all: btree canneal gups xsbench redis stream hashjoin liblinear gapbs-all memcached
 
 clean-all: clean-btree clean-canneal clean-gups clean-xsbench \
-	clean-redis clean-stream clean-hashjoin clean-liblinear clean-gapbs
+	clean-redis clean-stream clean-hashjoin clean-liblinear clean-gapbs clean-memcached
 
 
 ###############################################################################
@@ -258,6 +258,25 @@ liblinear : bin/bench_liblinear_st
 clean-liblinear :
 	+$(MAKE) -C liblinear clean
 	rm -f bin/bench_liblinear*
+
+###############################################################################
+# Memcached
+###############################################################################
+
+memcached/memcached:
+	cd memcached && ./autogen.sh
+	cd memcached && ./configure
+	+$(MAKE) -j$(nproc) -C memcached
+
+bin/bench_memcached: memcached/memcached
+	cp memcached/memcached $@
+
+memcached: bin/bench_memcached
+
+clean-memcached:
+	-+$(MAKE) -C memcached clean
+	-+$(MAKE) -C memcached distclean
+	rm -f bin/bench_memcached
 
 ###############################################################################
 # Redis
