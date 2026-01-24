@@ -12,11 +12,11 @@
 #define CONFIG_SHM_FILE_NAME "/tmp/alloctest-bench"
 
 #ifdef _OPENMP
-#define NELEMENTS (2900UL << 20)
-#define NLOOKUP 2000000000UL
+#define DEFAULT_NELEMENTS (2900UL << 20)
+#define DEFAULT_NLOOKUP 2000000000UL
 #else
-#define NELEMENTS (200UL << 20)
-#define NLOOKUP 20000000UL
+#define DEFAULT_NELEMENTS (200UL << 20)
+#define DEFAULT_NLOOKUP 20000000UL
 #endif
 
 #include <stdbool.h>
@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/mman.h>
+#include <getopt.h>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -42,6 +43,10 @@
 #define MAX_ORDER 256
 #define BUFFER_SIZE 256
 #define ALIGNMET (1UL << 21)
+
+/* Runtime configurable parameters (formerly macros) */
+size_t nelements;
+size_t nlookup;
 
 size_t allocator_stat = 0;
 
@@ -478,17 +483,12 @@ node * insert(node * root, uint64_t key, uint64_t value) {
 // OPTIMIZED BULK LOADING FOR SORTED DATA
 // ============================================================================
 
-/*
- * Bulk load a B+ tree from sorted keys in O(n) time.
- * This is MUCH faster than inserting one by one.
- */
 node * bulk_load(uint64_t *keys, record **records, size_t n) {
     if (n == 0) return NULL;
     
     size_t keys_per_leaf = order - 1;
     size_t num_leaves = (n + keys_per_leaf - 1) / keys_per_leaf;
     
-    // Step 1: Create all leaf nodes
     node **leaves = allocate(num_leaves * sizeof(node *));
     size_t key_idx = 0;
     
@@ -503,19 +503,16 @@ node * bulk_load(uint64_t *keys, record **records, size_t n) {
         }
         leaves[i]->num_keys = count;
         
-        // Link leaves together
         if (i > 0) {
             leaves[i-1]->pointers[order - 1] = leaves[i];
         }
     }
     leaves[num_leaves - 1]->pointers[order - 1] = NULL;
     
-    // If only one leaf, it's the root
     if (num_leaves == 1) {
         return leaves[0];
     }
     
-    // Step 2: Build internal nodes level by level
     node **current_level = leaves;
     size_t current_count = num_leaves;
     
@@ -529,21 +526,17 @@ node * bulk_load(uint64_t *keys, record **records, size_t n) {
             parent_level[i] = make_node();
             parent_level[i]->is_leaf = false;
             
-            // First pointer
             parent_level[i]->pointers[0] = current_level[child_idx];
             current_level[child_idx]->parent = parent_level[i];
             child_idx++;
             
-            // Add keys and remaining pointers
             size_t key_count = 0;
             while (key_count < order - 1 && child_idx < current_count) {
-                // Key is the first key of the child
                 node *child = current_level[child_idx];
                 uint64_t separator;
                 if (child->is_leaf) {
                     separator = child->keys[0];
                 } else {
-                    // For internal nodes, find leftmost leaf key
                     node *temp = child;
                     while (!temp->is_leaf) temp = temp->pointers[0];
                     separator = temp->keys[0];
@@ -564,17 +557,12 @@ node * bulk_load(uint64_t *keys, record **records, size_t n) {
     return current_level[0];
 }
 
-/*
- * Fast insert for unique keys (skips duplicate check)
- * Use this when you KNOW the key doesn't exist yet.
- */
 node * insert_unique(node * root, uint64_t key, record * rec) {
     if (root == NULL) return start_new_tree(key, rec);
     
     node * leaf = find_leaf(root, key, false);
     
     if (leaf->num_keys < order - 1) {
-        // Fast path: append to end if key is largest (sorted insertion)
         if (leaf->num_keys == 0 || key > leaf->keys[leaf->num_keys - 1]) {
             leaf->keys[leaf->num_keys] = key;
             leaf->pointers[leaf->num_keys] = rec;
@@ -589,7 +577,7 @@ node * insert_unique(node * root, uint64_t key, record * rec) {
 }
 
 // ============================================================================
-// DELETION (unchanged from original)
+// DELETION
 // ============================================================================
 
 uint64_t get_neighbor_index(node * n) {
@@ -757,7 +745,7 @@ node * destroy_tree(node * root) {
 }
 
 // ============================================================================
-// PRNG (unchanged)
+// PRNG
 // ============================================================================
 
 #define N    16
@@ -804,7 +792,42 @@ static void next(void) {
 }
 
 // ============================================================================
-// MAIN - Using bulk load for maximum speed
+// USAGE AND ARGUMENT PARSING
+// ============================================================================
+
+void print_usage(const char *prog_name) {
+    printf("Usage: %s [OPTIONS]\n", prog_name);
+    printf("\nOptions:\n");
+    printf("  -n, --nelements <num>   Number of elements to insert (default: %zuM)\n", 
+           DEFAULT_NELEMENTS / 1000000);
+    printf("  -l, --nlookup <num>     Number of lookups to perform (default: %zuM)\n",
+           DEFAULT_NLOOKUP / 1000000);
+    printf("  -h, --help              Show this help message\n");
+    printf("\nExamples:\n");
+    printf("  %s                           # Use defaults\n", prog_name);
+    printf("  %s -n 1000000 -l 5000000     # 1M elements, 5M lookups\n", prog_name);
+    printf("  %s --nelements 50000000      # 50M elements, default lookups\n", prog_name);
+}
+
+size_t parse_size(const char *str) {
+    char *endptr;
+    size_t val = strtoull(str, &endptr, 10);
+    
+    /* Support K, M, G suffixes */
+    if (*endptr != '\0') {
+        switch (*endptr) {
+            case 'k': case 'K': val *= 1000UL; break;
+            case 'm': case 'M': val *= 1000000UL; break;
+            case 'g': case 'G': val *= 1000000000UL; break;
+            default:
+                fprintf(stderr, "Warning: unknown suffix '%c', ignoring\n", *endptr);
+        }
+    }
+    return val;
+}
+
+// ============================================================================
+// MAIN
 // ============================================================================
 
 struct element {
@@ -814,43 +837,72 @@ struct element {
 int real_main(int argc, char ** argv) {
     node * root = NULL;
     
-    printf("BTree Elements: %zuM\n", NELEMENTS/1000000);
-    printf("BTree #Lookups: %zuM\n", NLOOKUP/1000000);
+    /* Set defaults */
+    nelements = DEFAULT_NELEMENTS;
+    nlookup = DEFAULT_NLOOKUP;
+    
+    /* Parse command line arguments */
+    static struct option long_options[] = {
+        {"nelements", required_argument, 0, 'n'},
+        {"nlookup",   required_argument, 0, 'l'},
+        {"help",      no_argument,       0, 'h'},
+        {0, 0, 0, 0}
+    };
+    
+    int opt;
+    int option_index = 0;
+    while ((opt = getopt_long(argc, argv, "n:l:h", long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'n':
+                nelements = parse_size(optarg);
+                /* Ensure nelements is even for the scattered insertion pattern */
+                if (nelements % 2 != 0) nelements++;
+                break;
+            case 'l':
+                nlookup = parse_size(optarg);
+                break;
+            case 'h':
+                print_usage(argv[0]);
+                return EXIT_SUCCESS;
+            default:
+                print_usage(argv[0]);
+                return EXIT_FAILURE;
+        }
+    }
+    
+    printf("BTree Elements: %zuM\n", nelements/1000000);
+    printf("BTree #Lookups: %zuM\n", nlookup/1000000);
     verbose_output = false;
     order = 16;
     
     redisSrand48(0xcafebabe);
     
-    // Allocate element storage (two arrays for scattered insertion)
-    struct element *elms = allocate((NELEMENTS / 2) * sizeof(struct element));
+    struct element *elms = allocate((nelements / 2) * sizeof(struct element));
     
     printf("Allocator after elements: %zu MB\n", allocator_stat >> 20);
     
-    // ========================================================================
-    // SCATTERED INSERTION (complex tree for page table benchmarking)
-    // Same pattern as original but using insert_unique (skips duplicate check)
-    // ========================================================================
-    struct element *elms2 = allocate((NELEMENTS / 2) * sizeof(struct element));
+    struct element *elms2 = allocate((nelements / 2) * sizeof(struct element));
     
     printf("Starting scattered insertion (for page table complexity)...\n");
     struct timeval ins_start, ins_end;
     gettimeofday(&ins_start, NULL);
     
-    size_t progress_interval = NELEMENTS / 10;
-    for (size_t i = 0; i < NELEMENTS; i += 2) {
+    size_t progress_interval = nelements / 10;
+    if (progress_interval == 0) progress_interval = 1;
+    
+    for (size_t i = 0; i < nelements; i += 2) {
         elms[i/2].payload = i;
-        elms2[i/2].payload = NELEMENTS - i - 1;
+        elms2[i/2].payload = nelements - i - 1;
         
         record *rec1 = make_record((uint64_t)&elms[i/2]);
         record *rec2 = make_record((uint64_t)&elms2[i/2]);
         
-        // Insert low key and high key alternately (scatters tree across memory)
         root = insert_unique(root, i, rec1);
-        root = insert_unique(root, NELEMENTS - i - 1, rec2);
+        root = insert_unique(root, nelements - i - 1, rec2);
         
         if (i % progress_interval == 0) {
             printf("  Inserted %zu%% (%zuM elements)\n", 
-                   (i * 100) / NELEMENTS, i / 1000000);
+                   (i * 100) / nelements, i / 1000000);
         }
     }
     
@@ -862,7 +914,6 @@ int real_main(int argc, char ** argv) {
     printf("Allocator total: %zu MB\n", allocator_stat >> 20);
     printf("Tree height: %lu\n", height(root));
     
-    // Signal ready
     fprintf(stderr, "signalling readyness to %s\n", CONFIG_SHM_FILE_NAME ".ready");
     FILE *fd2 = fopen(CONFIG_SHM_FILE_NAME ".ready", "w");
     if (fd2 == NULL) {
@@ -871,7 +922,6 @@ int real_main(int argc, char ** argv) {
     }
     usleep(250);
     
-    // Lookup phase
     uint64_t sum = 0;
     struct timeval start, end;
     gettimeofday(&start, NULL);
@@ -879,19 +929,16 @@ int real_main(int argc, char ** argv) {
 #ifdef _OPENMP
 #pragma omp parallel reduction(+:sum)
 {
-    // Thread-local PRNG state to avoid data races
     uint64_t local_x[3] = { X0, X1, X2 };
     uint64_t local_a[3] = { A0, A1, A2 };
     uint64_t local_c = C;
     
-    // Seed based on thread id
     int tid = omp_get_thread_num();
     local_x[1] = LOW(0xcafebabe + tid * 12345);
     local_x[2] = HIGH(0xcafebabe + tid * 12345);
     
     #pragma omp for
-    for (size_t i = 0; i < NLOOKUP; i++) {
-        // Inline PRNG to avoid shared state
+    for (size_t i = 0; i < nlookup; i++) {
         uint64_t p[2], q[2], r[2], carry0, carry1;
         MUL(local_a[0], local_x[0], p);
         ADDEQU(p[0], local_c, carry0);
@@ -905,13 +952,13 @@ int real_main(int argc, char ** argv) {
         local_x[0] = LOW(p[0]);
         size_t rdn = (((uint64_t)local_x[2] << (N - 1)) + (local_x[1] >> 1));
         
-        record * r1 = find(root, rdn % NELEMENTS, false, NULL);
+        record * r1 = find(root, rdn % nelements, false, NULL);
         if (r1) {
             struct element *e = (struct element *)r1->value;
             if (e) sum += e->payload;
         }
         
-        record * r2 = find(root, ((rdn + 1) << 2) % NELEMENTS, false, NULL);
+        record * r2 = find(root, ((rdn + 1) << 2) % nelements, false, NULL);
         if (r2) {
             struct element *e = (struct element *)r2->value;
             if (e) sum += e->payload;
@@ -919,14 +966,14 @@ int real_main(int argc, char ** argv) {
     }
 }
 #else
-    for (size_t i = 0; i < NLOOKUP; i++) {
+    for (size_t i = 0; i < nlookup; i++) {
         size_t rdn = redisLrand48();
-        record * r = find(root, rdn % NELEMENTS, false, NULL);
+        record * r = find(root, rdn % nelements, false, NULL);
         if (r) {
             struct element *e = (struct element *)r->value;
             if (e) sum += e->payload;
         }
-        r = find(root, ((rdn + 1) << 2) % NELEMENTS, false, NULL);
+        r = find(root, ((rdn + 1) << 2) % nelements, false, NULL);
         if (r) {
             struct element *e = (struct element *)r->value;
             if (e) sum += e->payload;
@@ -937,7 +984,6 @@ int real_main(int argc, char ** argv) {
     gettimeofday(&end, NULL);
     printf("got %zu sum in %zu seconds\n", sum, end.tv_sec - start.tv_sec);
     
-    // Signal done
     fprintf(stderr, "signalling done to %s\n", CONFIG_SHM_FILE_NAME ".done");
     FILE *fd1 = fopen(CONFIG_SHM_FILE_NAME ".done", "w");
     if (fd1 == NULL) {
