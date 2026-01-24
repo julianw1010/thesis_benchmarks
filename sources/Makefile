@@ -7,10 +7,10 @@
 #          K. Gopinath and Jayneel Gandhi
 #################################################################################
 
-all: btree canneal gups xsbench redis stream hashjoin liblinear gapbs-all memcached
+all: btree canneal gups xsbench redis stream hashjoin liblinear gapbs-all memcached memtier
 
 clean-all: clean-btree clean-canneal clean-gups clean-xsbench \
-	clean-redis clean-stream clean-hashjoin clean-liblinear clean-gapbs clean-memcached
+	clean-redis clean-stream clean-hashjoin clean-liblinear clean-gapbs clean-memcached clean-memtier
 
 
 ###############################################################################
@@ -277,6 +277,25 @@ clean-memcached:
 	-+$(MAKE) -C memcached clean
 	-+$(MAKE) -C memcached distclean
 	rm -f bin/bench_memcached
+
+###############################################################################
+# Memtier Benchmark
+###############################################################################
+
+memtier_benchmark/memtier_benchmark:
+	cd memtier_benchmark && autoreconf -ivf
+	cd memtier_benchmark && ./configure
+	+$(MAKE) -j$(nproc) -C memtier_benchmark
+
+bin/bench_memtier: memtier_benchmark/memtier_benchmark
+	cp memtier_benchmark/memtier_benchmark $@
+
+memtier: bin/bench_memtier
+
+clean-memtier:
+	-+$(MAKE) -C memtier_benchmark clean
+	-+$(MAKE) -C memtier_benchmark distclean
+	rm -f bin/bench_memtier
 
 ###############################################################################
 # Redis
