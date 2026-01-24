@@ -1,1 +1,0 @@
-/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure6/gups/node1.pagetable.pagetable-pg0.clemson.cloudlab.us-config-gups-RPLDI-20260119-172911/time-gups-node1.pagetable.pagetable-pg0.clemson.cloudlab.us-RPLDI.txt /usr/local/bin/numactl -m 7 -N 7 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/gups/bench_gups_st  -- 16
