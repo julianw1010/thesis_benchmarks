@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 
 echo 1 | sudo tee /proc/hydra/tlbflush_opt
 
