@@ -1,0 +1,37 @@
+Script started on 2026-01-13 18:53:44+00:00 [COMMAND="/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure6/hashjoin/node1.pagetable.pagetable-pg0.clemson.cloudlab.us-config-hashjoin-RPLD-20260113-185343/time-hashjoin-node1.pagetable.pagetable-pg0.clemson.cloudlab.us-RPLD.txt /usr/local/bin/numactl -m 7 -N 7 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/hashjoin/bench_hashjoin_st  -- -o 135000000 -i 1000000 -s 1000000 -n 3 " <not executed on terminal>]
+/mnt/mydata/mitosis-asplos20-artifact-fork/bin/hashjoin/bench_hashjoin_st -- -o 135000000 -i 1000000 -s 1000000 -n 3 
+prog_argv[0]=/mnt/mydata/mitosis-asplos20-artifact-fork/bin/hashjoin/bench_hashjoin_st
+prog_argv[1]=-o
+prog_argv[2]=135000000
+prog_argv[3]=-i
+prog_argv[4]=1000000
+prog_argv[5]=-s
+prog_argv[6]=1000000
+prog_argv[7]=-n
+prog_argv[8]=3
+NO signalling readyness to /tmp/alloctest-bench.ready
+<benchmark exec="/mnt/mydata/mitosis-asplos20-artifact-fork/bin/hashjoin/bench_hashjoin_st">
+<config>
+  <openmp>off</openmp>  <memsize>1G <memsize>  <hugetlb>0</hugetlb>
+  <data>0</data>  <pte>0</pte>  <run>0</run>
+  <interference>0</interference>
+</config>
+<run>
+Hashtable Size: 7MB
+Datatable Size Size: 16479MB
+Element Size: 15 MB
+Total: 16624 MB
+allocating 7 MB memory with alignment 64 
+allocating 15 MB memory with alignment 2097152 
+allocating 16479 MB memory with alignment 2097152 
+signalling readyness to /tmp/alloctest-bench.ready
+signalling done to /tmp/alloctest-bench.done
+got 3000003 matches / 1000001 matches per iteration of 270000000 
+hashtable conflicts = 367586
+Lookup time: 55.18446744073709551407
+</run>
+Took: 59.269
+Took: 59.269
+</benchmark>
+
+Script done on 2026-01-13 18:54:43+00:00 [COMMAND_EXIT_CODE="0"]

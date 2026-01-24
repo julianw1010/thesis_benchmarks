@@ -1,0 +1,43 @@
+/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure6/pr/node1.pagetable.pagetable-pg0.clemson.cloudlab.us-config-pr-RPLD-20260114-112101/time-pr-node1.pagetable.pagetable-pg0.clemson.cloudlab.us-RPLD.txt /usr/local/bin/numactl -m 7 -N 7 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/pr/bench_pr_st  -f /mnt/mydata/mitosis-asplos20-artifact-fork/datasets/kron27.sg -n 1
+Total Runtime (seconds): 155
+Execution Time (ready to done, seconds): 142
+Maximum Resident Set Size (kB): 18597008
+Maximum Resident Set Size (MB): 18161
+
+===== TIME OUTPUT =====
+	Command being timed: "/usr/local/bin/numactl -m 7 -N 7 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/pr/bench_pr_st -f /mnt/mydata/mitosis-asplos20-artifact-fork/datasets/kron27.sg -n 1"
+	User time (seconds): 141.57
+	System time (seconds): 7.51
+	Percent of CPU this job got: 95%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:35.39
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 18597008
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 36
+	Minor (reclaiming a frame) page faults: 4910918
+	Voluntary context switches: 123473
+	Involuntary context switches: 152
+	Swaps: 0
+	File system inputs: 35097336
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+===== BENCHMARK OUTPUT =====
+Script started on 2026-01-14 11:21:02+00:00 [COMMAND="/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure6/pr/node1.pagetable.pagetable-pg0.clemson.cloudlab.us-config-pr-RPLD-20260114-112101/time-pr-node1.pagetable.pagetable-pg0.clemson.cloudlab.us-RPLD.txt /usr/local/bin/numactl -m 7 -N 7 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/pr/bench_pr_st  -f /mnt/mydata/mitosis-asplos20-artifact-fork/datasets/kron27.sg -n 1" <not executed on terminal>]
+Read Time:           13.49116
+signalling readyness to /tmp/alloctest-bench.ready
+Graph has 134217728 nodes and 2111632379 undirected edges for degree: 15
+Trial Time:          141.55272
+Average Time:        141.55272
+signalling done to /tmp/alloctest-bench.done
+
+Script done on 2026-01-14 11:23:37+00:00 [COMMAND_EXIT_CODE="0"]
+
+****success****

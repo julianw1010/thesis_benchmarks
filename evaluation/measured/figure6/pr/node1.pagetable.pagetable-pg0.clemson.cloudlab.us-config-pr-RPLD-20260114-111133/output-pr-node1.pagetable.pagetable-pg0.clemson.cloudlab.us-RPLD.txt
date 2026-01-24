@@ -1,0 +1,9 @@
+Script started on 2026-01-14 11:11:34+00:00 [COMMAND="/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure6/pr/node1.pagetable.pagetable-pg0.clemson.cloudlab.us-config-pr-RPLD-20260114-111133/time-pr-node1.pagetable.pagetable-pg0.clemson.cloudlab.us-RPLD.txt /usr/local/bin/numactl -m 7 -N 7 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/pr/bench_pr_st  -f /mnt/mydata/mitosis-asplos20-artifact-fork/datasets/kron26.sg -n 1" <not executed on terminal>]
+Read Time:           6.66332
+signalling readyness to /tmp/alloctest-bench.ready
+Graph has 67108864 nodes and 1051923236 undirected edges for degree: 15
+Trial Time:          60.93072
+Average Time:        60.93072
+signalling done to /tmp/alloctest-bench.done
+
+Script done on 2026-01-14 11:12:42+00:00 [COMMAND_EXIT_CODE="0"]

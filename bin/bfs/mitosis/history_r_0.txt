@@ -1,0 +1,188 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #33
+Process: numactl (PID: 14711, TGID: 14711) [REPLICATED]
+Cmdline: numactl -r all /usr/bin/time --verbose -- ./bench_bfs_mt -f ../../datasets/graphs/kron29.sg -n 3 
+Duration: 14 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 484
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     499
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 26
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              26
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1      [   3]      0/1      [   3]      1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/7      [  24]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [   3]      0/3      [   3]      3/0      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      3/21     [  24]
+PMD           0/3      [   5]      0/3      [   5]      3/0      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      3/21     [  40]
+PTE           0/5      [ 458]      0/5      [ 458]      5/0      [ 458]      0/5      [ 458]      0/5      [ 458]      0/5      [ 458]      0/5      [ 458]      0/5      [ 458]      5/35     [3664]
+
+Memory: 12 primary pages (48 KB), 84 replica pages (336 KB)
+Total:  96 pages (384 KB)
+
+================================================================================
+History Entry #34
+Process: time (PID: 14711, TGID: 14711) [REPLICATED]
+Cmdline: /usr/bin/time --verbose -- ./bench_bfs_mt -f ../../datasets/graphs/kron29.sg -n 3 
+Duration: 8 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+  Replica hits:     1
+  Primary hits:     0
+  Replica hit rate: 100%
+
+Page Table Pages Modified:
+  PTE pages: 730
+  PMD pages: 5
+  PUD pages: 3
+  P4D pages: 0
+  PGD pages: 3
+  Total:     741
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 40
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              40
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1      [   3]      0/1      [   3]      1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/7      [  24]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [   3]      0/3      [   3]      3/0      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      3/21     [  24]
+PMD           0/3      [   5]      0/3      [   5]      3/0      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      3/21     [  40]
+PTE           0/5      [ 108]      0/5      [ 108]      5/0      [ 108]      0/5      [ 108]      0/5      [ 108]      0/5      [ 108]      0/5      [ 108]      0/5      [ 108]      5/35     [ 864]
+
+Memory: 12 primary pages (48 KB), 84 replica pages (336 KB)
+Total:  96 pages (384 KB)
+
+================================================================================
+History Entry #35
+Process: bench_bfs_mt (PID: 14712, TGID: 14712) [REPLICATED]
+Cmdline: ./bench_bfs_mt -f ../../datasets/graphs/kron29.sg -n 3 
+Duration: 83947 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 122
+  TLB IPIs sent:    7624
+
+CR3 Write Statistics:
+  Total CR3 writes: 365
+  Replica hits:     324
+  Primary hits:     41
+  Replica hit rate: 88%
+
+Page Table Pages Modified:
+  PTE pages: 163450270
+  PMD pages: 639549
+  PUD pages: 1261
+  P4D pages: 0
+  PGD pages: 3
+  Total:     164091083
+
+Page Table Pages Read:
+  PTE pages: 2712
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 163431610
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              163431610
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1      [   3]      0/1      [   3]      0/1      [   3]      1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/7      [  24]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [  82]      0/3      [  82]      0/3      [  82]      3/0      [  82]      0/3      [  82]      0/3      [  82]      0/3      [  82]      0/3      [  82]      3/21     [ 656]
+PMD          76/9      [36566]      8/82     [36566]      8/81     [36566]     11/79     [36566]      9/81     [36566]      8/80     [36566]      8/81     [36566]      8/81     [36566]    136/574    [292528]
+PTE       35380/1799   [18687335]    668/36310  [18687335]    661/36310  [18687335]    263/39366  [18687335]    668/36310  [18687335]    661/36310  [18687335]    666/36310  [18687335]    673/36310  [18687335]  39640/259025 [149498680]
+
+Memory: 39780 primary pages (159120 KB), 259627 replica pages (1038508 KB)
+Total:  299407 pages (1197628 KB)
+
+================================================================================
+History Entry #36
+Process: time (PID: 14711, TGID: 14711) [REPLICATED]
+Cmdline: /usr/bin/time --verbose -- ./bench_bfs_mt -f ../../datasets/graphs/kron29.sg -n 3 
+Duration: 84007 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+  Replica hits:     0
+  Primary hits:     1
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 3607
+  PMD pages: 21
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     3636
+
+Page Table Pages Read:
+  PTE pages: 56
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 186
+  ptep_wrprotect:     136
+  ptep_clear_young:   0
+  Total:              322
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1      [   3]      0/1      [   3]      1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/7      [  24]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [   3]      0/3      [   3]      3/0      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      3/21     [  24]
+PMD           0/3      [   5]      0/3      [   5]      3/0      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      3/21     [  40]
+PTE           0/5      [ 423]      0/5      [ 423]      5/0      [ 423]      0/5      [ 423]      0/5      [ 423]      0/5      [ 423]      0/5      [ 423]      0/5      [ 423]      5/35     [3384]
+
+Memory: 12 primary pages (48 KB), 84 replica pages (336 KB)
+Total:  96 pages (384 KB)
+
+Total historical entries: 4 (max: 64)

@@ -1,0 +1,58 @@
+/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure6/gups/node1.pagetable.pagetable-pg0.clemson.cloudlab.us-config-gups-RPILD-20260113-181414/time-gups-node1.pagetable.pagetable-pg0.clemson.cloudlab.us-RPILD.txt /usr/local/bin/numactl -m 7 -N 7 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/gups/bench_gups_st  -- 16
+Total Runtime (seconds): 176
+Execution Time (ready to done, seconds): 171
+Maximum Resident Set Size (kB): 16777728
+Maximum Resident Set Size (MB): 16384
+
+===== TIME OUTPUT =====
+	Command being timed: "/usr/local/bin/numactl -m 7 -N 7 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/gups/bench_gups_st -- 16"
+	User time (seconds): 173.06
+	System time (seconds): 2.98
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:56.06
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 16777728
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 17
+	Minor (reclaiming a frame) page faults: 4194413
+	Voluntary context switches: 23
+	Involuntary context switches: 257
+	Swaps: 0
+	File system inputs: 3360
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+===== BENCHMARK OUTPUT =====
+Script started on 2026-01-13 18:14:14+00:00 [COMMAND="/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure6/gups/node1.pagetable.pagetable-pg0.clemson.cloudlab.us-config-gups-RPILD-20260113-181414/time-gups-node1.pagetable.pagetable-pg0.clemson.cloudlab.us-RPILD.txt /usr/local/bin/numactl -m 7 -N 7 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/gups/bench_gups_st  -- 16" <not executed on terminal>]
+/mnt/mydata/mitosis-asplos20-artifact-fork/bin/gups/bench_gups_st -- 16 
+prog_argv[0]=/mnt/mydata/mitosis-asplos20-artifact-fork/bin/gups/bench_gups_st
+prog_argv[1]=16
+NO signalling readyness to /tmp/alloctest-bench.ready
+<benchmark exec="/mnt/mydata/mitosis-asplos20-artifact-fork/bin/gups/bench_gups_st">
+<config>
+  <openmp>off</openmp>  <memsize>1G <memsize>  <hugetlb>0</hugetlb>
+  <data>0</data>  <pte>0</pte>  <run>0</run>
+  <interference>0</interference>
+</config>
+<run>
+<gups tablesize="17179869184"></gups>
+<gups table="0x7f2771f91010" tablesize="2147483648"></gups>
+<gups threads="1"></gups>
+<gups_runtime>171.795</gups_runtime>
+<gups_rate>0.009375 GUPS</gups_rate>
+<gups_updates>1610612736</gups_updates>
+</run>
+Took: 175.793
+Took: 175.793
+</benchmark>
+
+Script done on 2026-01-13 18:17:10+00:00 [COMMAND_EXIT_CODE="0"]
+
+****success****

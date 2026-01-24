@@ -1,0 +1,53 @@
+/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure6/liblinear/node1.pagetable.pagetable-pg0.clemson.cloudlab.us-config-liblinear-LPRDI-20260114-084527/time-liblinear-node1.pagetable.pagetable-pg0.clemson.cloudlab.us-LPRDI.txt /usr/local/bin/numactl -m 7 -N 0 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/liblinear/bench_liblinear_st  -s 6 -n 28 /mnt/mydata/mitosis-asplos20-artifact-fork/datasets/kdd12_5gb 
+Total Runtime (seconds): 695
+Execution Time (ready to done, seconds): 620
+Maximum Resident Set Size (kB): 17731416
+Maximum Resident Set Size (MB): 17315
+
+===== TIME OUTPUT =====
+	Command being timed: "/usr/local/bin/numactl -m 7 -N 0 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/liblinear/bench_liblinear_st -s 6 -n 28 /mnt/mydata/mitosis-asplos20-artifact-fork/datasets/kdd12_5gb"
+	User time (seconds): 682.69
+	System time (seconds): 11.89
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 11:34.60
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 17731416
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 29
+	Minor (reclaiming a frame) page faults: 4501880
+	Voluntary context switches: 33
+	Involuntary context switches: 128
+	Swaps: 0
+	File system inputs: 10490688
+	File system outputs: 108192
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+===== BENCHMARK OUTPUT =====
+Script started on 2026-01-14 08:45:27+00:00 [COMMAND="/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure6/liblinear/node1.pagetable.pagetable-pg0.clemson.cloudlab.us-config-liblinear-LPRDI-20260114-084527/time-liblinear-node1.pagetable.pagetable-pg0.clemson.cloudlab.us-LPRDI.txt /usr/local/bin/numactl -m 7 -N 0 /mnt/mydata/mitosis-asplos20-artifact-fork/bin/liblinear/bench_liblinear_st  -s 6 -n 28 /mnt/mydata/mitosis-asplos20-artifact-fork/datasets/kdd12_5gb " <not executed on terminal>]
+signalling readyness to /tmp/alloctest-bench.ready
+iter   1  #CD cycles 1
+iter   2  #CD cycles 1
+iter   3  #CD cycles 1
+iter   4  #CD cycles 1
+iter   5  #CD cycles 4
+iter   6  #CD cycles 1
+iter   7  #CD cycles 11
+iter   8  #CD cycles 1
+iter   9  #CD cycles 26
+=========================
+optimization finished, #iter = 9
+Objective value = 6236597.112344
+#nonzeros/#features = 137533/17638639
+Runtime: 619.86 seconds
+signalling done to /tmp/alloctest-bench.done
+
+Script done on 2026-01-14 08:57:02+00:00 [COMMAND_EXIT_CODE="0"]
+
+****success****

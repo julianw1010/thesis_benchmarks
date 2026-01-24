@@ -1,0 +1,71 @@
+/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure10/hashjoin/node1.pagetable.pagetable-pg0.clemson.cloudlab.us-config-hashjoin-RPILD_MITOSIS-20260113-195848/time-hashjoin-node1.pagetable.pagetable-pg0.clemson.cloudlab.us-RPILD_MITOSIS.txt /usr/local/bin/numactl -m 7 -N 7 -r all /mnt/mydata/mitosis-asplos20-artifact-fork/bin/hashjoin/bench_hashjoin_st  -- -o 135000000 -i 1000000 -s 1000000 -n 3 
+Total Runtime (seconds): 60
+Execution Time (ready to done, seconds): 55
+Maximum Resident Set Size (kB): 16898560
+Maximum Resident Set Size (MB): 16502
+
+===== TIME OUTPUT =====
+	Command being timed: "/usr/local/bin/numactl -m 7 -N 7 -r all /mnt/mydata/mitosis-asplos20-artifact-fork/bin/hashjoin/bench_hashjoin_st -- -o 135000000 -i 1000000 -s 1000000 -n 3"
+	User time (seconds): 56.51
+	System time (seconds): 3.25
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:59.82
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 16898560
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 16
+	Minor (reclaiming a frame) page faults: 4224721
+	Voluntary context switches: 25
+	Involuntary context switches: 92
+	Swaps: 0
+	File system inputs: 3040
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+===== BENCHMARK OUTPUT =====
+Script started on 2026-01-13 19:58:48+00:00 [COMMAND="/usr/bin/time -v -o /mnt/mydata/mitosis-asplos20-artifact-fork/evaluation/measured/figure10/hashjoin/node1.pagetable.pagetable-pg0.clemson.cloudlab.us-config-hashjoin-RPILD_MITOSIS-20260113-195848/time-hashjoin-node1.pagetable.pagetable-pg0.clemson.cloudlab.us-RPILD_MITOSIS.txt /usr/local/bin/numactl -m 7 -N 7 -r all /mnt/mydata/mitosis-asplos20-artifact-fork/bin/hashjoin/bench_hashjoin_st  -- -o 135000000 -i 1000000 -s 1000000 -n 3 " <not executed on terminal>]
+/mnt/mydata/mitosis-asplos20-artifact-fork/bin/hashjoin/bench_hashjoin_st -- -o 135000000 -i 1000000 -s 1000000 -n 3 
+prog_argv[0]=/mnt/mydata/mitosis-asplos20-artifact-fork/bin/hashjoin/bench_hashjoin_st
+prog_argv[1]=-o
+prog_argv[2]=135000000
+prog_argv[3]=-i
+prog_argv[4]=1000000
+prog_argv[5]=-s
+prog_argv[6]=1000000
+prog_argv[7]=-n
+prog_argv[8]=3
+NO signalling readyness to /tmp/alloctest-bench.ready
+<benchmark exec="/mnt/mydata/mitosis-asplos20-artifact-fork/bin/hashjoin/bench_hashjoin_st">
+<config>
+  <openmp>off</openmp>  <memsize>1G <memsize>  <hugetlb>0</hugetlb>
+  <data>0</data>  <pte>0</pte>  <run>0</run>
+  <interference>0</interference>
+</config>
+<run>
+Hashtable Size: 7MB
+Datatable Size Size: 16479MB
+Element Size: 15 MB
+Total: 16624 MB
+allocating 7 MB memory with alignment 64 
+allocating 15 MB memory with alignment 2097152 
+allocating 16479 MB memory with alignment 2097152 
+signalling readyness to /tmp/alloctest-bench.ready
+signalling done to /tmp/alloctest-bench.done
+got 3000003 matches / 1000001 matches per iteration of 270000000 
+hashtable conflicts = 367586
+Lookup time: 55.18446744073709551325
+</run>
+Took: 60.18446744073709551109
+Took: 60.18446744073709551109
+</benchmark>
+
+Script done on 2026-01-13 19:59:48+00:00 [COMMAND_EXIT_CODE="0"]
+
+****success****
