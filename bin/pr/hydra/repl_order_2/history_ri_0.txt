@@ -1,0 +1,224 @@
+Hydra Page Table Replication - Historical Data
+===============================================
+
+================================================================================
+Process: numactl (PID: 11726, TGID: 11726)
+Seq ID: 25 | Active NUMA nodes: 8
+Cmdline: numactl -r all -i all /usr/bin/time --verbose -- ./bench_pr_mt -f ../../datasets/graphs/kron29.sg -n 3 
+Duration: 0 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+
+Replication Statistics:
+  Events:           0
+  Entries examined: 0
+  Avg examined:     0.00
+  Entries copied:   0
+  Avg copied:       0.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 483
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     498
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 26
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              26
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   0]     1 [   3]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     8 [   3]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          0 [   0]     3 [   3]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   3]
+PMD          0 [   0]     3 [   5]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   5]
+PTE          0 [   0]     5 [ 457]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     5 [ 457]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    19 pages = 76 KB
+================================================================================
+Process: time (PID: 11726, TGID: 11726)
+Seq ID: 26 | Active NUMA nodes: 8
+Cmdline: /usr/bin/time --verbose -- ./bench_pr_mt -f ../../datasets/graphs/kron29.sg -n 3 
+Duration: 0 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+
+Replication Statistics:
+  Events:           0
+  Entries examined: 0
+  Avg examined:     0.00
+  Entries copied:   0
+  Avg copied:       0.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 113
+  PMD pages: 5
+  PUD pages: 3
+  P4D pages: 0
+  PGD pages: 3
+  Total:     124
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 5
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              5
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   0]     1 [   3]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     8 [   3]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          0 [   0]     3 [   3]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   3]
+PMD          0 [   0]     3 [   5]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   5]
+PTE          0 [   0]     5 [ 107]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     5 [ 107]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    19 pages = 76 KB
+================================================================================
+Process: time (PID: 11727, TGID: 11727)
+Seq ID: 27 | Active NUMA nodes: 8
+Cmdline: /usr/bin/time --verbose -- ./bench_pr_mt -f ../../datasets/graphs/kron29.sg -n 3 
+Duration: 249144 ms
+
+TLB Statistics:
+  Shootdowns: 275 events
+  IPIs sent:  13938
+  IPIs saved: 3000
+
+CR3 Write Statistics:
+  Total CR3 writes: 1258
+
+Replication Statistics:
+  Events:           33252973
+  Entries examined: 127505775
+  Avg examined:     3.83
+  Entries copied:   118334671
+  Avg copied:       3.55
+  Entries skipped:  9171104
+  Avg skipped:      0.27
+
+Race Conditions:
+  PTE page races:  241 (concurrent page allocations)
+  Master faults:   31 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 25517826
+  PMD pages: 636766
+  PUD pages: 1320
+  P4D pages: 0
+  PGD pages: 24
+  Total:     26155936
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 162962016
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              162962016
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   3]     1 [   3]     1 [   3]     1 [   3]     1 [   3]     1 [   3]     1 [   3]     1 [   3]     8 [  24]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          3 [  75]     3 [  75]     5 [  75]     4 [  75]     5 [  75]     3 [  75]     5 [  75]     5 [  75]    33 [ 600]
+PMD        106 [36568]    82 [35142]    82 [33681]    80 [34917]    81 [34577]    81 [35741]    80 [35311]    80 [35911]   672 [281848]
+PTE      36568 [18687007] 35142 [15596236] 33681 [13951735] 34917 [15288746] 34577 [15055209] 35741 [16613765] 35311 [15857601] 35911 [16980203] 281848 [128030502]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    282561 pages = 1130244 KB (1103 MB)
+================================================================================
+Process: numactl (PID: 11726, TGID: 11726)
+Seq ID: 28 | Active NUMA nodes: 8
+Cmdline: numactl -r all -i all /usr/bin/time --verbose -- ./bench_pr_mt -f ../../datasets/graphs/kron29.sg -n 3 
+Duration: 249147 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+
+Replication Statistics:
+  Events:           0
+  Entries examined: 0
+  Avg examined:     0.00
+  Entries copied:   0
+  Avg copied:       0.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 455
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     470
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     16
+  ptep_clear_young:   0
+  Total:              41
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   0]     1 [   3]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     8 [   3]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          0 [   0]     3 [   3]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   3]
+PMD          0 [   0]     3 [   5]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   5]
+PTE          0 [   0]     5 [ 421]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     5 [ 421]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    19 pages = 76 KB
+Total entries: 4
