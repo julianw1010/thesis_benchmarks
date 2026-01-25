@@ -1,0 +1,224 @@
+Hydra Page Table Replication - Historical Data
+===============================================
+
+================================================================================
+Process: numactl (PID: 40831, TGID: 40831)
+Seq ID: 763 | Active NUMA nodes: 8
+Cmdline: numactl -r all -i all /usr/bin/time --verbose -- ./bench_canneal_mt 64 200000 2000 ../../datasets/canneal_10gb_int 400 
+Duration: 0 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+
+Replication Statistics:
+  Events:           0
+  Entries examined: 0
+  Avg examined:     0.00
+  Entries copied:   0
+  Avg copied:       0.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 482
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     497
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 26
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              26
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   3]     1 [   0]     1 [   0]     8 [   3]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   3]     0 [   0]     0 [   0]     3 [   3]
+PMD          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   5]     0 [   0]     0 [   0]     3 [   5]
+PTE          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     5 [ 456]     0 [   0]     0 [   0]     5 [ 456]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    19 pages = 76 KB
+================================================================================
+Process: time (PID: 40831, TGID: 40831)
+Seq ID: 764 | Active NUMA nodes: 8
+Cmdline: /usr/bin/time --verbose -- ./bench_canneal_mt 64 200000 2000 ../../datasets/canneal_10gb_int 400 
+Duration: 0 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+
+Replication Statistics:
+  Events:           0
+  Entries examined: 0
+  Avg examined:     0.00
+  Entries copied:   0
+  Avg copied:       0.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 114
+  PMD pages: 5
+  PUD pages: 3
+  P4D pages: 0
+  PGD pages: 3
+  Total:     125
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 5
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              5
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   3]     1 [   0]     1 [   0]     8 [   3]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   3]     0 [   0]     0 [   0]     3 [   3]
+PMD          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   5]     0 [   0]     0 [   0]     3 [   5]
+PTE          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     5 [ 108]     0 [   0]     0 [   0]     5 [ 108]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    19 pages = 76 KB
+================================================================================
+Process: time (PID: 40832, TGID: 40832)
+Seq ID: 765 | Active NUMA nodes: 8
+Cmdline: /usr/bin/time --verbose -- ./bench_canneal_mt 64 200000 2000 ../../datasets/canneal_10gb_int 400 
+Duration: 267775 ms
+
+TLB Statistics:
+  Shootdowns: 254 events
+  IPIs sent:  8848
+  IPIs saved: 7056
+
+CR3 Write Statistics:
+  Total CR3 writes: 327
+
+Replication Statistics:
+  Events:           10082255
+  Entries examined: 80647280
+  Avg examined:     7.99
+  Entries copied:   80575416
+  Avg copied:       7.99
+  Entries skipped:  71864
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  62 (concurrent page allocations)
+  Master faults:   4 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 25323808
+  PMD pages: 217062
+  PUD pages: 499
+  P4D pages: 0
+  PGD pages: 24
+  Total:     25541393
+
+Page Table Pages Read:
+  PTE pages: 11618580
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 4946191
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              4946191
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   3]     1 [   3]     1 [   3]     1 [   3]     1 [   3]     1 [   3]     1 [   3]     1 [   3]     8 [  24]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          3 [  61]     3 [  58]     3 [  58]     6 [  58]     4 [  59]     3 [  58]     5 [  58]     5 [  57]    32 [ 467]
+PMD         61 [27823]    58 [24678]    58 [24650]    58 [24741]    59 [24738]    58 [24733]    58 [24674]    57 [24664]   467 [200701]
+PTE      27823 [14206944] 24678 [12601435] 24650 [12590852] 24741 [12637940] 24738 [12642835] 24733 [12639553] 24674 [12600412] 24664 [12608140] 200701 [102528111]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    201208 pages = 804832 KB (785 MB)
+================================================================================
+Process: numactl (PID: 40831, TGID: 40831)
+Seq ID: 766 | Active NUMA nodes: 8
+Cmdline: numactl -r all -i all /usr/bin/time --verbose -- ./bench_canneal_mt 64 200000 2000 ../../datasets/canneal_10gb_int 400 
+Duration: 272348 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+
+Replication Statistics:
+  Events:           0
+  Entries examined: 0
+  Avg examined:     0.00
+  Entries copied:   0
+  Avg copied:       0.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 458
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     473
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     17
+  ptep_clear_young:   0
+  Total:              42
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   3]     1 [   0]     1 [   0]     8 [   3]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   3]     0 [   0]     0 [   0]     3 [   3]
+PMD          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   5]     0 [   0]     0 [   0]     3 [   5]
+PTE          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     5 [ 423]     0 [   0]     0 [   0]     5 [ 423]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    19 pages = 76 KB
+Total entries: 4
