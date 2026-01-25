@@ -9,6 +9,7 @@ cleanup() {
     echo "Caught interrupt, cleaning up..."
     sudo pkill -9 -f '[b]ench_memcached' 2>/dev/null || true
     sudo pkill -9 -f '[b]ench_memtier' 2>/dev/null || true
+    wait 2>/dev/null || true
     # Reset terminal in case script command messed it up
     stty sane 2>/dev/null || true
     exit 1
@@ -127,9 +128,10 @@ for ((i=start; i<=max_index; i++)); do
     # Reset history
     echo -1 | sudo tee $history_interface > /dev/null
 
-    # Launch memcached with appropriate numactl options (daemon mode)
+    # Launch memcached with appropriate numactl options (background, with timing)
     echo "Starting memcached with numactl $numactl_opts..."
-    numactl $numactl_opts ./bench_memcached -m 220000 -t 32 -p 11211 -c 8192 -o hashpower=31 -d >/dev/null 2>&1
+    numactl $numactl_opts /usr/bin/time --verbose -- ./bench_memcached -m 220000 -t 32 -p 11211 -c 8192 -o hashpower=31 > "${output_folder}/output_${prefix}${i}.txt" 2>&1 &
+    memcached_pid=$!
 
     # Wait for memcached to actually be listening
     echo "Waiting for memcached to be ready..."
@@ -156,16 +158,20 @@ for ((i=start; i<=max_index; i++)); do
         --threads=10 --clients=10 \
         -n 500000 --hide-histogram
 
-    # Run benchmark (GET operations) with timing
+    # Run benchmark (GET operations)
     echo "Running benchmark..."
-    script -e -q -c "/usr/bin/time --verbose -- ./bench_memtier \
+    ./bench_memtier \
         -s localhost -p 11211 --protocol=memcache_text \
         --key-minimum=1 --key-maximum=50000000 --key-pattern=R:R \
         --ratio=0:1 --data-size=24 --threads=32 --clients=20 \
-        --pipeline=100 --test-time=30" "${output_folder}/output_${prefix}${i}.txt"
+        --pipeline=100 --test-time=10
 
     # Save history
     cat $history_interface > "${output_folder}/history_${prefix}${i}.txt"
+
+    # Kill memcached and wait for time stats to be written
+    kill_memcached
+    wait $memcached_pid 2>/dev/null || true
 
     echo "=== Iteration $i complete ==="
 done
