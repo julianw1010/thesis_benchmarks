@@ -126,7 +126,7 @@ for ((i=start; i<=max_index; i++)); do
     echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
 
     # Reset history
-    echo -1 | sudo tee $history_interface > /dev/null
+    echo -1 | sudo tee $history_interface
 
     # Launch memcached with appropriate numactl options (background, with timing)
     echo "Starting memcached with numactl $numactl_opts..."
@@ -153,25 +153,26 @@ for ((i=start; i<=max_index; i++)); do
     echo "Populating memcached..."
     ./bench_memtier \
         -s localhost -p 11211 --protocol=memcache_text \
-        --key-minimum=1 --key-maximum=50000000 --key-pattern=P:P \
+        --key-minimum=1 --key-maximum=5000000 --key-pattern=P:P \
         --ratio=1:0 --data-size=24 \
         --threads=10 --clients=10 \
-        -n 500000 --hide-histogram
+        -n 50000 --hide-histogram
 
     # Run benchmark (GET operations)
     echo "Running benchmark..."
     ./bench_memtier \
         -s localhost -p 11211 --protocol=memcache_text \
-        --key-minimum=1 --key-maximum=50000000 --key-pattern=R:R \
+        --key-minimum=1 --key-maximum=5000000 --key-pattern=R:R \
         --ratio=0:1 --data-size=24 --threads=32 --clients=20 \
         --pipeline=100 --test-time=10
-
-    # Save history
-    cat $history_interface > "${output_folder}/history_${prefix}${i}.txt"
 
     # Kill memcached and wait for time stats to be written
     kill_memcached
     wait $memcached_pid 2>/dev/null || true
+    sleep 0.5
+
+    # Save history
+    cat $history_interface > "${output_folder}/history_${prefix}${i}.txt"
 
     echo "=== Iteration $i complete ==="
 done
