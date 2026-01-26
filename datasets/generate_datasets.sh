@@ -1,3 +1,4 @@
+mkdir -p graphs
 ./generate_canneal_small.sh
 ./generate_canneal_tiny.sh
 ./generate_canneal_medium.sh
