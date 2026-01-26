@@ -28,8 +28,12 @@ CMD_BASENAME=$(basename "$CMD_EXECUTABLE")
 # Create output folder if it doesn't exist
 mkdir -p "$output_folder"
 
-# Perf events for page table replication analysis (AMD EPYC)
-PERF_EVENTS="cycles,instructions,l1_dtlb_misses,l2_dtlb_misses,bp_l1_tlb_miss_l2_tlb_hit,bp_l1_tlb_miss_l2_tlb_miss,ls_tablewalker.dside,ls_tablewalker.iside,ls_any_fills_from_sys.mem_io_local,ls_any_fills_from_sys.mem_io_remote"
+# Perf events for page table replication analysis (AMD EPYC 7543)
+PERF_EVENTS="cycles,instructions"
+PERF_EVENTS+=",ls_tablewalker.dc_type0,ls_tablewalker.dc_type1"
+PERF_EVENTS+=",ls_tablewalker.ic_type0,ls_tablewalker.ic_type1"
+PERF_EVENTS+=",l1_dtlb_misses,l2_dtlb_misses"
+PERF_EVENTS+=",ls_dmnd_fills_from_sys.mem_io_local,ls_dmnd_fills_from_sys.mem_io_remote"
 
 # Benchmark synchronization files
 BENCH_READY="/tmp/alloctest-bench.ready"
