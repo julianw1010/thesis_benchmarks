@@ -1,4 +1,4 @@
-Script started on 2026-01-26 15:45:38+00:00 [COMMAND="numactl -P /usr/bin/time -v -o linux/50gb/time_0.txt -- ./bench_xsbench_mt -- -p 250000 -g 10000" <not executed on terminal>]
+Script started on 2026-01-26 15:46:35+00:00 [COMMAND="numactl -P /usr/bin/time -v -o linux/50gb/time_0.txt -- ./bench_xsbench_mt -- -p 250000 -g 10000" <not executed on terminal>]
 
 OPENMP DISPLAY ENVIRONMENT BEGIN
   _OPENMP = '201511'
@@ -75,19 +75,19 @@ Loading Mats...
 Initialization complete
 Running simulation....
 Beginning history based simulation...
-Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (74% completed)Calculating XS's... (74% completed)Calculating XS's... (74% completed)Calculating XS's... (74% completed)Calculating XS's... (74% completed)Calculating XS's... (80% completed)Calculating XS's... (80% completed)Calculating XS's... (80% completed)Calculating XS's... (80% completed)Calculating XS's... (86% completed)Calculating XS's... (86% completed)Calculating XS's... (86% completed)Calculating XS's... (90% completed)Calculating XS's... (90% completed)Calculating XS's... (93% completed)Calculating XS's... (93% completed)Calculating XS's... (95% completed)Calculating XS's... (95% completed)Calculating XS's... (97% completed)Calculating XS's... (98% completed)Calculating XS's... (98% completed)Calculating XS's... (99% completed)Calculating XS's... (100% completed)
+Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (0% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (1% completed)Calculating XS's... (81% completed)Calculating XS's... (81% completed)Calculating XS's... (81% completed)Calculating XS's... (81% completed)Calculating XS's... (86% completed)Calculating XS's... (86% completed)Calculating XS's... (86% completed)Calculating XS's... (89% completed)Calculating XS's... (89% completed)Calculating XS's... (92% completed)Calculating XS's... (92% completed)Calculating XS's... (94% completed)Calculating XS's... (96% completed)Calculating XS's... (97% completed)Calculating XS's... (99% completed)Calculating XS's... (99% completed)Calculating XS's... (99% completed)Calculating XS's... (100% completed)
 Simulation complete.
 ================================================================================
                                      RESULTS
 ================================================================================
 Threads:     128
-Runtime:     5.923 seconds
+Runtime:     5.853 seconds
 Lookups:     8,500,000
-Lookups/s:   1,435,185
+Lookups/s:   1,452,230
 ================================================================================
 </run>
-Took: 10.18446744073709551386
-Took: 10.18446744073709551386
+Took: 10.18446744073709551313
+Took: 10.18446744073709551313
 </benchmark>
 
-Script done on 2026-01-26 15:45:48+00:00 [COMMAND_EXIT_CODE="0"]
+Script done on 2026-01-26 15:46:45+00:00 [COMMAND_EXIT_CODE="0"]
