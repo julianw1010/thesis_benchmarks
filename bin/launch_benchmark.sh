@@ -108,16 +108,16 @@ for ((i=start; i<=max_index; i++)); do
     # Reset history
     echo -1 | sudo tee $history_interface > /dev/null
     
-    # Launch benchmark in background
+    # Launch benchmark with script for live output
     LAUNCH_CMD="numactl $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
     echo "Launch command: $LAUNCH_CMD"
     
-    $LAUNCH_CMD 2>&1 | tee "${output_folder}/output_${prefix}${i}.txt" &
-    TEE_PID=$!
+    script -q -f -c "$LAUNCH_CMD" "${output_folder}/output_${prefix}${i}.txt" &
+    SCRIPT_PID=$!
     
     echo "Waiting for benchmark to be ready..."
     while [[ ! -f "$BENCH_READY" ]]; do
-        if ! kill -0 $TEE_PID 2>/dev/null; then
+        if ! kill -0 $SCRIPT_PID 2>/dev/null; then
             echo "ERROR: Benchmark died before becoming ready"
             cat "${output_folder}/output_${prefix}${i}.txt"
             exit 1
@@ -133,7 +133,7 @@ for ((i=start; i<=max_index; i++)); do
     
     if [[ -z "$BENCHMARK_PID" ]]; then
         echo "ERROR: Could not find benchmark PID for '$CMD_MATCH'"
-        kill $TEE_PID 2>/dev/null
+        kill $SCRIPT_PID 2>/dev/null
         exit 1
     fi
     
@@ -152,7 +152,7 @@ for ((i=start; i<=max_index; i++)); do
     if ! kill -0 $PERF_PID 2>/dev/null; then
         echo "ERROR: perf failed to start"
         cat "${output_folder}/perf_${prefix}${i}.txt" 2>/dev/null
-        kill $TEE_PID 2>/dev/null
+        kill $SCRIPT_PID 2>/dev/null
         exit 1
     fi
     
@@ -172,8 +172,8 @@ for ((i=start; i<=max_index; i++)); do
     sleep 0.5
     wait $PERF_PID 2>/dev/null
     
-    # Wait for tee/benchmark to fully finish
-    wait $TEE_PID 2>/dev/null
+    # Wait for script/benchmark to fully finish
+    wait $SCRIPT_PID 2>/dev/null
     BENCH_EXIT_CODE=$?
     
     # Append execution time to perf output
