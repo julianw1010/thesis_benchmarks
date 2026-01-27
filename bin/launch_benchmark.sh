@@ -28,12 +28,29 @@ CMD_BASENAME=$(basename "$CMD_EXECUTABLE")
 # Create output folder if it doesn't exist
 mkdir -p "$output_folder"
 
-# Perf events for page table replication analysis (AMD EPYC 7543)
-PERF_EVENTS="cycles,instructions"
-PERF_EVENTS+=",ls_tablewalker.dc_type0,ls_tablewalker.dc_type1"
-PERF_EVENTS+=",ls_tablewalker.ic_type0,ls_tablewalker.ic_type1"
-PERF_EVENTS+=",l1_dtlb_misses,l2_dtlb_misses"
-PERF_EVENTS+=",ls_dmnd_fills_from_sys.mem_io_local,ls_dmnd_fills_from_sys.mem_io_remote"
+# Detect CPU and set appropriate perf events
+CPU_MODEL=$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs)
+echo "Detected CPU: $CPU_MODEL"
+
+if [[ "$CPU_MODEL" == *"EPYC"*"7543"* ]]; then
+    echo "Using AMD EPYC 7543 perf events"
+    PERF_EVENTS="cycles,instructions"
+    PERF_EVENTS+=",ls_tablewalker.dc_type0,ls_tablewalker.dc_type1"
+    PERF_EVENTS+=",ls_tablewalker.ic_type0,ls_tablewalker.ic_type1"
+    PERF_EVENTS+=",l1_dtlb_misses,l2_dtlb_misses"
+    PERF_EVENTS+=",ls_dmnd_fills_from_sys.mem_io_local,ls_dmnd_fills_from_sys.mem_io_remote"
+elif [[ "$CPU_MODEL" == *"Xeon"*"E5-4620"* ]]; then
+    echo "Using Intel Xeon E5-4620 perf events"
+    PERF_EVENTS="cycles"
+    PERF_EVENTS+=",dtlb_load_misses.walk_duration"
+    PERF_EVENTS+=",dtlb_store_misses.walk_duration"
+    PERF_EVENTS+=",itlb_misses.walk_duration"
+else
+    echo "Warning: Unknown CPU model, using generic events"
+    PERF_EVENTS="cycles,instructions"
+fi
+
+echo "Perf events: $PERF_EVENTS"
 
 # Benchmark synchronization files
 BENCH_READY="/tmp/alloctest-bench.ready"
@@ -77,7 +94,7 @@ case $mode in
 esac
 
 echo -1 | sudo tee $cache_interface > /dev/null
-echo 500000 | sudo tee $cache_interface > /dev/null
+echo 250000 | sudo tee $cache_interface > /dev/null
 
 # Find the starting point based on existing history files
 start=0
