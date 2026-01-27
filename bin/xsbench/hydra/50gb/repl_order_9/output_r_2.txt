@@ -1,0 +1,41 @@
+Script started on 2026-01-26 16:36:34+00:00 [COMMAND="numactl -r all /usr/bin/time -v -o hydra/50gb/repl_order_9/time_r_2.txt -- ./bench_xsbench_mt -- -p 25000000 -g 100000" <not executed on terminal>]
+./bench_xsbench_mt -- -p 25000000 -g 100000 
+<benchmark exec="./bench_xsbench_mt">
+<config>
+  <openmp>on</openmp>  <memsize>1G <memsize>  <hugetlb>0</hugetlb>
+  <data>-1</data>  <interference>0</interference>
+</config>
+<run>
+================================================================================
+                   __   __ ___________                 _                        
+                   \ \ / //  ___| ___ \               | |                       
+                    \ V / \ `--.| |_/ / ___ _ __   ___| |__                     
+                    /   \  `--. \ ___ \/ _ \ '_ \ / __| '_ \                    
+                   / /^\ \/\__/ / |_/ /  __/ | | | (__| | | |                   
+                   \/   \/\____/\____/ \___|_| |_|\___|_| |_|                   
+
+================================================================================
+                    Developed at Argonne National Laboratory
+                                   Version: 18
+================================================================================
+                                  INPUT SUMMARY
+================================================================================
+Simulation Method:            History Based
+Grid Type:                    Unionized Grid
+Materials:                    12
+H-M Benchmark Size:           large
+Total Nuclides:               355
+Gridpoints (per Nuclide):     100,000
+Unionized Energy Gridpoints:  35,500,000
+Particle Histories:           25,000,000
+XS Lookups per Particle:      34
+Total XS Lookups:             34
+Threads:                      128
+Est. Memory Usage (MB):       50,241
+================================================================================
+                         INITIALIZATION - DO NOT PROFILE
+================================================================================
+Generating Nuclide Energy Grids...
+Sorting Nuclide Energy Grids...
+
+Script done on 2026-01-26 16:36:42+00:00 [COMMAND_EXIT_CODE="0"]

@@ -1,0 +1,224 @@
+Hydra Page Table Replication - Historical Data
+===============================================
+
+================================================================================
+Process: numactl (PID: 50515, TGID: 50515)
+Seq ID: 117 | Active NUMA nodes: 8
+Cmdline: numactl -r all /usr/bin/time -v -o hydra/200gb/repl_order_9/time_r_4.txt -- ./bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 0 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+
+Replication Statistics:
+  Events:           0
+  Entries examined: 0
+  Avg examined:     0.00
+  Entries copied:   0
+  Avg copied:       0.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 481
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     496
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   3]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     8 [   3]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          3 [   3]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   3]
+PMD          3 [   5]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   5]
+PTE          5 [ 456]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     5 [ 456]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    19 pages = 76 KB
+================================================================================
+Process: time (PID: 50515, TGID: 50515)
+Seq ID: 118 | Active NUMA nodes: 8
+Cmdline: /usr/bin/time -v -o hydra/200gb/repl_order_9/time_r_4.txt -- ./bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 0 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+
+Replication Statistics:
+  Events:           0
+  Entries examined: 0
+  Avg examined:     0.00
+  Entries copied:   0
+  Avg copied:       0.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 114
+  PMD pages: 5
+  PUD pages: 3
+  P4D pages: 0
+  PGD pages: 3
+  Total:     125
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 5
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              5
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   3]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     8 [   3]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          3 [   3]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   3]
+PMD          3 [   5]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     3 [   5]
+PTE          5 [ 108]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     5 [ 108]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    19 pages = 76 KB
+================================================================================
+Process: time (PID: 50516, TGID: 50516)
+Seq ID: 119 | Active NUMA nodes: 8
+Cmdline: /usr/bin/time -v -o hydra/200gb/repl_order_9/time_r_4.txt -- ./bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 578668 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 5935
+
+Replication Statistics:
+  Events:           710927
+  Entries examined: 363894155
+  Avg examined:     511.85
+  Entries copied:   360135280
+  Avg copied:       506.57
+  Entries skipped:  3758875
+  Avg skipped:      5.28
+
+Race Conditions:
+  PTE page races:  3863 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 53669824
+  PMD pages: 812756
+  PUD pages: 1645
+  P4D pages: 0
+  PGD pages: 32
+  Total:     54484257
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 2220325
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              2220325
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   4]     1 [   4]     1 [   4]     1 [   4]     1 [   4]     1 [   4]     1 [   4]     1 [   4]     8 [  32]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          4 [ 202]     4 [ 203]     4 [ 203]     4 [ 204]     5 [ 202]     4 [ 204]     8 [ 204]     4 [ 203]    37 [1625]
+PMD        202 [100560]   203 [100503]   203 [100503]   204 [100503]   202 [100503]   204 [100503]   204 [100503]   203 [100504]  1625 [804082]
+PTE      100560 [51449304] 100503 [51447925] 100503 [51447925] 100503 [51447925] 100503 [51447925] 100503 [51447925] 100503 [51447925] 100504 [51447925] 804082 [411584779]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    805752 pages = 3223008 KB (3147 MB)
+================================================================================
+Process: numactl (PID: 50515, TGID: 50515)
+Seq ID: 120 | Active NUMA nodes: 8
+Cmdline: numactl -r all /usr/bin/time -v -o hydra/200gb/repl_order_9/time_r_4.txt -- ./bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 589815 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+
+Replication Statistics:
+  Events:           1
+  Entries examined: 4
+  Avg examined:     4.00
+  Entries copied:   4
+  Avg copied:       4.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 459
+  PMD pages: 8
+  PUD pages: 6
+  P4D pages: 0
+  PGD pages: 4
+  Total:     477
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 24
+  ptep_wrprotect:     18
+  ptep_clear_young:   0
+  Total:              42
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   3]     1 [   0]     1 [   0]     1 [   1]     1 [   0]     1 [   0]     1 [   0]     1 [   0]     8 [   4]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          3 [   3]     0 [   0]     0 [   0]     1 [   1]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     4 [   4]
+PMD          3 [   5]     0 [   0]     0 [   0]     1 [   1]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     4 [   6]
+PTE          5 [ 424]     0 [   0]     0 [   0]     1 [   4]     0 [   0]     0 [   0]     0 [   0]     0 [   0]     6 [ 428]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    22 pages = 88 KB
+Total entries: 4

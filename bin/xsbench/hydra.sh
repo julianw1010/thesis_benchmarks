@@ -4,7 +4,7 @@ set -e
 
 echo 1 | sudo tee /proc/hydra/tlbflush_opt
 
-for repl_order in {9}; do
+for repl_order in {9,9}; do
     echo "=== Setting repl_order=$repl_order ==="
     echo $repl_order | sudo tee /proc/hydra/repl_order
 
