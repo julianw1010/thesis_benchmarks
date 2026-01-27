@@ -1,0 +1,178 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #91
+Process: numactl (PID: 61863, TGID: 61863) [CACHE-ONLY]
+Cmdline: numactl -P -i all /usr/bin/time -v -o linux/200gb/time_i_3.txt -- ./bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 483
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     498
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   3]      1/0      [   3]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      3/0      [   3]      3/0      [   3]
+PMD           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      3/0      [   5]      3/0      [   5]
+PTE           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      5/0      [ 458]      5/0      [ 458]
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+Steering Time Distribution (percentage per source node):
+FROM/TO       NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7 
+--------------------------------------------------------------------------------
+NODE 0              -            -            -            -            -            -            -            -
+NODE 1              -            -            -            -            -            -            -            -
+NODE 2              -            -            -            -            -            -            -            -
+NODE 3              -            -            -            -            -            -            -            -
+NODE 4              -            -            -            -            -            -            -            -
+NODE 5              -            -            -            -            -            -            -            -
+NODE 6              -            -            -            -            -            -            -            -
+NODE 7              -            -            -            -            -            -            -            -
+
+================================================================================
+History Entry #92
+Process: bench_xsbench_m (PID: 61864, TGID: 61864) [CACHE-ONLY]
+Cmdline: ./bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 367703 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 1
+  TLB IPIs sent:    1
+
+CR3 Write Statistics:
+  Total CR3 writes: 2228
+  Replica hits:     0
+  Primary hits:     2228
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 53669685
+  PMD pages: 109291
+  PUD pages: 224
+  P4D pages: 0
+  PGD pages: 3
+  Total:     53779203
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 2220325
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              2220325
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   3]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/0      [   0]      1/0      [ 187]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   1]      1/0      [  18]      3/0      [ 206]
+PMD          29/0      [12986]     25/0      [12288]     25/0      [12296]     26/0      [12800]     30/0      [12852]     25/0      [12288]     26/0      [12800]     27/0      [12305]    213/0      [100615]
+PTE       12573/0      [6430229]  12579/0      [6431410]  12579/0      [6431529]  12578/0      [6431257]  12575/0      [6431254]  12580/0      [6432194]  12576/0      [6430744]  12575/0      [6430743]  100615/0      [51449360]
+
+Memory: 100832 primary pages (403328 KB), 0 replica pages (0 KB)
+Total:  100832 pages (403328 KB)
+
+Steering Time Distribution (percentage per source node):
+FROM/TO       NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7 
+--------------------------------------------------------------------------------
+NODE 0              -            -            -            -            -            -            -            -
+NODE 1              -            -            -            -            -            -            -            -
+NODE 2              -            -            -            -            -            -            -            -
+NODE 3              -            -            -            -            -            -            -            -
+NODE 4              -            -            -            -            -            -            -            -
+NODE 5              -            -            -            -            -            -            -            -
+NODE 6              -            -            -            -            -            -            -            -
+NODE 7              -            -            -            -            -            -            -            -
+
+================================================================================
+History Entry #93
+Process: time (PID: 61863, TGID: 61863) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o linux/200gb/time_i_3.txt -- ./bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 376270 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+  Replica hits:     0
+  Primary hits:     2
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 459
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     474
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 24
+  ptep_wrprotect:     18
+  ptep_clear_young:   0
+  Total:              42
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   3]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/0      [   0]      1/0      [   2]      1/0      [   1]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   1]      0/0      [   0]      3/0      [   4]
+PMD           0/0      [   0]      0/0      [   0]      1/0      [   1]      1/0      [   2]      1/0      [   1]      0/0      [   0]      0/0      [   0]      1/0      [   2]      4/0      [   6]
+PTE           1/0      [   0]      1/0      [   8]      0/0      [   0]      1/0      [   1]      1/0      [  79]      2/0      [ 343]      1/0      [   2]      0/0      [   0]      7/0      [ 433]
+
+Memory: 15 primary pages (60 KB), 0 replica pages (0 KB)
+Total:  15 pages (60 KB)
+
+Steering Time Distribution (percentage per source node):
+FROM/TO       NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7 
+--------------------------------------------------------------------------------
+NODE 0              -            -            -            -            -            -            -            -
+NODE 1              -            -            -            -            -            -            -            -
+NODE 2              -            -            -            -            -            -            -            -
+NODE 3              -            -            -            -            -            -            -            -
+NODE 4              -            -            -            -            -            -            -            -
+NODE 5              -            -            -            -            -            -            -            -
+NODE 6              -            -            -            -            -            -            -            -
+NODE 7              -            -            -            -            -            -            -            -
+
+Total historical entries: 3 (max: 64)
