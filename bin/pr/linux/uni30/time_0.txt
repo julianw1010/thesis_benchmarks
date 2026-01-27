@@ -1,0 +1,23 @@
+	Command being timed: "./bench_pr_mt -f ../../datasets/graphs/uni30.sg -n 5"
+	User time (seconds): 110047.62
+	System time (seconds): 349.75
+	Percent of CPU this job got: 5925%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 31:03.17
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 150998848
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 14
+	Minor (reclaiming a frame) page faults: 48235533
+	Voluntary context switches: 648294
+	Involuntary context switches: 167924
+	Swaps: 0
+	File system inputs: 285215184
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
