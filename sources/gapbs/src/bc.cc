@@ -4,6 +4,7 @@
 #include <functional>
 #include <iostream>
 #include <vector>
+#include <unistd.h>
 
 #include "benchmark.h"
 #include "bitmap.h"
@@ -16,6 +17,7 @@
 #include "timer.h"
 #include "util.h"
 
+#define CONFIG_SHM_FILE_NAME "/tmp/alloctest-bench"
 
 /*
 GAP Benchmark Suite
@@ -238,6 +240,17 @@ int main(int argc, char* argv[]) {
     cout << "Warning: iterating from same source (-r & -i)" << endl;
   Builder b(cli);
   Graph g = b.MakeGraph();
+  
+  // Signal ready (after graph is built, before computation)
+  fprintf(stderr, "signalling readyness to %s\n", CONFIG_SHM_FILE_NAME ".ready");
+  FILE *fd_ready = fopen(CONFIG_SHM_FILE_NAME ".ready", "w");
+  if (fd_ready == NULL) {
+    fprintf(stderr, "ERROR: could not create the ready file descriptor\n");
+    exit(-1);
+  }
+  fclose(fd_ready);
+  usleep(250);
+  
   SourcePicker<Graph> sp(g, cli.start_vertex());
   auto BCBound = [&sp, &cli] (const Graph &g) {
     return Brandes(g, sp, cli.num_iters(), cli.logging_en());
@@ -248,5 +261,15 @@ int main(int argc, char* argv[]) {
     return BCVerifier(g, vsp, cli.num_iters(), scores);
   };
   BenchmarkKernel(cli, g, BCBound, PrintTopScores, VerifierBound);
+  
+  // Signal done (after all work is complete)
+  fprintf(stderr, "signalling done to %s\n", CONFIG_SHM_FILE_NAME ".done");
+  FILE *fd_done = fopen(CONFIG_SHM_FILE_NAME ".done", "w");
+  if (fd_done == NULL) {
+    fprintf(stderr, "ERROR: could not create the done file descriptor\n");
+    exit(-1);
+  }
+  fclose(fd_done);
+  
   return 0;
 }

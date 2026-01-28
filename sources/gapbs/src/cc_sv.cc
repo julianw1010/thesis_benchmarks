@@ -6,6 +6,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include <unistd.h>
 
 #include "benchmark.h"
 #include "bitmap.h"
@@ -14,6 +15,7 @@
 #include "graph.h"
 #include "pvector.h"
 
+#define CONFIG_SHM_FILE_NAME "/tmp/alloctest-bench"
 
 /*
 GAP Benchmark Suite
@@ -155,6 +157,27 @@ int main(int argc, char* argv[]) {
     return -1;
   Builder b(cli);
   Graph g = b.MakeGraph();
+  
+  // Signal ready (after graph is built, before computation)
+  fprintf(stderr, "signalling readyness to %s\n", CONFIG_SHM_FILE_NAME ".ready");
+  FILE *fd_ready = fopen(CONFIG_SHM_FILE_NAME ".ready", "w");
+  if (fd_ready == NULL) {
+    fprintf(stderr, "ERROR: could not create the ready file descriptor\n");
+    exit(-1);
+  }
+  fclose(fd_ready);
+  usleep(250);
+  
   BenchmarkKernel(cli, g, ShiloachVishkin, PrintCompStats, CCVerifier);
+  
+  // Signal done (after all work is complete)
+  fprintf(stderr, "signalling done to %s\n", CONFIG_SHM_FILE_NAME ".done");
+  FILE *fd_done = fopen(CONFIG_SHM_FILE_NAME ".done", "w");
+  if (fd_done == NULL) {
+    fprintf(stderr, "ERROR: could not create the done file descriptor\n");
+    exit(-1);
+  }
+  fclose(fd_done);
+  
   return 0;
 }
