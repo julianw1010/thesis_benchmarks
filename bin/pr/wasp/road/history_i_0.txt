@@ -1,0 +1,142 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #203
+Process: numactl (PID: 125839, TGID: 125839) [CACHE-ONLY]
+Cmdline: numactl -P -i all /usr/bin/time -v -o wasp/road/time_i_0.txt -- ./bench_pr_mt -f ../../datasets/graphs/road.sg -n 5 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 499
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     514
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 26
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              26
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   3]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           3/0      [   3]      0/0      [   0]      0/0      [   0]      0/0      [   0]      3/0      [   3]
+PMD           3/0      [   5]      0/0      [   0]      0/0      [   0]      0/0      [   0]      3/0      [   5]
+PTE           5/0      [ 473]      0/0      [   0]      0/0      [   0]      0/0      [   0]      5/0      [ 473]
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+================================================================================
+History Entry #204
+Process: bench_pr_mt (PID: 125840, TGID: 125840) [CACHE-ONLY]
+Cmdline: ./bench_pr_mt -f ../../datasets/graphs/road.sg -n 5 
+Duration: 11799 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 57
+  TLB IPIs sent:    3583
+
+CR3 Write Statistics:
+  Total CR3 writes: 3782
+  Replica hits:     0
+  Primary hits:     3782
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 488220
+  PMD pages: 1981
+  PUD pages: 6
+  P4D pages: 0
+  PGD pages: 3
+  Total:     490210
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 486954
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              486954
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   3]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/0      [   0]      1/0      [   2]      2/0      [   3]      0/0      [   0]      3/0      [   5]
+PMD           1/0      [   1]      1/0      [ 303]      1/0      [   1]      2/0      [ 307]      5/0      [ 612]
+PTE         149/0      [66852]    148/0      [65986]    147/0      [65899]    148/0      [65230]    592/0      [263967]
+
+Memory: 601 primary pages (2404 KB), 0 replica pages (0 KB)
+Total:  601 pages (2404 KB)
+
+================================================================================
+History Entry #205
+Process: time (PID: 125839, TGID: 125839) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o wasp/road/time_i_0.txt -- ./bench_pr_mt -f ../../datasets/graphs/road.sg -n 5 
+Duration: 11809 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+  Replica hits:     0
+  Primary hits:     2
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 491
+  PMD pages: 8
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     507
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     17
+  ptep_clear_young:   0
+  Total:              42
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   3]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/0      [   0]      1/0      [   2]      2/0      [   2]      0/0      [   0]      3/0      [   4]
+PMD           1/0      [   1]      0/0      [   0]      1/0      [   1]      2/0      [   5]      4/0      [   7]
+PTE           1/0      [  69]      3/0      [  24]      1/0      [ 369]      1/0      [   2]      6/0      [ 464]
+
+Memory: 14 primary pages (56 KB), 0 replica pages (0 KB)
+Total:  14 pages (56 KB)
+
+Total historical entries: 3 (max: 64)

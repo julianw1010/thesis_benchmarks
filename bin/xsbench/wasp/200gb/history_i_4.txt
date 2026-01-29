@@ -1,0 +1,280 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #158
+Process: numactl (PID: 56696, TGID: 56696) [CACHE-ONLY]
+Cmdline: numactl -P -i all /usr/bin/time -v -o wasp/200gb/time_i_4.txt -- ./bench_xsbench_mt -- -p 5000000 -g 200000 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 499
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     514
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 26
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              26
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3                  TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0      [   0]      0/0      [   0]      1/0      [   3]      0/0      [   0]      1/0      [   3]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/0      [   0]      0/0      [   0]      3/0      [   3]      0/0      [   0]      3/0      [   3]
+PMD           0/0      [   0]      0/0      [   0]      3/0      [   5]      0/0      [   0]      3/0      [   5]
+PTE           0/0      [   0]      0/0      [   0]      5/0      [ 473]      0/0      [   0]      5/0      [ 473]
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+================================================================================
+History Entry #159
+Process: bench_xsbench_m (PID: 56697, TGID: 56697) [REPLICATED]
+Cmdline: ./bench_xsbench_mt -- -p 5000000 -g 200000 
+Duration: 21990 ms
+Replication nodes: 0, 1, 2, 3 (4 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 2
+  TLB IPIs sent:    1
+
+CR3 Write Statistics:
+  Total CR3 writes: 27
+  Replica hits:     0
+  Primary hits:     27
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 2254222
+  PMD pages: 4419
+  PUD pages: 20
+  P4D pages: 0
+  PGD pages: 3
+  Total:     2258664
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 793
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              793
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/3      [  12]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [   9]      1/2      [   9]      1/2      [   9]      1/2      [   9]      3/9      [  36]
+PMD           2/7      [2327]      2/7      [2327]      1/8      [2327]      4/5      [2327]      9/27     [9308]
+PTE         582/1745   [1188210]    583/1744   [1188210]    582/1745   [1188210]    580/1747   [1188210]   2327/6981   [4752840]
+
+Memory: 2340 primary pages (9360 KB), 7020 replica pages (28080 KB)
+Total:  9360 pages (37440 KB)
+
+================================================================================
+History Entry #160
+Process: bench_xsbench_m (PID: 56697, TGID: 56697) [REPLICATED]
+Cmdline: ./bench_xsbench_mt -- -p 5000000 -g 200000 
+Duration: 4209 ms
+Replication nodes: 0, 1, 2, 3 (4 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 4
+  TLB IPIs sent:    3
+
+CR3 Write Statistics:
+  Total CR3 writes: 44
+  Replica hits:     0
+  Primary hits:     44
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 3149952
+  PMD pages: 6181
+  PUD pages: 22
+  P4D pages: 0
+  PGD pages: 3
+  Total:     3156158
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 793
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              793
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/3      [  12]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [  11]      1/2      [  11]      1/2      [  11]      1/2      [  11]      3/9      [  44]
+PMD           3/8      [3798]      2/9      [3798]      1/10     [3798]      5/6      [3798]     11/33     [15192]
+PTE         950/2848   [1942514]    951/2847   [1942514]    950/2848   [1942514]    947/2851   [1942514]   3798/11394  [7770056]
+
+Memory: 3813 primary pages (15252 KB), 11439 replica pages (45756 KB)
+Total:  15252 pages (61008 KB)
+
+================================================================================
+History Entry #161
+Process: bench_xsbench_m (PID: 56697, TGID: 56697) [REPLICATED]
+Cmdline: ./bench_xsbench_mt -- -p 5000000 -g 200000 
+Duration: 2110 ms
+Replication nodes: 0, 1, 2, 3 (4 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 6
+  TLB IPIs sent:    4
+
+CR3 Write Statistics:
+  Total CR3 writes: 55
+  Replica hits:     0
+  Primary hits:     55
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 4112360
+  PMD pages: 15100
+  PUD pages: 43
+  P4D pages: 0
+  PGD pages: 3
+  Total:     4127506
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 3606265
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              3606265
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/3      [  12]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [  11]      1/2      [  11]      1/2      [  11]      1/2      [  11]      3/9      [  44]
+PMD           3/10     [3798]      2/9      [3798]      2/10     [3798]      6/6      [3798]     13/35     [15192]
+PTE         950/3354   [1942514]   1121/2847   [1942514]   1118/2848   [1942514]   1115/2851   [1942514]   4304/11900  [7770056]
+
+Memory: 4321 primary pages (17284 KB), 11947 replica pages (47788 KB)
+Total:  16268 pages (65072 KB)
+
+================================================================================
+History Entry #162
+Process: time (PID: 56696, TGID: 56696) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o wasp/200gb/time_i_4.txt -- ./bench_xsbench_mt -- -p 5000000 -g 200000 
+Duration: 300188 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+  Replica hits:     0
+  Primary hits:     2
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 492
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     507
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     18
+  ptep_clear_young:   0
+  Total:              43
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/0      [   0]      0/0      [   0]      0/0      [   0]      1/0      [   3]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/0      [   0]      1/0      [   2]      2/0      [   2]      0/0      [   0]      3/0      [   4]
+PMD           1/0      [   1]      0/0      [   0]      1/0      [   1]      2/0      [   4]      4/0      [   6]
+PTE           1/0      [  80]      3/0      [ 383]      1/0      [   2]      1/0      [   1]      6/0      [ 466]
+
+Memory: 14 primary pages (56 KB), 0 replica pages (0 KB)
+Total:  14 pages (56 KB)
+
+================================================================================
+History Entry #163
+Process: bench_xsbench_m (PID: 56697, TGID: 56697) [REPLICATED]
+Cmdline: ./bench_xsbench_mt -- -p 5000000 -g 200000 
+Duration: 65599 ms
+Replication nodes: 0, 1, 2, 3 (4 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 8
+  TLB IPIs sent:    127
+
+CR3 Write Statistics:
+  Total CR3 writes: 2199
+  Replica hits:     946
+  Primary hits:     1253
+  Replica hit rate: 43%
+
+Page Table Pages Modified:
+  PTE pages: 28658726
+  PMD pages: 63180
+  PUD pages: 143
+  P4D pages: 0
+  PGD pages: 3
+  Total:     28722052
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 3606265
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              3606265
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/3      [  12]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [ 109]      1/2      [ 109]      1/2      [ 109]      1/2      [ 109]      3/9      [ 436]
+PMD          25/84     [50372]     27/82     [50372]     27/82     [50372]     31/79     [50372]    110/327    [201488]
+PTE       10968/39404  [25724944]  13137/37235  [25724944]  13135/37237  [25724944]  13132/37240  [25724944]  50372/151116 [102899776]
+
+Memory: 50486 primary pages (201944 KB), 151455 replica pages (605820 KB)
+Total:  201941 pages (807764 KB)
+
+Total historical entries: 6 (max: 64)
