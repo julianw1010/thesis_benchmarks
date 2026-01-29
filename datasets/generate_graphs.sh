@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for xy in {27..30}; do
+for xy in {27..29}; do
     if [[ ! -f "graphs/kron${xy}.sg" ]]; then
         ./converter -g "$xy" -b "graphs/kron${xy}.sg"
     else
