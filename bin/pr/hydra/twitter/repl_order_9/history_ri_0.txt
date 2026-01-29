@@ -1,0 +1,224 @@
+Hydra Page Table Replication - Historical Data
+===============================================
+
+================================================================================
+Process: numactl (PID: 107283, TGID: 107283)
+Seq ID: 89 | Active NUMA nodes: 4
+Cmdline: numactl -r all -i all /usr/bin/time -v -o hydra/twitter/repl_order_9/time_ri_0.txt -- ./bench_pr_mt -f ../../datasets/graphs/twitter.sg -n 5 
+Duration: 5 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+
+Replication Statistics:
+  Events:           0
+  Entries examined: 0
+  Avg examined:     0.00
+  Entries copied:   0
+  Avg copied:       0.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 498
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     513
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 26
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              26
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   0]     1 [   0]     1 [   3]     1 [   0]     4 [   3]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          0 [   0]     0 [   0]     3 [   3]     0 [   0]     3 [   3]
+PMD          0 [   0]     0 [   0]     3 [   5]     0 [   0]     3 [   5]
+PTE          0 [   0]     0 [   0]     5 [ 472]     0 [   0]     5 [ 472]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    15 pages = 60 KB
+================================================================================
+Process: time (PID: 107283, TGID: 107283)
+Seq ID: 90 | Active NUMA nodes: 4
+Cmdline: /usr/bin/time -v -o hydra/twitter/repl_order_9/time_ri_0.txt -- ./bench_pr_mt -f ../../datasets/graphs/twitter.sg -n 5 
+Duration: 10 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 3
+
+Replication Statistics:
+  Events:           0
+  Entries examined: 0
+  Avg examined:     0.00
+  Entries copied:   0
+  Avg copied:       0.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 114
+  PMD pages: 5
+  PUD pages: 3
+  P4D pages: 0
+  PGD pages: 3
+  Total:     125
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 5
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              5
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   0]     1 [   0]     1 [   3]     1 [   0]     4 [   3]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          0 [   0]     0 [   0]     3 [   3]     0 [   0]     3 [   3]
+PMD          0 [   0]     0 [   0]     3 [   5]     0 [   0]     3 [   5]
+PTE          0 [   0]     0 [   0]     5 [ 108]     0 [   0]     5 [ 108]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    15 pages = 60 KB
+================================================================================
+Process: time (PID: 107284, TGID: 107284)
+Seq ID: 91 | Active NUMA nodes: 4
+Cmdline: /usr/bin/time -v -o hydra/twitter/repl_order_9/time_ri_0.txt -- ./bench_pr_mt -f ../../datasets/graphs/twitter.sg -n 5 
+Duration: 245591 ms
+
+TLB Statistics:
+  Shootdowns: 405 events
+  IPIs sent:  25495
+  IPIs saved: 16
+
+CR3 Write Statistics:
+  Total CR3 writes: 69630
+
+Replication Statistics:
+  Events:           646244
+  Entries examined: 169373203
+  Avg examined:     262.08
+  Entries copied:   6225135
+  Avg copied:       9.63
+  Entries skipped:  163148068
+  Avg skipped:      252.45
+
+Race Conditions:
+  PTE page races:  790 (concurrent page allocations)
+  Master faults:   43 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 4539253
+  PMD pages: 42188
+  PUD pages: 80
+  P4D pages: 0
+  PGD pages: 12
+  Total:     4581533
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 10760992
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              10760992
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   3]     1 [   3]     1 [   3]     1 [   3]     4 [  12]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          3 [  16]     3 [  11]     3 [  11]     4 [  11]    13 [  49]
+PMD         16 [6379]    21 [3531]    17 [3532]    21 [3531]    75 [16973]
+PTE       6379 [3229821]  3538 [1795551]  3532 [1796178]  3531 [1795551] 16980 [8617101]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    17072 pages = 68288 KB (66 MB)
+================================================================================
+Process: numactl (PID: 107283, TGID: 107283)
+Seq ID: 92 | Active NUMA nodes: 4
+Cmdline: numactl -r all -i all /usr/bin/time -v -o hydra/twitter/repl_order_9/time_ri_0.txt -- ./bench_pr_mt -f ../../datasets/graphs/twitter.sg -n 5 
+Duration: 245601 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+
+Replication Statistics:
+  Events:           1
+  Entries examined: 4
+  Avg examined:     4.00
+  Entries copied:   4
+  Avg copied:       4.00
+  Entries skipped:  0
+  Avg skipped:      0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 494
+  PMD pages: 8
+  PUD pages: 6
+  P4D pages: 0
+  PGD pages: 4
+  Total:     512
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     18
+  ptep_clear_young:   0
+  Total:              43
+
+Peak Page Tables per Node:
+LEVEL          NODE0       NODE1       NODE2       NODE3        TOTAL
+--------------------------------------------------------------------------------
+PGD          1 [   0]     1 [   1]     1 [   3]     1 [   0]     4 [   4]
+P4D          0 [   0]     0 [   0]     0 [   0]     0 [   0]     0 [   0]
+PUD          0 [   0]     1 [   1]     3 [   3]     0 [   0]     4 [   4]
+PMD          0 [   0]     1 [   1]     3 [   5]     0 [   0]     4 [   6]
+PTE          0 [   0]     1 [   4]     5 [ 456]     0 [   0]     6 [ 460]
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    18 pages = 72 KB
+Total entries: 4
