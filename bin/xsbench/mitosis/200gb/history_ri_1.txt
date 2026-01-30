@@ -1,0 +1,236 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #197
+Process: numactl (PID: 145889, TGID: 145889) [REPLICATED]
+Cmdline: numactl -r all -i all /usr/bin/time -v -o mitosis/200gb/time_ri_1.txt -- ./bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 8 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 482
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     497
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/7      [  24]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      3/0      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      3/21     [  24]
+PMD           0/3      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      3/0      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      3/21     [  40]
+PTE           0/5      [ 457]      0/5      [ 457]      0/5      [ 457]      0/5      [ 457]      5/0      [ 457]      0/5      [ 457]      0/5      [ 457]      0/5      [ 457]      5/35     [3656]
+
+Memory: 12 primary pages (48 KB), 84 replica pages (336 KB)
+Total:  96 pages (384 KB)
+
+Steering Time Distribution (percentage per source node):
+FROM/TO       NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7 
+--------------------------------------------------------------------------------
+NODE 0           100%           0%           0%           0%           0%           0%           0%           0%
+NODE 1             0%         100%           0%           0%           0%           0%           0%           0%
+NODE 2             0%           0%         100%           0%           0%           0%           0%           0%
+NODE 3             0%           0%           0%         100%           0%           0%           0%           0%
+NODE 4             0%           0%           0%           0%         100%           0%           0%           0%
+NODE 5             0%           0%           0%           0%           0%         100%           0%           0%
+NODE 6             0%           0%           0%           0%           0%           0%         100%           0%
+NODE 7             0%           0%           0%           0%           0%           0%           0%         100%
+
+================================================================================
+History Entry #198
+Process: time (PID: 145889, TGID: 145889) [REPLICATED]
+Cmdline: /usr/bin/time -v -o mitosis/200gb/time_ri_1.txt -- ./bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 8 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+  Replica hits:     1
+  Primary hits:     0
+  Replica hit rate: 100%
+
+Page Table Pages Modified:
+  PTE pages: 729
+  PMD pages: 5
+  PUD pages: 3
+  P4D pages: 0
+  PGD pages: 3
+  Total:     740
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 40
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              40
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/7      [  24]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [   3]      2/1      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      1/2      [   3]      0/3      [   3]      0/3      [   3]      3/21     [  24]
+PMD           0/3      [   5]      0/3      [   5]      2/1      [   5]      0/3      [   5]      0/3      [   5]      0/3      [   5]      1/2      [   5]      0/3      [   5]      3/21     [  40]
+PTE           1/4      [ 107]      0/5      [ 107]      0/5      [ 107]      2/3      [ 107]      1/4      [ 107]      0/5      [ 107]      0/5      [ 107]      1/4      [ 107]      5/35     [ 856]
+
+Memory: 12 primary pages (48 KB), 84 replica pages (336 KB)
+Total:  96 pages (384 KB)
+
+Steering Time Distribution (percentage per source node):
+FROM/TO       NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7 
+--------------------------------------------------------------------------------
+NODE 0           100%           0%           0%           0%           0%           0%           0%           0%
+NODE 1             0%         100%           0%           0%           0%           0%           0%           0%
+NODE 2             0%           0%         100%           0%           0%           0%           0%           0%
+NODE 3             0%           0%           0%         100%           0%           0%           0%           0%
+NODE 4             0%           0%           0%           0%         100%           0%           0%           0%
+NODE 5             0%           0%           0%           0%           0%         100%           0%           0%
+NODE 6             0%           0%           0%           0%           0%           0%         100%           0%
+NODE 7             0%           0%           0%           0%           0%           0%           0%         100%
+
+================================================================================
+History Entry #199
+Process: bench_xsbench_m (PID: 145890, TGID: 145890) [REPLICATED]
+Cmdline: ./bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 282151 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1512
+  Replica hits:     1067
+  Primary hits:     445
+  Replica hit rate: 70%
+
+Page Table Pages Modified:
+  PTE pages: 429358989
+  PMD pages: 875324
+  PUD pages: 1860
+  P4D pages: 0
+  PGD pages: 10
+  Total:     430236183
+
+Page Table Pages Read:
+  PTE pages: 2808
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 17762586
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              17762586
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/7      [  24]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [ 216]      1/2      [ 216]      0/3      [ 216]      1/2      [ 216]      0/3      [ 216]      0/3      [ 216]      1/2      [ 216]      0/3      [ 216]      3/21     [1728]
+PMD          24/195    [100743]     34/187    [100743]     31/188    [100743]     30/190    [100743]     32/188    [100743]     31/190    [100743]     33/189    [100743]     37/185    [100743]    252/1512   [805944]
+PTE        8795/91948  [51449553]  13131/87612  [51449553]  13138/87605  [51449553]  13137/87606  [51449553]  13138/87605  [51449553]  13138/87605  [51449553]  13136/87607  [51449553]  13130/87613  [51449553]  100743/705201 [411596424]
+
+Memory: 100999 primary pages (403996 KB), 706741 replica pages (2826964 KB)
+Total:  807740 pages (3230960 KB)
+
+Steering Time Distribution (percentage per source node):
+FROM/TO       NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7 
+--------------------------------------------------------------------------------
+NODE 0           100%           0%           0%           0%           0%           0%           0%           0%
+NODE 1             0%         100%           0%           0%           0%           0%           0%           0%
+NODE 2             0%           0%         100%           0%           0%           0%           0%           0%
+NODE 3             0%           0%           0%         100%           0%           0%           0%           0%
+NODE 4             0%           0%           0%           0%         100%           0%           0%           0%
+NODE 5             0%           0%           0%           0%           0%         100%           0%           0%
+NODE 6             0%           0%           0%           0%           0%           0%         100%           0%
+NODE 7             0%           0%           0%           0%           0%           0%           0%         100%
+
+================================================================================
+History Entry #200
+Process: time (PID: 145889, TGID: 145889) [REPLICATED]
+Cmdline: /usr/bin/time -v -o mitosis/200gb/time_ri_1.txt -- ./bench_xsbench_mt -- -p 25000000 -g 400000 
+Duration: 291313 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+  Replica hits:     1
+  Primary hits:     0
+  Replica hit rate: 100%
+
+Page Table Pages Modified:
+  PTE pages: 3622
+  PMD pages: 21
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     3651
+
+Page Table Pages Read:
+  PTE pages: 56
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 178
+  ptep_wrprotect:     136
+  ptep_clear_young:   0
+  Total:              314
+
+Peak Page Table Allocations (primary/replica) [entries]:
+LEVEL                 NODE0               NODE1               NODE2               NODE3               NODE4               NODE5               NODE6               NODE7                  TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      0/1      [   3]      1/7      [  24]
+P4D           0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]      0/0      [   0]
+PUD           0/3      [   3]      1/2      [   3]      1/2      [   3]      0/3      [   3]      0/3      [   3]      0/3      [   3]      1/2      [   3]      0/3      [   3]      3/21     [  24]
+PMD           0/3      [   5]      0/3      [   5]      1/3      [   5]      1/2      [   5]      1/2      [   5]      0/3      [   5]      0/3      [   5]      1/2      [   5]      4/21     [  40]
+PTE           1/5      [ 423]      1/4      [ 423]      0/5      [ 423]      1/5      [ 423]      1/4      [ 423]      2/3      [ 423]      1/4      [ 423]      0/5      [ 423]      7/35     [3384]
+
+Memory: 15 primary pages (60 KB), 84 replica pages (336 KB)
+Total:  99 pages (396 KB)
+
+Steering Time Distribution (percentage per source node):
+FROM/TO       NODE0       NODE1       NODE2       NODE3       NODE4       NODE5       NODE6       NODE7 
+--------------------------------------------------------------------------------
+NODE 0           100%           0%           0%           0%           0%           0%           0%           0%
+NODE 1             0%         100%           0%           0%           0%           0%           0%           0%
+NODE 2             0%           0%         100%           0%           0%           0%           0%           0%
+NODE 3             0%           0%           0%         100%           0%           0%           0%           0%
+NODE 4             0%           0%           0%           0%         100%           0%           0%           0%
+NODE 5             0%           0%           0%           0%           0%         100%           0%           0%
+NODE 6             0%           0%           0%           0%           0%           0%         100%           0%
+NODE 7             0%           0%           0%           0%           0%           0%           0%         100%
+
+Total historical entries: 4 (max: 64)
