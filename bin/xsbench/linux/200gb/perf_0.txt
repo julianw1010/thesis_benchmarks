@@ -1,0 +1,15 @@
+# started on Fri Jan 30 20:34:28 2026
+
+119313428105419,,cycles:u,21678125678900,50.00,,
+3014169697961,,instructions:u,21675851389561,50.00,0.03,insn per cycle
+95739723646,,ls_tablewalker.dc_type0:u,21674828669069,50.00,,
+31445998,,ls_tablewalker.dc_type1:u,21674110031597,50.00,,
+113135029326,,ls_tablewalker.ic_type0:u,21673428665079,50.00,,
+13048363,,ls_tablewalker.ic_type1:u,21672639749879,50.00,,
+109076100327,,l1_dtlb_misses:u,21672175745841,50.00,,
+91866697111,,l2_dtlb_misses:u,21671626732239,50.00,,
+61890554367,,ls_dmnd_fills_from_sys.mem_io_local:u,21671163001092,49.00,,
+102386175862,,ls_dmnd_fills_from_sys.mem_io_remote:u,21670936296296,49.00,,
+
+Execution Time (seconds): 418
+Benchmark Exit Code: 0
