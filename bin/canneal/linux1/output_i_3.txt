@@ -1,4 +1,4 @@
-Script started on 2026-01-30 22:33:31-07:00 [COMMAND="numactl -P /usr/bin/time -v -o linux/time_0.txt -- ./bench_canneal_mt 128 500000 2000 ../../datasets/canneal_25gb_int 2400" <not executed on terminal>]
+Script started on 2026-01-31 00:14:42-07:00 [COMMAND="numactl -P -i all /usr/bin/time -v -o linux/time_i_3.txt -- ./bench_canneal_mt 64 500000 2000 ../../datasets/canneal_25gb_int 2400" <not executed on terminal>]
 
 OPENMP DISPLAY ENVIRONMENT BEGIN
   _OPENMP = '201511'
@@ -25,7 +25,7 @@ OPENMP DISPLAY ENVIRONMENT BEGIN
   [host] GOMP_STACKSIZE = '0'
   [host] GOMP_SPINCOUNT = '300000'
 OPENMP DISPLAY ENVIRONMENT END
-./bench_canneal_mt 128 500000 2000 ../../datasets/canneal_25gb_int 2400 
+./bench_canneal_mt 64 500000 2000 ../../datasets/canneal_25gb_int 2400 
 <benchmark exec="./bench_canneal_mt">
 <config>
   <openmp>on</openmp>  <memsize>1G <memsize>  <hugetlb>0</hugetlb>
@@ -33,7 +33,7 @@ OPENMP DISPLAY ENVIRONMENT END
 </config>
 <run>
 PARSEC Benchmark Suite
-Threadcount: 128
+Threadcount: 64
 500000 swaps per temperature step
 start temperature: 2000
 netlist filename: ../../datasets/canneal_25gb_int
@@ -111,5 +111,8 @@ Parsed: 310000000 elements
 Parsed: 315000000 elements
 Parsed: 320000000 elements
 netlist created. 397000002 elements.
+Final routing is: 1.98379e+13
+Annealing took: 202.938 seconds
+Total took: 641.945 seconds
 
-Script done on 2026-01-30 22:40:15-07:00 [COMMAND_EXIT_CODE="0"]
+Script done on 2026-01-31 00:25:31-07:00 [COMMAND_EXIT_CODE="0"]

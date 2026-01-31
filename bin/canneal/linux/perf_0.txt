@@ -1,6 +1,0 @@
-# started on Fri Jan 30 22:40:08 2026
-
-565863502998,,cycles:u,249287697461,100.00,,
-211104079774,,dtlb_load_misses.walk_duration:u,249213305114,100.00,,
-253253,,dtlb_store_misses.walk_duration:u,249092901457,100.00,,
-3968355,,itlb_misses.walk_duration:u,248963947407,100.00,,
