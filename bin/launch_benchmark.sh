@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Check for required arguments
 if [[ $# -lt 4 ]]; then
     echo "Usage: $0 <mode> <num_runs> <output_folder> <command...>"
@@ -9,14 +8,12 @@ if [[ $# -lt 4 ]]; then
     echo "  mode 3: Interleave + replication (numactl -r all -i all)"
     exit 1
 fi
-
 mode=$1
 num_runs=$2
 output_folder=$3
 shift 3
 cmd="$@"
 max_index=$((num_runs - 1))
-
 # Extract the executable name (first part of cmd, without path)
 # Handle "-- " prefix if present
 cmd_clean="${cmd#-- }"
@@ -24,38 +21,11 @@ cmd_clean="${cmd_clean#--}"
 cmd_clean="${cmd_clean# }"
 CMD_EXECUTABLE=$(echo "$cmd_clean" | awk '{print $1}')
 CMD_BASENAME=$(basename "$CMD_EXECUTABLE")
-
 # Create output folder if it doesn't exist
 mkdir -p "$output_folder"
-
-# Detect CPU and set appropriate perf events
-CPU_MODEL=$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs)
-echo "Detected CPU: $CPU_MODEL"
-
-if [[ "$CPU_MODEL" == *"EPYC"*"7543"* ]]; then
-    echo "Using AMD EPYC 7543 perf events"
-    PERF_EVENTS="cycles,instructions"
-    PERF_EVENTS+=",ls_tablewalker.dc_type0,ls_tablewalker.dc_type1"
-    PERF_EVENTS+=",ls_tablewalker.ic_type0,ls_tablewalker.ic_type1"
-    PERF_EVENTS+=",l1_dtlb_misses,l2_dtlb_misses"
-    PERF_EVENTS+=",ls_dmnd_fills_from_sys.mem_io_local,ls_dmnd_fills_from_sys.mem_io_remote"
-elif [[ "$CPU_MODEL" == *"Xeon"*"E5-4620"* ]]; then
-    echo "Using Intel Xeon E5-4620 perf events"
-    PERF_EVENTS="cycles"
-    PERF_EVENTS+=",dtlb_load_misses.walk_duration"
-    PERF_EVENTS+=",dtlb_store_misses.walk_duration"
-    PERF_EVENTS+=",itlb_misses.walk_duration"
-else
-    echo "Warning: Unknown CPU model, using generic events"
-    PERF_EVENTS="cycles,instructions"
-fi
-
-echo "Perf events: $PERF_EVENTS"
-
 # Benchmark synchronization files
 BENCH_READY="/tmp/alloctest-bench.ready"
 BENCH_DONE="/tmp/alloctest-bench.done"
-
 # Detect cache interface
 if [[ -f /proc/mitosis/cache ]]; then
     cache_interface="/proc/mitosis/cache"
@@ -68,7 +38,6 @@ else
     exit 1
 fi
 echo "Using interface: $cache_interface"
-
 # Set numactl options and file prefix based on mode
 case $mode in
     0)
@@ -92,10 +61,8 @@ case $mode in
         exit 1
         ;;
 esac
-
 echo -1 | sudo tee $cache_interface > /dev/null
 echo 250000 | sudo tee $cache_interface > /dev/null
-
 # Find the starting point based on existing history files
 start=0
 for ((i=max_index; i>=0; i--)); do
@@ -104,18 +71,15 @@ for ((i=max_index; i>=0; i--)); do
         break
     fi
 done
-
 if [[ $start -gt $max_index ]]; then
     echo "All runs (0-$max_index) already completed for mode $mode."
     exit 0
 fi
-
 echo "Continuing from i=$start"
 echo "Mode: $mode, numactl options: $numactl_opts"
 echo "Output folder: $output_folder"
 echo "Command: $cmd"
 echo "Looking for process: $CMD_BASENAME"
-
 for ((i=start; i<=max_index; i++)); do
     echo "=== Running iteration=$i ==="
     
@@ -148,7 +112,6 @@ for ((i=start; i<=max_index; i++)); do
     echo "Benchmark is ready!"
     
     # Find the benchmark PID by executable name
-    # Note: Linux truncates comm to 15 chars, so we match the first 15 chars
     CMD_MATCH="${CMD_BASENAME:0:15}"
     BENCHMARK_PID=$(pgrep "^${CMD_MATCH}" 2>/dev/null | head -1)
     
@@ -163,21 +126,21 @@ for ((i=start; i<=max_index; i++)); do
     # Start timing
     SECONDS=0
     
-    # Start perf monitoring on the benchmark process
-    echo "Starting perf on PID $BENCHMARK_PID..."
-    perf stat -x, -e "$PERF_EVENTS" -p $BENCHMARK_PID -o "${output_folder}/perf_${prefix}${i}.txt" 2>&1 &
+    # Start IBS recording on the benchmark process
+    PERF_DATA="${output_folder}/perf_${prefix}${i}.data"
+    echo "Starting IBS recording on PID $BENCHMARK_PID..."
+    perf record -e ibs_op//p -c 5000003 -W -d -p $BENCHMARK_PID -o "$PERF_DATA" 2>&1 &
     PERF_PID=$!
     
     # Verify perf started
     sleep 0.2
     if ! kill -0 $PERF_PID 2>/dev/null; then
         echo "ERROR: perf failed to start"
-        cat "${output_folder}/perf_${prefix}${i}.txt" 2>/dev/null
         kill $SCRIPT_PID 2>/dev/null
         exit 1
     fi
     
-    echo "Perf monitoring started (PID: $PERF_PID). Waiting for benchmark to complete..."
+    echo "IBS recording started (PID: $PERF_PID). Waiting for benchmark to complete..."
     while [[ ! -f "$BENCH_DONE" ]]; do
         if ! kill -0 $BENCHMARK_PID 2>/dev/null; then
             echo "Benchmark process ended"
@@ -197,10 +160,51 @@ for ((i=start; i<=max_index; i++)); do
     wait $SCRIPT_PID 2>/dev/null
     BENCH_EXIT_CODE=$?
     
-    # Append execution time to perf output
-    echo "" >> "${output_folder}/perf_${prefix}${i}.txt"
-    echo "Execution Time (seconds): $DURATION" >> "${output_folder}/perf_${prefix}${i}.txt"
-    echo "Benchmark Exit Code: $BENCH_EXIT_CODE" >> "${output_folder}/perf_${prefix}${i}.txt"
+    # Process IBS data to extract TLB statistics
+    STATS_FILE="${output_folder}/ibs_stats_${prefix}${i}.txt"
+    echo "Processing IBS data..."
+    
+    {
+        echo "=== IBS TLB Statistics ==="
+        echo "Execution Time (seconds): $DURATION"
+        echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
+        echo ""
+        
+        echo "=== TLB Access Breakdown ==="
+        perf script -i "$PERF_DATA" -F data_src 2>/dev/null | grep "TLB" | \
+            sed 's/.*TLB /TLB /' | cut -d'|' -f1 | sort | uniq -c | sort -rn
+        echo ""
+        
+        echo "=== Page Table Walk Latency (cycles) ==="
+        perf script -i "$PERF_DATA" -F data_src,weight 2>/dev/null | grep "TLB L2 miss" | \
+            awk '{print $NF}' | awk '
+            $1 > 0 {
+                sum += $1
+                count++
+                vals[count] = $1
+            }
+            END {
+                if (count == 0) { print "No valid walk samples"; exit }
+                for (i = 1; i <= count; i++)
+                    for (j = i+1; j <= count; j++)
+                        if (vals[i] > vals[j]) { t=vals[i]; vals[i]=vals[j]; vals[j]=t }
+                printf "Samples: %d\n", count
+                printf "Min:     %d\n", vals[1]
+                printf "p50:     %d\n", vals[int(count*0.50)]
+                printf "p90:     %d\n", vals[int(count*0.90)]
+                printf "p99:     %d\n", vals[int(count*0.99)]
+                printf "Max:     %d\n", vals[count]
+                printf "Avg:     %.1f\n", sum/count
+            }'
+        echo ""
+        
+        echo "=== Memory Level Breakdown ==="
+        perf script -i "$PERF_DATA" -F data_src 2>/dev/null | grep "LVL" | \
+            sed 's/.*LVL /LVL /' | cut -d'|' -f1 | sort | uniq -c | sort -rn
+        
+    } > "$STATS_FILE"
+    
+    echo "IBS statistics saved to $STATS_FILE"
     
     # Save history
     cat $history_interface > "${output_folder}/history_${prefix}${i}.txt"
@@ -211,5 +215,4 @@ for ((i=start; i<=max_index; i++)); do
     # Check for interrupt
     [[ $BENCH_EXIT_CODE -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
 done
-
 echo "All iterations completed."
