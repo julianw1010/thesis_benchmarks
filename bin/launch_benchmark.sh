@@ -23,6 +23,25 @@ CMD_EXECUTABLE=$(echo "$cmd_clean" | awk '{print $1}')
 CMD_BASENAME=$(basename "$CMD_EXECUTABLE")
 # Create output folder if it doesn't exist
 mkdir -p "$output_folder"
+# Detect CPU and set profiling mode
+CPU_MODEL=$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs)
+echo "Detected CPU: $CPU_MODEL"
+if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
+    PROFILE_MODE="amd_ibs"
+    echo "Using AMD IBS profiling"
+elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
+    PROFILE_MODE="intel_perf"
+    PERF_EVENTS="cycles,instructions"
+    PERF_EVENTS+=",dtlb_load_misses.walk_duration"
+    PERF_EVENTS+=",dtlb_store_misses.walk_duration"
+    PERF_EVENTS+=",itlb_misses.walk_duration"
+    echo "Using Intel perf counters"
+    echo "Perf events: $PERF_EVENTS"
+else
+    echo "Warning: Unknown CPU model, using generic perf counters"
+    PROFILE_MODE="generic"
+    PERF_EVENTS="cycles,instructions"
+fi
 # Benchmark synchronization files
 BENCH_READY="/tmp/alloctest-bench.ready"
 BENCH_DONE="/tmp/alloctest-bench.done"
@@ -126,10 +145,16 @@ for ((i=start; i<=max_index; i++)); do
     # Start timing
     SECONDS=0
     
-    # Start IBS recording on the benchmark process
-    PERF_DATA="${output_folder}/perf_${prefix}${i}.data"
-    echo "Starting IBS recording on PID $BENCHMARK_PID..."
-    perf record -e ibs_op//p -c 10000003 -W -d -p $BENCHMARK_PID -o "$PERF_DATA" 2>&1 &
+    # Start profiling based on CPU type
+    PERF_OUTPUT="${output_folder}/perf_${prefix}${i}"
+    
+    if [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
+        echo "Starting IBS recording on PID $BENCHMARK_PID..."
+        perf record -e ibs_op//p -c 10000003 -W -d -p $BENCHMARK_PID -o "${PERF_OUTPUT}.data" 2>&1 &
+    else
+        echo "Starting perf stat on PID $BENCHMARK_PID..."
+        perf stat -x, -e "$PERF_EVENTS" -p $BENCHMARK_PID -o "${PERF_OUTPUT}.txt" 2>&1 &
+    fi
     PERF_PID=$!
     
     # Verify perf started
@@ -140,7 +165,7 @@ for ((i=start; i<=max_index; i++)); do
         exit 1
     fi
     
-    echo "IBS recording started (PID: $PERF_PID). Waiting for benchmark to complete..."
+    echo "Profiling started (PID: $PERF_PID). Waiting for benchmark to complete..."
     while [[ ! -f "$BENCH_DONE" ]]; do
         if ! kill -0 $BENCHMARK_PID 2>/dev/null; then
             echo "Benchmark process ended"
@@ -160,19 +185,29 @@ for ((i=start; i<=max_index; i++)); do
     wait $SCRIPT_PID 2>/dev/null
     BENCH_EXIT_CODE=$?
     
-    # Process IBS data to extract TLB statistics
-    STATS_FILE="${output_folder}/ibs_stats_${prefix}${i}.txt"
-    echo "Processing IBS data..."
+    # Process profiling data
+    STATS_FILE="${output_folder}/stats_${prefix}${i}.txt"
+    echo "Processing profiling data..."
     
-    {
-        echo "Execution Time (seconds): $DURATION"
-        perf script -i "$PERF_DATA" -F data_src,weight 2>/dev/null | \
-            awk '/TLB L2 miss/ && $NF > 0 { sum += $NF; count++ } 
-                 END { printf "Walk Samples: %d\nAvg Walk Latency: %.1f cycles\n", count, count ? sum/count : 0 }'
-    } | tee "$STATS_FILE"
+    if [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
+        {
+            echo "Execution Time (seconds): $DURATION"
+            perf script -i "${PERF_OUTPUT}.data" -F data_src,weight 2>/dev/null | \
+                awk '/TLB L2 miss/ && $NF > 0 { sum += $NF; count++ } 
+                     END { printf "Walk Samples: %d\nAvg Walk Latency: %.1f cycles\n", count, count ? sum/count : 0 }'
+        } | tee "$STATS_FILE"
+    else
+        {
+            echo "Execution Time (seconds): $DURATION"
+            echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
+            echo ""
+            echo "=== Perf Counters ==="
+            cat "${PERF_OUTPUT}.txt"
+        } | tee "$STATS_FILE"
+    fi
     
     echo ""
-    echo "IBS statistics saved to $STATS_FILE"
+    echo "Statistics saved to $STATS_FILE"
     
     # Save history
     cat $history_interface > "${output_folder}/history_${prefix}${i}.txt"
