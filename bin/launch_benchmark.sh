@@ -165,39 +165,10 @@ for ((i=start; i<=max_index; i++)); do
     echo "Processing IBS data..."
     
     {
-        echo "=== IBS TLB Statistics ==="
         echo "Execution Time (seconds): $DURATION"
-        echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
-        echo ""
-        
-        echo "=== TLB Access Breakdown ==="
-        perf script -i "$PERF_DATA" -F data_src 2>/dev/null | grep "TLB" | \
-            sed 's/.*TLB /TLB /' | cut -d'|' -f1 | sort | uniq -c | sort -rn
-        echo ""
-        
-        echo "=== Page Table Walk Latency (cycles) ==="
-        perf script -i "$PERF_DATA" -F data_src,weight 2>/dev/null | grep "TLB L2 miss" | \
-            awk '$NF > 0 {print $NF}' | sort -n | awk '
-            {
-                vals[NR] = $1
-                sum += $1
-            }
-            END {
-                if (NR == 0) { print "No valid walk samples"; exit }
-                printf "Samples: %d\n", NR
-                printf "Min:     %d\n", vals[1]
-                printf "p50:     %d\n", vals[int(NR*0.50)]
-                printf "p90:     %d\n", vals[int(NR*0.90)]
-                printf "p99:     %d\n", vals[int(NR*0.99)]
-                printf "Max:     %d\n", vals[NR]
-                printf "Avg:     %.1f\n", sum/NR
-            }'
-        echo ""
-        
-        echo "=== Memory Level Breakdown ==="
-        perf script -i "$PERF_DATA" -F data_src 2>/dev/null | grep "LVL" | \
-            sed 's/.*LVL /LVL /' | cut -d'|' -f1 | sort | uniq -c | sort -rn
-        
+        perf script -i "$PERF_DATA" -F data_src,weight 2>/dev/null | \
+            awk '/TLB L2 miss/ && $NF > 0 { sum += $NF; count++ } 
+                 END { printf "Walk Samples: %d\nAvg Walk Latency: %.1f cycles\n", count, count ? sum/count : 0 }'
     } | tee "$STATS_FILE"
     
     echo ""
