@@ -32,9 +32,20 @@ if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
 elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
     PROFILE_MODE="intel_perf"
     PERF_EVENTS="cycles,instructions"
-    PERF_EVENTS+=",dtlb_load_misses.walk_duration"
-    PERF_EVENTS+=",dtlb_store_misses.walk_duration"
-    PERF_EVENTS+=",itlb_misses.walk_duration"
+    
+    # Check if this is Skylake+ (has walk_active) or older (has walk_duration)
+    if perf list | grep -q 'dtlb_load_misses.walk_active'; then
+        echo "Detected Skylake+ microarchitecture"
+        PERF_EVENTS+=",dtlb_load_misses.walk_active"
+        PERF_EVENTS+=",dtlb_store_misses.walk_active"
+        PERF_EVENTS+=",itlb_misses.walk_active"
+    else
+        echo "Detected pre-Skylake microarchitecture"
+        PERF_EVENTS+=",dtlb_load_misses.walk_duration"
+        PERF_EVENTS+=",dtlb_store_misses.walk_duration"
+        PERF_EVENTS+=",itlb_misses.walk_duration"
+    fi
+    
     echo "Using Intel perf counters"
     echo "Perf events: $PERF_EVENTS"
 else
