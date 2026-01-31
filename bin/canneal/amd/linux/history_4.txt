@@ -1,0 +1,142 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #103
+Process: numactl (PID: 106061, TGID: 106061) [CACHE-ONLY]
+Cmdline: numactl -P /usr/bin/time -v -o linux/time_4.txt -- ./bench_canneal_mt 128 2400000 2000 ../../datasets/canneal_55gb_int 2400 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 483
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 2
+  Total:     497
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           2/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           2/0     
+PMD           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PTE           5/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           5/0     
+
+Memory: 11 primary pages (44 KB), 0 replica pages (0 KB)
+Total:  11 pages (44 KB)
+
+================================================================================
+History Entry #104
+Process: bench_canneal_m (PID: 106062, TGID: 106062) [CACHE-ONLY]
+Cmdline: ./bench_canneal_mt 128 2400000 2000 ../../datasets/canneal_55gb_int 2400 
+Duration: 1209421 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 1604
+  TLB IPIs sent:    190043
+
+CR3 Write Statistics:
+  Total CR3 writes: 16328
+  Replica hits:     0
+  Primary hits:     16328
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 54954313
+  PMD pages: 151046
+  PUD pages: 293
+  P4D pages: 0
+  PGD pages: 3
+  Total:     55105655
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 14756993
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              14756993
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PMD         149/0          11/0          10/0          15/0          15/0           9/0          14/0          16/0         239/0     
+PTE       73160/0        4809/0        4690/0        4398/0        4679/0        4719/0        6446/0        4747/0       107648/0     
+
+Memory: 107891 primary pages (431564 KB), 0 replica pages (0 KB)
+Total:  107891 pages (431564 KB)
+
+================================================================================
+History Entry #105
+Process: time (PID: 106061, TGID: 106061) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o linux/time_4.txt -- ./bench_canneal_mt 128 2400000 2000 ../../datasets/canneal_55gb_int 2400 
+Duration: 1218324 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+  Replica hits:     0
+  Primary hits:     2
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 458
+  PMD pages: 10
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     476
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 23
+  ptep_wrprotect:     17
+  ptep_clear_young:   0
+  Total:              40
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PMD           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PTE           5/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           5/0     
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+Total historical entries: 3 (max: 64)

@@ -1,0 +1,182 @@
+Script started on 2026-01-31 07:00:46+00:00 [COMMAND="numactl -P /usr/bin/time -v -o linux/time_4.txt -- ./bench_canneal_mt 128 2400000 2000 ../../datasets/canneal_55gb_int 2400" <not executed on terminal>]
+
+OPENMP DISPLAY ENVIRONMENT BEGIN
+  _OPENMP = '201511'
+  [host] OMP_DYNAMIC = 'FALSE'
+  [host] OMP_NESTED = 'FALSE'
+  [host] OMP_NUM_THREADS = '1'
+  [host] OMP_SCHEDULE = 'DYNAMIC'
+  [host] OMP_PROC_BIND = 'FALSE'
+  [host] OMP_PLACES = ''
+  [host] OMP_STACKSIZE = '0'
+  [host] OMP_WAIT_POLICY = 'PASSIVE'
+  [host] OMP_THREAD_LIMIT = '4294967295'
+  [host] OMP_MAX_ACTIVE_LEVELS = '1'
+  [host] OMP_NUM_TEAMS = '0'
+  [host] OMP_TEAMS_THREAD_LIMIT = '0'
+  [all] OMP_CANCELLATION = 'FALSE'
+  [all] OMP_DEFAULT_DEVICE = '0'
+  [all] OMP_MAX_TASK_PRIORITY = '0'
+  [all] OMP_DISPLAY_AFFINITY = 'FALSE'
+  [host] OMP_AFFINITY_FORMAT = 'level %L thread %i affinity %A'
+  [host] OMP_ALLOCATOR = 'omp_default_mem_alloc'
+  [all] OMP_TARGET_OFFLOAD = 'DEFAULT'
+  [host] GOMP_CPU_AFFINITY = ''
+  [host] GOMP_STACKSIZE = '0'
+  [host] GOMP_SPINCOUNT = '300000'
+OPENMP DISPLAY ENVIRONMENT END
+./bench_canneal_mt 128 2400000 2000 ../../datasets/canneal_55gb_int 2400 
+<benchmark exec="./bench_canneal_mt">
+<config>
+  <openmp>on</openmp>  <memsize>1G <memsize>  <hugetlb>0</hugetlb>
+  <data>-1</data>  <interference>0</interference>
+</config>
+<run>
+PARSEC Benchmark Suite
+Threadcount: 128
+2400000 swaps per temperature step
+start temperature: 2000
+netlist filename: ../../datasets/canneal_55gb_int
+number of temperature steps: 2400
+File size: 50982 MB
+Elements: 873000000, Grid: 30000x30000
+locs created
+locs assigned
+Parsing with 128 threads...
+Pass 1: Counting connections...
+Pre-allocating vectors with exact sizes...
+Pass 2: Building netlist...
+Parsed: 5000000 elements
+Parsed: 10000000 elements
+Parsed: 15000000 elements
+Parsed: 20000000 elements
+Parsed: 25000000 elements
+Parsed: 30000000 elements
+Parsed: 35000000 elements
+Parsed: 40000000 elements
+Parsed: 45000000 elements
+Parsed: 50000000 elements
+Parsed: 55000000 elements
+Parsed: 60000000 elements
+Parsed: 65000000 elements
+Parsed: 70000000 elements
+Parsed: 75000000 elements
+Parsed: 80000000 elements
+Parsed: 85000000 elements
+Parsed: 90000000 elements
+Parsed: 95000000 elements
+Parsed: 100000000 elements
+Parsed: 105000000 elements
+Parsed: 110000000 elements
+Parsed: 115000000 elements
+Parsed: 120000000 elements
+Parsed: 125000000 elements
+Parsed: 130000000 elements
+Parsed: 135000000 elements
+Parsed: 140000000 elements
+Parsed: 145000000 elements
+Parsed: 150000000 elements
+Parsed: 155000000 elements
+Parsed: 160000000 elements
+Parsed: 165000000 elements
+Parsed: 170000000 elements
+Parsed: 175000000 elements
+Parsed: 180000000 elements
+Parsed: 185000000 elements
+Parsed: 190000000 elements
+Parsed: 195000000 elements
+Parsed: 200000000 elements
+Parsed: 205000000 elements
+Parsed: 210000000 elements
+Parsed: 215000000 elements
+Parsed: 220000000 elements
+Parsed: 225000000 elements
+Parsed: 230000000 elements
+Parsed: 235000000 elements
+Parsed: 240000000 elements
+Parsed: 279760679 elements
+Parsed: 335697735 elements
+Parsed: 340697735 elements
+Parsed: 347556345 elements
+Parsed: 352556345 elements
+Parsed: 357556345 elements
+Parsed: 362556345 elements
+Parsed: 367556345 elements
+Parsed: 372556345 elements
+Parsed: 377556345 elements
+Parsed: 382556345 elements
+Parsed: 387556345 elements
+Parsed: 392556345 elements
+Parsed: 397556345 elements
+Parsed: 402556345 elements
+Parsed: 407556345 elements
+Parsed: 412556345 elements
+Parsed: 417556345 elements
+Parsed: 422556345 elements
+Parsed: 427556345 elements
+Parsed: 432556345 elements
+Parsed: 437556345 elements
+Parsed: 442556345 elements
+Parsed: 447556345 elements
+Parsed: 452556345 elements
+Parsed: 457556345 elements
+Parsed: 462556345 elements
+Parsed: 467556345 elements
+Parsed: 472556345 elements
+Parsed: 477556345 elements
+Parsed: 484369869 elements
+Parsed: 489369869 elements
+Parsed: 494369869 elements
+Parsed: 499369869 elements
+Parsed: 504369869 elements
+Parsed: 509369869 elements
+Parsed: 516176035 elements
+Parsed: 521176035 elements
+Parsed: 529788414 elements
+Parsed: 534788414 elements
+Parsed: 539788414 elements
+Parsed: 544788414 elements
+Parsed: 549788414 elements
+Parsed: 554788414 elements
+Parsed: 559788414 elements
+Parsed: 564788414 elements
+Parsed: 569788414 elements
+Parsed: 574788414 elements
+Parsed: 579788414 elements
+Parsed: 615761163 elements
+Parsed: 638950156 elements
+Parsed: 651195446 elements
+Parsed: 663489295 elements
+Parsed: 668489295 elements
+Parsed: 693569930 elements
+Parsed: 698569930 elements
+Parsed: 703569930 elements
+Parsed: 708569930 elements
+Parsed: 715379431 elements
+Parsed: 723991716 elements
+Parsed: 728991716 elements
+Parsed: 733991716 elements
+Parsed: 738991716 elements
+Parsed: 743991716 elements
+Parsed: 748991716 elements
+Parsed: 753991716 elements
+Parsed: 758991716 elements
+Parsed: 763991716 elements
+Parsed: 768991716 elements
+Parsed: 775797854 elements
+Parsed: 780797854 elements
+Parsed: 785797854 elements
+Parsed: 790797854 elements
+Parsed: 795797854 elements
+Parsed: 800797854 elements
+Parsed: 805797854 elements
+Parsed: 810797854 elements
+Parsed: 815797854 elements
+Parsed: 820797854 elements
+Parsed: 825797854 elements
+netlist created. 873000003 elements.
+Final routing is: 5.37147e+13
+Annealing took: 879.126 seconds
+Total took: 1209.41 seconds
+
+Script done on 2026-01-31 07:21:05+00:00 [COMMAND_EXIT_CODE="0"]
