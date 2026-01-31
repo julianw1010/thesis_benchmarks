@@ -129,7 +129,7 @@ for ((i=start; i<=max_index; i++)); do
     # Start IBS recording on the benchmark process
     PERF_DATA="${output_folder}/perf_${prefix}${i}.data"
     echo "Starting IBS recording on PID $BENCHMARK_PID..."
-    perf record -e ibs_op//p -c 5000003 -W -d -p $BENCHMARK_PID -o "$PERF_DATA" 2>&1 &
+    perf record -e ibs_op//p -c 10000003 -W -d -p $BENCHMARK_PID -o "$PERF_DATA" 2>&1 &
     PERF_PID=$!
     
     # Verify perf started
@@ -177,24 +177,20 @@ for ((i=start; i<=max_index; i++)); do
         
         echo "=== Page Table Walk Latency (cycles) ==="
         perf script -i "$PERF_DATA" -F data_src,weight 2>/dev/null | grep "TLB L2 miss" | \
-            awk '{print $NF}' | awk '
-            $1 > 0 {
+            awk '$NF > 0 {print $NF}' | sort -n | awk '
+            {
+                vals[NR] = $1
                 sum += $1
-                count++
-                vals[count] = $1
             }
             END {
-                if (count == 0) { print "No valid walk samples"; exit }
-                for (i = 1; i <= count; i++)
-                    for (j = i+1; j <= count; j++)
-                        if (vals[i] > vals[j]) { t=vals[i]; vals[i]=vals[j]; vals[j]=t }
-                printf "Samples: %d\n", count
+                if (NR == 0) { print "No valid walk samples"; exit }
+                printf "Samples: %d\n", NR
                 printf "Min:     %d\n", vals[1]
-                printf "p50:     %d\n", vals[int(count*0.50)]
-                printf "p90:     %d\n", vals[int(count*0.90)]
-                printf "p99:     %d\n", vals[int(count*0.99)]
-                printf "Max:     %d\n", vals[count]
-                printf "Avg:     %.1f\n", sum/count
+                printf "p50:     %d\n", vals[int(NR*0.50)]
+                printf "p90:     %d\n", vals[int(NR*0.90)]
+                printf "p99:     %d\n", vals[int(NR*0.99)]
+                printf "Max:     %d\n", vals[NR]
+                printf "Avg:     %.1f\n", sum/NR
             }'
         echo ""
         
@@ -202,8 +198,9 @@ for ((i=start; i<=max_index; i++)); do
         perf script -i "$PERF_DATA" -F data_src 2>/dev/null | grep "LVL" | \
             sed 's/.*LVL /LVL /' | cut -d'|' -f1 | sort | uniq -c | sort -rn
         
-    } > "$STATS_FILE"
+    } | tee "$STATS_FILE"
     
+    echo ""
     echo "IBS statistics saved to $STATS_FILE"
     
     # Save history
