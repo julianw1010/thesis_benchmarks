@@ -1,0 +1,9 @@
+# started on Sat Jan 31 00:48:20 2026
+
+20182822138216,,cycles:u,3659236264063,40.00,,
+5379709938095,,dtlb_load_misses.walk_duration:u,4209065764313,46.00,,
+11801118,,dtlb_store_misses.walk_duration:u,4347321549579,48.00,,
+120967909,,itlb_misses.walk_duration:u,4102486729169,45.00,,
+
+Execution Time (seconds): 149
+Benchmark Exit Code: 0
