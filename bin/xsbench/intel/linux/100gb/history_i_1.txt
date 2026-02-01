@@ -1,0 +1,142 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #92
+Process: numactl (PID: 149843, TGID: 149843) [CACHE-ONLY]
+Cmdline: numactl -P -i all /usr/bin/time -v -o intel/linux/100gb/time_i_1.txt -- ./bench_xsbench_mt -- -p 25000000 -g 600000 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 499
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     514
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 26
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              26
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           3/0           0/0           0/0           0/0           3/0     
+PMD           3/0           0/0           0/0           0/0           3/0     
+PTE           5/0           0/0           0/0           0/0           5/0     
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+================================================================================
+History Entry #93
+Process: bench_xsbench_m (PID: 149844, TGID: 149844) [CACHE-ONLY]
+Cmdline: ./bench_xsbench_mt -- -p 25000000 -g 600000 
+Duration: 685080 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 1
+  TLB IPIs sent:    1
+
+CR3 Write Statistics:
+  Total CR3 writes: 2583
+  Replica hits:     0
+  Primary hits:     2583
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 80504253
+  PMD pages: 163870
+  PUD pages: 334
+  P4D pages: 0
+  PGD pages: 3
+  Total:     80668460
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 3330481
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              3330481
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           0/0           1/0           2/0           0/0           3/0     
+PMD          85/0          86/0          85/0          82/0         338/0     
+PTE       37715/0       37714/0       37711/0       37718/0       150858/0     
+
+Memory: 151200 primary pages (604800 KB), 0 replica pages (0 KB)
+Total:  151200 pages (604800 KB)
+
+================================================================================
+History Entry #94
+Process: time (PID: 149843, TGID: 149843) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o intel/linux/100gb/time_i_1.txt -- ./bench_xsbench_mt -- -p 25000000 -g 600000 
+Duration: 706186 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+  Replica hits:     0
+  Primary hits:     2
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 475
+  PMD pages: 7
+  PUD pages: 3
+  P4D pages: 0
+  PGD pages: 3
+  Total:     488
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     17
+  ptep_clear_young:   0
+  Total:              42
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           0/0           3/0           0/0           0/0           3/0     
+PMD           0/0           0/0           3/0           0/0           3/0     
+PTE           3/0           1/0           0/0           1/0           5/0     
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+Total historical entries: 3 (max: 64)
