@@ -1,0 +1,23 @@
+	Command being timed: "./bench_xsbench_mt -- -p 10000000 -g 200000"
+	User time (seconds): 8920.78
+	System time (seconds): 86.48
+	Percent of CPU this job got: 2515%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 5:58.09
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 102898316
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 3
+	Minor (reclaiming a frame) page faults: 26992802
+	Voluntary context switches: 419
+	Involuntary context switches: 12503
+	Swaps: 0
+	File system inputs: 3152
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
