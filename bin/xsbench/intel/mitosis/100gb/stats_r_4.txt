@@ -1,0 +1,11 @@
+Execution Time (seconds): 330
+Benchmark Exit Code: 0
+
+=== Perf Counters ===
+# started on Sun Feb  1 11:48:45 2026
+
+66302451935761,,cycles,21053696108357,100.00,,
+3128003526349,,instructions,21053695741739,100.00,0.05,insn per cycle
+20506486351144,,dtlb_load_misses.walk_active,21053695533679,100.00,,
+22995630350,,dtlb_store_misses.walk_active,21053695289531,100.00,,
+2061085703,,itlb_misses.walk_active,21053695037020,100.00,,
