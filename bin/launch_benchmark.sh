@@ -155,6 +155,33 @@ for ((i=start; i<=max_index; i++)); do
     BENCH_PID=$(cat "$BENCH_PID_FILE")
     echo "Benchmark PID: $BENCH_PID"
 
+    # Verify PID is accessible before starting perf
+    if [[ ! -d "/proc/$BENCH_PID" ]]; then
+        echo "ERROR: /proc/$BENCH_PID does not exist — process already gone?"
+        kill $SCRIPT_PID 2>/dev/null
+        exit 1
+    fi
+
+    # Wait for all threads to be visible in /proc (avoids perf open failures)
+    echo -n "Waiting for threads to stabilize..."
+    PREV_THREADS=0
+    STABLE_COUNT=0
+    for attempt in $(seq 1 50); do
+        CUR_THREADS=$(ls /proc/$BENCH_PID/task 2>/dev/null | wc -l)
+        if [[ "$CUR_THREADS" -eq "$PREV_THREADS" && "$CUR_THREADS" -gt 0 ]]; then
+            STABLE_COUNT=$((STABLE_COUNT + 1))
+        else
+            STABLE_COUNT=0
+        fi
+        PREV_THREADS=$CUR_THREADS
+        # Consider stable after 3 consecutive identical readings
+        if [[ $STABLE_COUNT -ge 3 ]]; then
+            break
+        fi
+        sleep 0.1
+    done
+    echo " $CUR_THREADS threads found"
+
     # Start timing
     SECONDS=0
 
