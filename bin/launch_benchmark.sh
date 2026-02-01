@@ -25,7 +25,7 @@ echo "Detected CPU: $CPU_MODEL"
 
 if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
     PROFILE_MODE="amd_ibs"
-    echo "Using AMD IBS profiling (system-wide)"
+    echo "Using AMD IBS profiling (per-process)"
 elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
     PROFILE_MODE="intel_perf"
     PERF_EVENTS="cycles,instructions"
@@ -43,7 +43,7 @@ elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
         PERF_EVENTS+=",itlb_misses.walk_duration"
     fi
 
-    echo "Using Intel perf counters (system-wide)"
+    echo "Using Intel perf counters (per-process)"
     echo "Perf events: $PERF_EVENTS"
 else
     echo "Warning: Unknown CPU model, using generic perf counters"
@@ -54,6 +54,7 @@ fi
 # Benchmark synchronization files
 BENCH_READY="/tmp/alloctest-bench.ready"
 BENCH_DONE="/tmp/alloctest-bench.done"
+BENCH_PID_FILE="/tmp/alloctest-bench.pid"
 
 # Detect cache interface
 if [[ -f /proc/mitosis/cache ]]; then
@@ -117,8 +118,8 @@ echo "Command: $cmd"
 for ((i=start; i<=max_index; i++)); do
     echo "=== Running iteration=$i ==="
 
-    # Clean up synchronization files (benchmark creates these)
-    rm -f "$BENCH_READY" "$BENCH_DONE"
+    # Clean up synchronization files
+    rm -f "$BENCH_READY" "$BENCH_DONE" "$BENCH_PID_FILE"
 
     # Flush caches before every benchmark run
     sync
@@ -145,18 +146,27 @@ for ((i=start; i<=max_index; i++)); do
     done
     echo "Benchmark is ready!"
 
+    # Read benchmark PID
+    if [[ ! -f "$BENCH_PID_FILE" ]]; then
+        echo "ERROR: Benchmark did not write PID file"
+        kill $SCRIPT_PID 2>/dev/null
+        exit 1
+    fi
+    BENCH_PID=$(cat "$BENCH_PID_FILE")
+    echo "Benchmark PID: $BENCH_PID"
+
     # Start timing
     SECONDS=0
 
-    # Start system-wide profiling between READY and DONE
+    # Start per-process profiling between READY and DONE
     PERF_OUTPUT="${output_folder}/perf_${prefix}${i}"
 
     if [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
-        echo "Starting system-wide IBS recording..."
-        perf record -a -e ibs_op//p -c 10000003 -W -d -o "${PERF_OUTPUT}.data" 2>&1 &
+        echo "Starting per-process IBS recording..."
+        perf record -p "$BENCH_PID" -e ibs_op//p -c 10000003 -W -d -o "${PERF_OUTPUT}.data" 2>&1 &
     else
-        echo "Starting system-wide perf stat..."
-        perf stat -a -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt" 2>&1 &
+        echo "Starting per-process perf stat..."
+        perf stat -p "$BENCH_PID" -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt" 2>&1 &
     fi
     PERF_PID=$!
 
