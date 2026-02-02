@@ -1,0 +1,7 @@
+# started on Mon Feb  2 04:31:47 2026
+
+20349259547764,,cycles,9349552309835,99.00,,
+1225741680283,,instructions,9349611220742,99.00,0.06,insn per cycle
+5295904578396,,dtlb_load_misses.walk_duration,9349615866638,99.00,,
+3682131689,,dtlb_store_misses.walk_duration,9349605672932,99.00,,
+307250356,,itlb_misses.walk_duration,9349536607940,99.00,,

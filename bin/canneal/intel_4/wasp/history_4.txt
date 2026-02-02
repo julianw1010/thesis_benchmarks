@@ -1,0 +1,234 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #29
+Process: numactl (PID: 27350, TGID: 27350) [CACHE-ONLY]
+Cmdline: numactl -P /usr/bin/time -v -o intel_4/wasp/time_4.txt -- ./bench_canneal_mt 64 500000 2000 ../../datasets/canneal_20gb_int 2400 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 499
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     514
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0           0/0           1/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           0/0           0/0           3/0           0/0           3/0     
+PMD           0/0           0/0           3/0           0/0           3/0     
+PTE           0/0           0/0           5/0           0/0           5/0     
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+================================================================================
+History Entry #30
+Process: bench_canneal_m (PID: 27351, TGID: 27351) [REPLICATED]
+Cmdline: ./bench_canneal_mt 64 500000 2000 ../../datasets/canneal_20gb_int 2400 
+Duration: 42755 ms
+Replication nodes: 0, 1, 2, 3 (4 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 3549
+  TLB IPIs sent:    168602
+
+CR3 Write Statistics:
+  Total CR3 writes: 26023
+  Replica hits:     16116
+  Primary hits:     9907
+  Replica hit rate: 61%
+
+Page Table Pages Modified:
+  PTE pages: 27472519
+  PMD pages: 31015
+  PUD pages: 89
+  P4D pages: 0
+  PGD pages: 3
+  Total:     27503626
+
+Page Table Pages Read:
+  PTE pages: 1085600
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 5058585
+  ptep_wrprotect:     0
+  ptep_clear_young:   1079
+  Total:              5059664
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           1/0           0/1           0/1           1/3     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           3/0           0/3           0/3           3/9     
+PMD          14/59         55/11          2/64          2/64         73/198   
+PTE        2311/26512   26223/2600      145/28678     144/28679   28823/86469 
+
+Memory: 28900 primary pages (115600 KB), 86679 replica pages (346716 KB)
+Total:  115579 pages (462316 KB)
+
+================================================================================
+History Entry #31
+Process: bench_canneal_m (PID: 27351, TGID: 27351) [REPLICATED]
+Cmdline: ./bench_canneal_mt 64 500000 2000 ../../datasets/canneal_20gb_int 2400 
+Duration: 24335 ms
+Replication nodes: 0, 1, 2, 3 (4 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 28952
+  TLB IPIs sent:    1626551
+
+CR3 Write Statistics:
+  Total CR3 writes: 86631
+  Replica hits:     17920
+  Primary hits:     68711
+  Replica hit rate: 20%
+
+Page Table Pages Modified:
+  PTE pages: 38304838
+  PMD pages: 86539
+  PUD pages: 210
+  P4D pages: 0
+  PGD pages: 4
+  Total:     38391591
+
+Page Table Pages Read:
+  PTE pages: 1136256
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 26668972
+  ptep_wrprotect:     0
+  ptep_clear_young:   2010
+  Total:              26670982
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           1/0           0/1           0/1           1/3     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           1/3           3/1           0/4           0/4           4/12    
+PMD          14/79         60/34          8/83         12/80         94/276   
+PTE        5695/37009   30030/12707    3498/39145    3514/39128   42737/127989
+
+Memory: 42836 primary pages (171344 KB), 128280 replica pages (513120 KB)
+Total:  171116 pages (684464 KB)
+
+================================================================================
+History Entry #32
+Process: bench_canneal_m (PID: 27351, TGID: 27351) [REPLICATED]
+Cmdline: ./bench_canneal_mt 64 500000 2000 ../../datasets/canneal_20gb_int 2400 
+Duration: 211316 ms
+Replication nodes: 0, 1, 2, 3 (4 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 29082
+  TLB IPIs sent:    1634092
+
+CR3 Write Statistics:
+  Total CR3 writes: 240524
+  Replica hits:     130238
+  Primary hits:     110286
+  Replica hit rate: 54%
+
+Page Table Pages Modified:
+  PTE pages: 38304978
+  PMD pages: 86775
+  PUD pages: 210
+  P4D pages: 0
+  PGD pages: 4
+  Total:     38391967
+
+Page Table Pages Read:
+  PTE pages: 1136256
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 26669452
+  ptep_wrprotect:     0
+  ptep_clear_young:   2010
+  Total:              26671462
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           1/0           0/1           0/1           1/3     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           1/3           3/1           0/4           0/4           4/12    
+PMD          14/79         60/34          8/83         12/80         94/276   
+PTE        5695/37009   30030/12707    3498/39145    3514/39128   42737/127989
+
+Memory: 42836 primary pages (171344 KB), 128280 replica pages (513120 KB)
+Total:  171116 pages (684464 KB)
+
+================================================================================
+History Entry #33
+Process: time (PID: 27350, TGID: 27350) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o intel_4/wasp/time_4.txt -- ./bench_canneal_mt 64 500000 2000 ../../datasets/canneal_20gb_int 2400 
+Duration: 437032 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+  Replica hits:     0
+  Primary hits:     2
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 492
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     507
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     18
+  ptep_clear_young:   0
+  Total:              43
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0           0/0           1/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           0/0           0/0           3/0           0/0           3/0     
+PMD           0/0           0/0           3/0           0/0           3/0     
+PTE           0/0           0/0           5/0           0/0           5/0     
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+Total historical entries: 5 (max: 64)
