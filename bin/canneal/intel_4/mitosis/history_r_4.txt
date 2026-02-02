@@ -1,0 +1,188 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #125
+Process: numactl (PID: 115719, TGID: 115719) [REPLICATED]
+Cmdline: numactl -r all /usr/bin/time -v -o intel_4/mitosis/time_r_4.txt -- ./bench_canneal_mt 64 500000 2000 ../../datasets/canneal_20gb_int 2400 
+Duration: 15 ms
+Replication nodes: 0, 1, 2, 3 (4 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 499
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     514
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           1/0           0/1           0/1           1/3     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           3/0           0/3           0/3           3/9     
+PMD           0/3           3/0           0/3           0/3           3/9     
+PTE           0/5           5/0           0/5           0/5           5/15    
+
+Memory: 12 primary pages (48 KB), 36 replica pages (144 KB)
+Total:  48 pages (192 KB)
+
+================================================================================
+History Entry #126
+Process: time (PID: 115719, TGID: 115719) [REPLICATED]
+Cmdline: /usr/bin/time -v -o intel_4/mitosis/time_r_4.txt -- ./bench_canneal_mt 64 500000 2000 ../../datasets/canneal_20gb_int 2400 
+Duration: 18 ms
+Replication nodes: 0, 1, 2, 3 (4 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 3
+  Replica hits:     0
+  Primary hits:     3
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 378
+  PMD pages: 5
+  PUD pages: 3
+  P4D pages: 0
+  PGD pages: 3
+  Total:     389
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 20
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              20
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           1/0           0/1           0/1           1/3     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           3/0           0/3           0/3           3/9     
+PMD           0/3           3/0           0/3           0/3           3/9     
+PTE           0/5           5/0           0/5           0/5           5/15    
+
+Memory: 12 primary pages (48 KB), 36 replica pages (144 KB)
+Total:  48 pages (192 KB)
+
+================================================================================
+History Entry #127
+Process: bench_canneal_m (PID: 115721, TGID: 115721) [REPLICATED]
+Cmdline: ./bench_canneal_mt 64 500000 2000 ../../datasets/canneal_20gb_int 2400 
+Duration: 413956 ms
+Replication nodes: 0, 1, 2, 3 (4 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 131
+  TLB IPIs sent:    8037
+
+CR3 Write Statistics:
+  Total CR3 writes: 218534
+  Replica hits:     162655
+  Primary hits:     55879
+  Replica hit rate: 74%
+
+Page Table Pages Modified:
+  PTE pages: 87084336
+  PMD pages: 212372
+  PUD pages: 440
+  P4D pages: 0
+  PGD pages: 6
+  Total:     87297154
+
+Page Table Pages Read:
+  PTE pages: 27892664
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 21060710
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              21060710
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           1/0           0/1           0/1           1/3     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           3/0           0/3           0/3           3/9     
+PMD          66/25         13/80          5/87          9/81         93/273   
+PTE       32346/10358    3489/39248    3419/39226    3483/39157   42737/127989
+
+Memory: 42834 primary pages (171336 KB), 128274 replica pages (513096 KB)
+Total:  171108 pages (684432 KB)
+
+================================================================================
+History Entry #128
+Process: time (PID: 115719, TGID: 115719) [REPLICATED]
+Cmdline: /usr/bin/time -v -o intel_4/mitosis/time_r_4.txt -- ./bench_canneal_mt 64 500000 2000 ../../datasets/canneal_20gb_int 2400 
+Duration: 420206 ms
+Replication nodes: 0, 1, 2, 3 (4 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+  Replica hits:     0
+  Primary hits:     1
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 1950
+  PMD pages: 13
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     1971
+
+Page Table Pages Read:
+  PTE pages: 28
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 90
+  ptep_wrprotect:     72
+  ptep_clear_young:   0
+  Total:              162
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           1/0           0/1           0/1           1/3     
+P4D           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           3/0           0/3           0/3           3/9     
+PMD           0/3           3/0           0/3           0/3           3/9     
+PTE           0/5           5/0           0/5           0/5           5/15    
+
+Memory: 12 primary pages (48 KB), 36 replica pages (144 KB)
+Total:  48 pages (192 KB)
+
+Total historical entries: 4 (max: 64)
