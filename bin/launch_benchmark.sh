@@ -25,7 +25,7 @@ echo "Detected CPU: $CPU_MODEL"
 
 if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
     PROFILE_MODE="amd_ibs"
-    echo "Using AMD IBS profiling (per-process)"
+    echo "Using AMD IBS profiling (system-wide)"
 elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
     PROFILE_MODE="intel_perf"
     PERF_EVENTS="cycles,instructions"
@@ -43,7 +43,7 @@ elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
         PERF_EVENTS+=",itlb_misses.walk_duration"
     fi
 
-    echo "Using Intel perf counters (per-process)"
+    echo "Using Intel perf counters (system-wide)"
     echo "Perf events: $PERF_EVENTS"
 else
     echo "Warning: Unknown CPU model, using generic perf counters"
@@ -155,7 +155,7 @@ for ((i=start; i<=max_index; i++)); do
     BENCH_PID=$(cat "$BENCH_PID_FILE")
     echo "Benchmark PID: $BENCH_PID"
 
-    # Verify PID is accessible before starting perf
+    # Verify PID is accessible
     if [[ ! -d "/proc/$BENCH_PID" ]]; then
         echo "ERROR: /proc/$BENCH_PID does not exist — process already gone?"
         kill $SCRIPT_PID 2>/dev/null
@@ -185,16 +185,16 @@ for ((i=start; i<=max_index; i++)); do
     # Start timing
     SECONDS=0
 
-    # Start per-process profiling between READY and DONE
+    # Start system-wide profiling between READY and DONE
     PERF_OUTPUT="${output_folder}/perf_${prefix}${i}"
     PERF_ERR="${PERF_OUTPUT}.err"
 
     if [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
-        echo "Starting per-process IBS recording..."
-        perf record -p "$BENCH_PID" -e ibs_op//p -c 10000003 -W -d -o "${PERF_OUTPUT}.data" 2>"$PERF_ERR" &
+        echo "Starting system-wide IBS recording..."
+        perf record -a -e ibs_op//p -c 10000003 -W -d -o "${PERF_OUTPUT}.data" 2>"$PERF_ERR" &
     else
-        echo "Starting per-process perf stat..."
-        perf stat -p "$BENCH_PID" -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt" 2>"$PERF_ERR" &
+        echo "Starting system-wide perf stat..."
+        perf stat -a -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt" 2>"$PERF_ERR" &
     fi
     PERF_PID=$!
 
@@ -251,6 +251,7 @@ for ((i=start; i<=max_index; i++)); do
         {
             echo "Execution Time (seconds): $DURATION"
             echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
+            echo "NOTE: Counters are system-wide (-a), not per-process"
             echo ""
             echo "=== Perf Counters ==="
             cat "${PERF_OUTPUT}.txt"
