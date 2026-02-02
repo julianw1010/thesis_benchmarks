@@ -104,6 +104,11 @@ static int ___main (int argc, char * argv[]) {
 	auto total_start = std::chrono::high_resolution_clock::now();
 	netlist my_netlist(filename);
         #define CONFIG_SHM_FILE_NAME "/tmp/alloctest-bench"
+	FILE *fd_pid = fopen(CONFIG_SHM_FILE_NAME ".pid", "w");
+	if (fd_pid) {
+	    fprintf(fd_pid, "%d", getpid());
+	    fclose(fd_pid);
+	}
         FILE *fd2 = fopen(CONFIG_SHM_FILE_NAME ".ready", "w");
         if (fd2 == NULL) {
             printf("unable to create tmp file\n");
