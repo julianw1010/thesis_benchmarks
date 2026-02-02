@@ -20,7 +20,41 @@ mkdir -p "$output_folder"
 
 CPU_MODEL=$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs)
 echo "Detected CPU: $CPU_MODEL"
-echo "Stats collection: waspd (single PMU owner, no perf stat)"
+
+# Detect whether waspd is running
+if pgrep -x waspd > /dev/null 2>&1; then
+    USE_WASPD=1
+    echo "Stats collection: waspd detected (single PMU owner, no perf stat)"
+else
+    USE_WASPD=0
+    echo "Stats collection: perf stat (waspd not running)"
+
+    if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
+        PROFILE_MODE="amd_ibs"
+        echo "Using AMD IBS profiling (per-process)"
+    elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
+        PROFILE_MODE="intel_perf"
+        PERF_EVENTS="cycles,instructions"
+
+        if perf list | grep -q 'dtlb_load_misses.walk_active'; then
+            echo "Detected Skylake+ microarchitecture"
+            PERF_EVENTS+=",dtlb_load_misses.walk_active"
+            PERF_EVENTS+=",dtlb_store_misses.walk_active"
+            PERF_EVENTS+=",itlb_misses.walk_active"
+        else
+            echo "Detected pre-Skylake microarchitecture"
+            PERF_EVENTS+=",dtlb_load_misses.walk_duration"
+            PERF_EVENTS+=",dtlb_store_misses.walk_duration"
+            PERF_EVENTS+=",itlb_misses.walk_duration"
+        fi
+
+        echo "Perf events: $PERF_EVENTS"
+    else
+        echo "Warning: Unknown CPU model, using generic perf counters"
+        PROFILE_MODE="generic"
+        PERF_EVENTS="cycles,instructions"
+    fi
+fi
 
 # Benchmark synchronization files
 BENCH_READY="/tmp/alloctest-bench.ready"
@@ -114,13 +148,58 @@ for ((i=start; i<=max_index; i++)); do
         exit 1
     fi
 
-    # Clean any stale waspd stats file for this PID
-    rm -f "/tmp/waspd-stats-${BENCH_PID}.csv"
+    # Wait for all threads to stabilize
+    echo -n "Waiting for threads to stabilize..."
+    PREV_THREADS=0
+    STABLE_COUNT=0
+    for attempt in $(seq 1 50); do
+        CUR_THREADS=$(ls /proc/$BENCH_PID/task 2>/dev/null | wc -l)
+        if [[ "$CUR_THREADS" -eq "$PREV_THREADS" && "$CUR_THREADS" -gt 0 ]]; then
+            STABLE_COUNT=$((STABLE_COUNT + 1))
+        else
+            STABLE_COUNT=0
+        fi
+        PREV_THREADS=$CUR_THREADS
+        if [[ $STABLE_COUNT -ge 3 ]]; then
+            break
+        fi
+        sleep 0.1
+    done
+    echo " $CUR_THREADS threads found"
 
     # Start timing
     SECONDS=0
 
-    echo "Waiting for benchmark to complete (waspd collects counters)..."
+    # Start profiling (only if waspd is NOT running)
+    PERF_OUTPUT="${output_folder}/perf_${prefix}${i}"
+    PERF_ERR="${PERF_OUTPUT}.err"
+    PERF_PID=""
+
+    if [[ $USE_WASPD -eq 1 ]]; then
+        # Clean any stale waspd stats file for this PID
+        rm -f "/tmp/waspd-stats-${BENCH_PID}.csv"
+        echo "waspd collecting counters (no perf stat launched)"
+    else
+        if [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
+            echo "Starting per-process IBS recording (PID $BENCH_PID)..."
+            perf record -p $BENCH_PID -e ibs_op//p -c 10000003 -W -d -o "${PERF_OUTPUT}.data" 2>"$PERF_ERR" &
+        else
+            echo "Starting per-process perf stat (PID $BENCH_PID)..."
+            perf stat -p $BENCH_PID -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt" 2>"$PERF_ERR" &
+        fi
+        PERF_PID=$!
+
+        sleep 0.2
+        if ! kill -0 $PERF_PID 2>/dev/null; then
+            echo "ERROR: perf failed to start"
+            [[ -f "$PERF_ERR" ]] && cat "$PERF_ERR"
+            kill $SCRIPT_PID 2>/dev/null
+            exit 1
+        fi
+        echo "Profiling started (PID: $PERF_PID)"
+    fi
+
+    echo "Waiting for benchmark to complete..."
     while [[ ! -f "$BENCH_DONE" ]]; do
         if ! kill -0 $SCRIPT_PID 2>/dev/null; then
             echo "Benchmark process ended"
@@ -131,39 +210,71 @@ for ((i=start; i<=max_index; i++)); do
 
     DURATION=$SECONDS
 
-    # Wait for script to fully finish
+    # Stop perf if we launched it
+    if [[ -n "$PERF_PID" ]]; then
+        kill -INT $PERF_PID 2>/dev/null
+        sleep 0.5
+        wait $PERF_PID 2>/dev/null
+
+        if [[ -s "$PERF_ERR" ]] && grep -qi -E "fail|error|not counted|not supported|cannot" "$PERF_ERR"; then
+            echo "ERROR: perf reported errors during iteration $i:"
+            cat "$PERF_ERR"
+            kill $SCRIPT_PID 2>/dev/null
+            wait $SCRIPT_PID 2>/dev/null
+            exit 1
+        fi
+    fi
+
+    # Wait for script/benchmark to fully finish
     wait $SCRIPT_PID 2>/dev/null
     BENCH_EXIT_CODE=$?
 
-    # Wait briefly for waspd to detect process death and write stats
-    WASPD_STATS="/tmp/waspd-stats-${BENCH_PID}.csv"
-    echo "Waiting for waspd stats file..."
-    for attempt in $(seq 1 20); do
-        if [[ -f "$WASPD_STATS" ]]; then
-            break
-        fi
-        sleep 0.5
-    done
-
-    # Process stats
+    # Collect stats
     STATS_FILE="${output_folder}/stats_${prefix}${i}.txt"
     echo "Processing profiling data..."
 
-    {
-        echo "Execution Time (seconds): $DURATION"
-        echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
-        echo "NOTE: Counters collected by waspd (single PMU owner)"
-        echo ""
-        if [[ -f "$WASPD_STATS" ]]; then
-            echo "=== Perf Counters (from waspd) ==="
-            cat "$WASPD_STATS"
-            # Copy the raw CSV too
-            cp "$WASPD_STATS" "${output_folder}/perf_${prefix}${i}.csv"
+    if [[ $USE_WASPD -eq 1 ]]; then
+        # Wait for waspd to detect process death and write stats
+        WASPD_STATS="/tmp/waspd-stats-${BENCH_PID}.csv"
+        echo "Waiting for waspd stats file..."
+        for attempt in $(seq 1 20); do
+            [[ -f "$WASPD_STATS" ]] && break
+            sleep 0.5
+        done
+
+        {
+            echo "Execution Time (seconds): $DURATION"
+            echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
+            echo "NOTE: Counters collected by waspd (single PMU owner)"
+            echo ""
+            if [[ -f "$WASPD_STATS" ]]; then
+                echo "=== Perf Counters (from waspd) ==="
+                cat "$WASPD_STATS"
+                cp "$WASPD_STATS" "${output_folder}/perf_${prefix}${i}.csv"
+            else
+                echo "WARNING: waspd stats file not found at $WASPD_STATS"
+                echo "Make sure waspd is running and tracking the benchmark process."
+            fi
+        } | tee "$STATS_FILE"
+    else
+        if [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
+            {
+                echo "Execution Time (seconds): $DURATION"
+                perf script -i "${PERF_OUTPUT}.data" -F data_src,weight 2>/dev/null | \
+                    awk '/TLB L2 miss/ && $NF > 0 { sum += $NF; count++ }
+                         END { printf "Walk Samples: %d\nAvg Walk Latency: %.1f cycles\n", count, count ? sum/count : 0 }'
+            } | tee "$STATS_FILE"
         else
-            echo "WARNING: waspd stats file not found at $WASPD_STATS"
-            echo "Make sure waspd is running and tracking the benchmark process."
+            {
+                echo "Execution Time (seconds): $DURATION"
+                echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
+                echo "NOTE: Counters collected by perf stat -p (no waspd)"
+                echo ""
+                echo "=== Perf Counters ==="
+                cat "${PERF_OUTPUT}.txt"
+            } | tee "$STATS_FILE"
         fi
-    } | tee "$STATS_FILE"
+    fi
 
     echo ""
     echo "Statistics saved to $STATS_FILE"
@@ -174,7 +285,6 @@ for ((i=start; i<=max_index; i++)); do
     echo "Iteration $i completed in $DURATION seconds"
     echo ""
 
-    # Check for interrupt
     [[ $BENCH_EXIT_CODE -eq 130 ]] && { echo "Interrupted. Exiting..."; exit 1; }
 done
 
