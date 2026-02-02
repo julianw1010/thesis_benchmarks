@@ -920,6 +920,11 @@ int real_main(int argc, char ** argv) {
         fprintf(stderr, "ERROR: could not create the shared memory file descriptor\n");
         exit(-1);
     }
+    FILE *fd_pid = fopen(CONFIG_SHM_FILE_NAME ".pid", "w");
+        if (fd_pid) {
+    	    fprintf(fd_pid, "%d", getpid());
+            fclose(fd_pid);
+    }
     usleep(250);
     
     uint64_t sum = 0;
