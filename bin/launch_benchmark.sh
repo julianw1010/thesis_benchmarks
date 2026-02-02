@@ -115,6 +115,18 @@ echo "Mode: $mode, numactl options: $numactl_opts"
 echo "Output folder: $output_folder"
 echo "Command: $cmd"
 
+# Cleanup trap: ensure perf and script wrapper are always killed on exit
+cleanup() {
+    echo "Cleaning up..."
+    [[ -n "$PERF_PID" ]] && kill -INT $PERF_PID 2>/dev/null
+    [[ -n "$SCRIPT_PID" ]] && kill $SCRIPT_PID 2>/dev/null
+    wait 2>/dev/null
+}
+trap cleanup EXIT INT TERM
+
+# Max time (seconds) to wait for a single benchmark run before giving up
+BENCH_TIMEOUT=7200  # 2 hours; adjust as needed
+
 for ((i=start; i<=max_index; i++)); do
     echo "=== Running iteration=$i ==="
 
@@ -208,12 +220,29 @@ for ((i=start; i<=max_index; i++)); do
     fi
 
     echo "Profiling started (PID: $PERF_PID). Waiting for benchmark to complete..."
+
+    WAITED=0
     while [[ ! -f "$BENCH_DONE" ]]; do
+        # Primary check: is the actual benchmark process still alive?
+        if ! kill -0 $BENCH_PID 2>/dev/null; then
+            echo "Benchmark process ($BENCH_PID) exited (BENCH_DONE may not have been written)"
+            sleep 0.5  # brief grace period for file to appear
+            break
+        fi
+        # Secondary check: is the script wrapper still alive?
         if ! kill -0 $SCRIPT_PID 2>/dev/null; then
-            echo "Benchmark process ended"
+            echo "Script wrapper ended"
+            break
+        fi
+        # Timeout safety net
+        if (( WAITED >= BENCH_TIMEOUT )); then
+            echo "ERROR: Timeout after ${BENCH_TIMEOUT}s waiting for benchmark"
+            kill $BENCH_PID 2>/dev/null
+            kill $SCRIPT_PID 2>/dev/null
             break
         fi
         sleep 0.5
+        WAITED=$((WAITED + 1))
     done
 
     DURATION=$SECONDS
@@ -221,7 +250,14 @@ for ((i=start; i<=max_index; i++)); do
     # Stop perf gracefully
     kill -INT $PERF_PID 2>/dev/null
     sleep 0.5
+    # If perf didn't exit, escalate
+    if kill -0 $PERF_PID 2>/dev/null; then
+        echo "Warning: perf did not exit after SIGINT, sending SIGTERM..."
+        kill -TERM $PERF_PID 2>/dev/null
+        sleep 1
+    fi
     wait $PERF_PID 2>/dev/null
+    PERF_PID=""
 
     # Check for perf errors/warnings in stderr
     if [[ -s "$PERF_ERR" ]] && grep -qi -E "fail|error|not counted|not supported|cannot" "$PERF_ERR"; then
@@ -235,6 +271,7 @@ for ((i=start; i<=max_index; i++)); do
     # Wait for script/benchmark to fully finish
     wait $SCRIPT_PID 2>/dev/null
     BENCH_EXIT_CODE=$?
+    SCRIPT_PID=""
 
     # Process profiling data
     STATS_FILE="${output_folder}/stats_${prefix}${i}.txt"
