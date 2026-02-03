@@ -32,17 +32,17 @@ elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
 
     if perf list | grep -q 'dtlb_load_misses.walk_active'; then
         echo "Detected Skylake+ microarchitecture"
-        PERF_EVENTS="{cycles,instructions,dtlb_load_misses.walk_active,dtlb_store_misses.walk_active,itlb_misses.walk_active}"
+        PERF_EVENTS="cycles,dtlb_load_misses.walk_active"
     else
         echo "Detected pre-Skylake microarchitecture"
-        PERF_EVENTS="{cycles,instructions,dtlb_load_misses.walk_duration,dtlb_store_misses.walk_duration,itlb_misses.walk_duration}"
+        PERF_EVENTS="cycles,dtlb_load_misses.walk_duration"
     fi
 
     echo "Perf events: $PERF_EVENTS"
 else
     echo "Warning: Unknown CPU model, using generic perf counters"
     PROFILE_MODE="generic"
-    PERF_EVENTS="{cycles,instructions}"
+    PERF_EVENTS="cycles"
 fi
 
 # Benchmark synchronization files
@@ -168,7 +168,7 @@ for ((i=start; i<=max_index; i++)); do
         perf record -a -e ibs_op//p -c 10000003 -W -d -o "${PERF_OUTPUT}.data" 2>"$PERF_ERR" &
     else
         echo "Starting system-wide perf stat..."
-        perf stat -p $BENCH_PID -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt" 2>"$PERF_ERR" &
+        perf stat -a -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt" 2>"$PERF_ERR" &
     fi
     PERF_PID=$!
 
