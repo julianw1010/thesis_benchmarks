@@ -120,7 +120,7 @@ for ((i=start; i<=max_index; i++)); do
     echo -1 | sudo tee $history_interface > /dev/null
 
     # Launch benchmark
-    LAUNCH_CMD="numactl $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
+    LAUNCH_CMD="sudo numactl $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
     echo "Launch command: $LAUNCH_CMD"
 
     script -q -f -c "$LAUNCH_CMD" "${output_folder}/output_${prefix}${i}.txt" &
