@@ -212,7 +212,7 @@ for ((i=start; i<=max_index; i++)); do
         -s localhost -p 11211 --protocol=memcache_text \
         --key-minimum=1 --key-maximum=500000000 --key-pattern=R:R \
         --ratio=0:1 --data-size=24 --threads=32 --clients=20 \
-        --pipeline=100 --test-time=10
+        --pipeline=100 --test-time=300
 
     DURATION=$SECONDS
 
