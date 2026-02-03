@@ -26,7 +26,7 @@ NUM_CPUS=$(nproc)
 # Determine perf events based on CPU
 if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
     PROFILE_MODE="amd_ibs"
-    echo "Using AMD IBS profiling (per-process)"
+    echo "Using AMD IBS profiling (system-wide)"
 elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
     PROFILE_MODE="intel_perf"
 
@@ -120,7 +120,7 @@ for ((i=start; i<=max_index; i++)); do
     echo -1 | sudo tee $history_interface > /dev/null
 
     # Launch benchmark
-    LAUNCH_CMD="sudo numactl $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
+    LAUNCH_CMD="numactl $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
     echo "Launch command: $LAUNCH_CMD"
 
     script -q -f -c "$LAUNCH_CMD" "${output_folder}/output_${prefix}${i}.txt" &
@@ -173,18 +173,18 @@ for ((i=start; i<=max_index; i++)); do
     # Start timing
     SECONDS=0
 
-    # Start per-process perf between READY and DONE
+    # Start SYSTEM-WIDE perf between READY and DONE
     # NOTE: "trap - INT" resets SIGINT from SIG_IGN (inherited from non-interactive
     # bash backgrounding) back to default, so kill -INT works later.
     PERF_OUTPUT="${output_folder}/perf_${prefix}${i}"
     PERF_ERR="${PERF_OUTPUT}.err"
 
     if [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
-        echo "Starting per-process IBS recording (PID $BENCH_PID)..."
-        (trap - INT; exec perf record -p "$BENCH_PID" -e ibs_op//p -c 10000003 -W -d -o "${PERF_OUTPUT}.data") 2>"$PERF_ERR" &
+        echo "Starting system-wide IBS recording..."
+        (trap - INT; exec perf record -a -e ibs_op//p -c 10000003 -W -d -o "${PERF_OUTPUT}.data") 2>"$PERF_ERR" &
     else
-        echo "Starting per-process perf stat (PID $BENCH_PID)..."
-        (trap - INT; exec perf stat -p "$BENCH_PID" -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt") 2>"$PERF_ERR" &
+        echo "Starting system-wide perf stat..."
+        (trap - INT; exec perf stat -a -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt") 2>"$PERF_ERR" &
     fi
     PERF_PID=$!
 
@@ -195,12 +195,14 @@ for ((i=start; i<=max_index; i++)); do
         kill $SCRIPT_PID 2>/dev/null
         exit 1
     fi
-    echo "Profiling started (PID: $PERF_PID, target: $BENCH_PID)"
+    echo "Profiling started (perf PID: $PERF_PID, system-wide)"
 
     echo "Waiting for benchmark to complete..."
+    BENCH_CRASHED=0
     while [[ ! -f "$BENCH_DONE" ]]; do
         if ! kill -0 $SCRIPT_PID 2>/dev/null; then
-            echo "Benchmark process ended"
+            echo "WARNING: Benchmark process ended without writing DONE file (likely crashed)"
+            BENCH_CRASHED=1
             break
         fi
         sleep 0.5
@@ -220,6 +222,29 @@ for ((i=start; i<=max_index; i++)); do
         exit 1
     fi
 
+    # Validate perf output exists and is non-empty
+    if [[ "$PROFILE_MODE" == "intel_perf" || "$PROFILE_MODE" == "generic" ]]; then
+        if [[ ! -s "${PERF_OUTPUT}.txt" ]]; then
+            echo "ERROR: perf output file missing or empty for iteration $i"
+            echo "--- perf stderr ---"
+            cat "$PERF_ERR" 2>/dev/null
+            echo "---"
+            kill $SCRIPT_PID 2>/dev/null
+            wait $SCRIPT_PID 2>/dev/null
+            exit 1
+        fi
+    elif [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
+        if [[ ! -s "${PERF_OUTPUT}.data" ]]; then
+            echo "ERROR: perf record output missing or empty for iteration $i"
+            echo "--- perf stderr ---"
+            cat "$PERF_ERR" 2>/dev/null
+            echo "---"
+            kill $SCRIPT_PID 2>/dev/null
+            wait $SCRIPT_PID 2>/dev/null
+            exit 1
+        fi
+    fi
+
     # Kill benchmark process tree now that we have all the data we need
     echo "Cleaning up benchmark processes..."
     kill -TERM $SCRIPT_PID $BENCH_PID 2>/dev/null
@@ -228,7 +253,13 @@ for ((i=start; i<=max_index; i++)); do
     kill -KILL $SCRIPT_PID $BENCH_PID 2>/dev/null
     pkill -KILL -P $SCRIPT_PID 2>/dev/null
     wait $SCRIPT_PID 2>/dev/null
-    BENCH_EXIT_CODE=0
+
+    # Determine exit code
+    if [[ $BENCH_CRASHED -eq 1 ]]; then
+        BENCH_EXIT_CODE=139
+    else
+        BENCH_EXIT_CODE=0
+    fi
 
     # Validate perf counter multiplexing (Intel only)
     if [[ "$PROFILE_MODE" == "intel_perf" ]]; then
@@ -251,6 +282,9 @@ for ((i=start; i<=max_index; i++)); do
         {
             echo "Execution Time (seconds): $DURATION"
             echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
+            if [[ $BENCH_CRASHED -eq 1 ]]; then
+                echo "WARNING: Benchmark crashed (no DONE file). Results may be partial."
+            fi
             echo ""
             perf script -i "${PERF_OUTPUT}.data" -F data_src,weight 2>/dev/null | \
                 awk '/TLB L2 miss/ && $NF > 0 { sum += $NF; count++ }
@@ -260,8 +294,11 @@ for ((i=start; i<=max_index; i++)); do
         {
             echo "Execution Time (seconds): $DURATION"
             echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
+            if [[ $BENCH_CRASHED -eq 1 ]]; then
+                echo "WARNING: Benchmark crashed (no DONE file). Results may be partial."
+            fi
             echo ""
-            echo "=== Perf Counters (per-process) ==="
+            echo "=== Perf Counters (system-wide) ==="
             cat "${PERF_OUTPUT}.txt"
         } | tee "$STATS_FILE"
     fi
@@ -272,7 +309,12 @@ for ((i=start; i<=max_index; i++)); do
     # Save history
     cat $history_interface > "${output_folder}/history_${prefix}${i}.txt"
 
-    echo "Iteration $i completed in $DURATION seconds"
+    if [[ $BENCH_CRASHED -eq 1 ]]; then
+        echo "WARNING: Iteration $i completed in $DURATION seconds BUT benchmark crashed."
+        echo "         Check ${output_folder}/output_${prefix}${i}.txt for details."
+    else
+        echo "Iteration $i completed in $DURATION seconds"
+    fi
     echo ""
 done
 
