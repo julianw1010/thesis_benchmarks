@@ -168,7 +168,7 @@ for ((i=start; i<=max_index; i++)); do
         perf record -a -e ibs_op//p -c 10000003 -W -d -o "${PERF_OUTPUT}.data" 2>"$PERF_ERR" &
     else
         echo "Starting system-wide perf stat..."
-        perf stat -a -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt" 2>"$PERF_ERR" &
+        perf stat -p $BENCH_PID -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt" 2>"$PERF_ERR" &
     fi
     PERF_PID=$!
 
@@ -209,24 +209,15 @@ for ((i=start; i<=max_index; i++)); do
     wait $SCRIPT_PID 2>/dev/null
     BENCH_EXIT_CODE=$?
 
-    # Validate perf counter coverage (Intel only)
+    # Validate perf counter multiplexing (Intel only)
     if [[ "$PROFILE_MODE" == "intel_perf" ]]; then
-        # Extract time_enabled from the first counter (cycles) in CSV output
-        # CSV format: value,unit,event,time_running,percentage_running,...
         FIRST_LINE=$(grep -m1 'cycles' "${PERF_OUTPUT}.txt" 2>/dev/null)
         if [[ -n "$FIRST_LINE" ]]; then
-            # Column 4 is time_enabled (nanoseconds) in CSV output
-            TIME_ENABLED_NS=$(echo "$FIRST_LINE" | awk -F, '{print $4}')
-            if [[ -n "$TIME_ENABLED_NS" && "$TIME_ENABLED_NS" =~ ^[0-9]+$ ]]; then
-                EXPECTED_NS=$(( NUM_CPUS * DURATION * 1000000000 ))
-                COVERAGE_PCT=$(awk "BEGIN { printf \"%.1f\", 100.0 * $TIME_ENABLED_NS / $EXPECTED_NS }")
-                echo "Perf counter coverage: ${COVERAGE_PCT}% (time_enabled=${TIME_ENABLED_NS}ns, expected~=${EXPECTED_NS}ns)"
-                # Warn if coverage is dangerously low (with multiplexing, ~50% is normal)
-                COVERAGE_OK=$(awk "BEGIN { print ($TIME_ENABLED_NS < 0.20 * $EXPECTED_NS) ? 1 : 0 }")
-                if [[ "$COVERAGE_OK" -eq 1 ]]; then
-                    echo "WARNING: Perf counters only covered ${COVERAGE_PCT}% of total CPU time!"
-                    echo "         Results may be inaccurate. Check for competing perf sessions."
-                fi
+            MUX_PCT=$(echo "$FIRST_LINE" | awk -F, '{printf "%.1f", $5}')
+            echo "Perf stat scaling: ${MUX_PCT}% time on HW (perf auto-scales values)"
+            MUX_LOW=$(awk "BEGIN { print ($MUX_PCT + 0 < 10) ? 1 : 0 }")
+            if [[ "$MUX_LOW" -eq 1 ]]; then
+                echo "WARNING: Heavy multiplexing (${MUX_PCT}% on HW). Scaled values may be noisy."
             fi
         fi
     fi
