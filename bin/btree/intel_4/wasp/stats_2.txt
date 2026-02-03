@@ -1,0 +1,8 @@
+Execution Time (seconds): 392
+Benchmark Exit Code: 0
+
+=== Perf Counters (system-wide) ===
+# started on Mon Feb  2 21:55:11 2026
+
+51429664460730,,cycles,25013367224387,100.00,,
+10625616099354,,dtlb_load_misses.walk_duration,25013366872172,100.00,,
