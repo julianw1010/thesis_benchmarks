@@ -21,31 +21,28 @@ mkdir -p "$output_folder"
 CPU_MODEL=$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs)
 echo "Detected CPU: $CPU_MODEL"
 
+NUM_CPUS=$(nproc)
+
 # Determine perf events based on CPU
 if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
     PROFILE_MODE="amd_ibs"
     echo "Using AMD IBS profiling (system-wide)"
 elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
     PROFILE_MODE="intel_perf"
-    PERF_EVENTS="cycles,instructions"
 
     if perf list | grep -q 'dtlb_load_misses.walk_active'; then
         echo "Detected Skylake+ microarchitecture"
-        PERF_EVENTS+=",dtlb_load_misses.walk_active"
-        PERF_EVENTS+=",dtlb_store_misses.walk_active"
-        PERF_EVENTS+=",itlb_misses.walk_active"
+        PERF_EVENTS="{cycles,instructions,dtlb_load_misses.walk_active,dtlb_store_misses.walk_active,itlb_misses.walk_active}"
     else
         echo "Detected pre-Skylake microarchitecture"
-        PERF_EVENTS+=",dtlb_load_misses.walk_duration"
-        PERF_EVENTS+=",dtlb_store_misses.walk_duration"
-        PERF_EVENTS+=",itlb_misses.walk_duration"
+        PERF_EVENTS="{cycles,instructions,dtlb_load_misses.walk_duration,dtlb_store_misses.walk_duration,itlb_misses.walk_duration}"
     fi
 
     echo "Perf events: $PERF_EVENTS"
 else
     echo "Warning: Unknown CPU model, using generic perf counters"
     PROFILE_MODE="generic"
-    PERF_EVENTS="cycles,instructions"
+    PERF_EVENTS="{cycles,instructions}"
 fi
 
 # Benchmark synchronization files
@@ -211,6 +208,28 @@ for ((i=start; i<=max_index; i++)); do
     # Wait for script/benchmark to fully finish
     wait $SCRIPT_PID 2>/dev/null
     BENCH_EXIT_CODE=$?
+
+    # Validate perf counter coverage (Intel only)
+    if [[ "$PROFILE_MODE" == "intel_perf" ]]; then
+        # Extract time_enabled from the first counter (cycles) in CSV output
+        # CSV format: value,unit,event,time_running,percentage_running,...
+        FIRST_LINE=$(grep -m1 'cycles' "${PERF_OUTPUT}.txt" 2>/dev/null)
+        if [[ -n "$FIRST_LINE" ]]; then
+            # Column 4 is time_enabled (nanoseconds) in CSV output
+            TIME_ENABLED_NS=$(echo "$FIRST_LINE" | awk -F, '{print $4}')
+            if [[ -n "$TIME_ENABLED_NS" && "$TIME_ENABLED_NS" =~ ^[0-9]+$ ]]; then
+                EXPECTED_NS=$(( NUM_CPUS * DURATION * 1000000000 ))
+                COVERAGE_PCT=$(awk "BEGIN { printf \"%.1f\", 100.0 * $TIME_ENABLED_NS / $EXPECTED_NS }")
+                echo "Perf counter coverage: ${COVERAGE_PCT}% (time_enabled=${TIME_ENABLED_NS}ns, expected~=${EXPECTED_NS}ns)"
+                # Warn if coverage is dangerously low (with multiplexing, ~50% is normal)
+                COVERAGE_OK=$(awk "BEGIN { print ($TIME_ENABLED_NS < 0.20 * $EXPECTED_NS) ? 1 : 0 }")
+                if [[ "$COVERAGE_OK" -eq 1 ]]; then
+                    echo "WARNING: Perf counters only covered ${COVERAGE_PCT}% of total CPU time!"
+                    echo "         Results may be inaccurate. Check for competing perf sessions."
+                fi
+            fi
+        fi
+    fi
 
     # Collect stats
     STATS_FILE="${output_folder}/stats_${prefix}${i}.txt"
