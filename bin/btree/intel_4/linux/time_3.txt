@@ -1,0 +1,23 @@
+	Command being timed: "./bench_btree_mt -- -n 1500000000"
+	User time (seconds): 30930.72
+	System time (seconds): 105.28
+	Percent of CPU this job got: 3347%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 15:27.05
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 97438720
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 22056
+	Minor (reclaiming a frame) page faults: 24360546
+	Voluntary context switches: 13938
+	Involuntary context switches: 68507
+	Swaps: 0
+	File system inputs: 30825920
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
