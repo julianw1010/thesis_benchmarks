@@ -18,9 +18,9 @@
 extern FILE *opt_file_out;
 
 #ifdef _OPENMP
-#define NUPDATE (1UL << 34)
+#define DEFAULT_NUPDATE (1UL << 34)
 #else
-#define NUPDATE (3UL << 29)
+#define DEFAULT_NUPDATE (3UL << 29)
 #endif
 
 #define POLY 0x0000000000000007UL
@@ -70,9 +70,20 @@ int real_main(int argc, char *argv[]);
 int real_main(int argc, char *argv[])
 {
     size_t mem = ((size_t)64UL << 30);
+    uint64_t nupdate = DEFAULT_NUPDATE;
 
-    if (argc == 2) {
+    if (argc >= 2) {
         mem = strtoull(argv[1], NULL, 10) << 30;
+    }
+    if (argc >= 3) {
+        nupdate = strtoull(argv[2], NULL, 10);
+    }
+
+    /* nupdate must be divisible by 128 for the batched update loop */
+    if (nupdate % 128 != 0) {
+        nupdate = (nupdate / 128) * 128;
+        if (nupdate == 0) nupdate = 128;
+        fprintf(opt_file_out, "<gups note=\"nupdate rounded down to %" PRIu64 " (must be multiple of 128)\"></gups>\n", nupdate);
     }
 
     for (int i = 0; i < 64; i++) {
@@ -126,7 +137,7 @@ int real_main(int argc, char *argv[])
         int tid = omp_get_thread_num();
         int nth = omp_get_num_threads();
 
-        uint64_t updates_per_thread = NUPDATE / nth;
+        uint64_t updates_per_thread = nupdate / nth;
         uint64_t start_update = tid * updates_per_thread;
 
         uint64_t ran[128];
@@ -154,10 +165,10 @@ int real_main(int argc, char *argv[])
 
     uint64_t *ran = calloc(128, sizeof(uint64_t));
     for (size_t j=0; j<128; j++) {
-        ran[j] = HPCC_starts((NUPDATE/128) * j);
+        ran[j] = HPCC_starts((nupdate/128) * j);
     }
 
-    for (size_t i=0; i<NUPDATE/128; i++) {
+    for (size_t i=0; i<nupdate/128; i++) {
         for (size_t j=0; j<128; j++) {
             ran[j] = (ran[j] << 1) ^ ((int64_t) ran[j] < 0 ? POLY : 0);
             size_t elm = ran[j] % TableSize;
@@ -171,10 +182,10 @@ int real_main(int argc, char *argv[])
 #endif
 
     double runtime = (t_end.tv_sec - t_start.tv_sec) + (t_end.tv_nsec - t_start.tv_nsec) / 1e9;
-    double gups = (double)NUPDATE / runtime / 1e9;
+    double gups = (double)nupdate / runtime / 1e9;
     fprintf(opt_file_out, "<gups_runtime>%.3f</gups_runtime>\n", runtime);
     fprintf(opt_file_out, "<gups_rate>%.6f GUPS</gups_rate>\n", gups);
-    fprintf(opt_file_out, "<gups_updates>%lu</gups_updates>\n", NUPDATE);
+    fprintf(opt_file_out, "<gups_updates>%" PRIu64 "</gups_updates>\n", nupdate);
 
     return 0;
 }
