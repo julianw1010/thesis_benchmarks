@@ -138,9 +138,14 @@ int real_main(int argc, char *argv[])
         table[i].key = i;
     }
 
+    FILE *fd_pid = fopen(CONFIG_SHM_FILE_NAME ".pid", "w");
+    if (fd_pid) {
+         fprintf(fd_pid, "%d", getpid());
+         fclose(fd_pid);
+    }
+
     fprintf(stderr, "signalling readyness to %s\n", CONFIG_SHM_FILE_NAME ".ready");
     FILE *fd2 = fopen(CONFIG_SHM_FILE_NAME ".ready", "w");
-
     if (fd2 == NULL) {
         fprintf(stderr, "ERROR: could not create the shared memory file descriptor\n");
         exit(-1);
