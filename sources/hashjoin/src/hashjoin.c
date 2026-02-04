@@ -154,10 +154,10 @@ int real_main(int argc, char *argv[])
     struct timeval tstart, tend;
     gettimeofday(&tstart, NULL);
 
-#ifdef _OPENMP
-#    pragma omp parallel for reduction(+ : matches)
-#endif
     for (size_t j = 0; j < nlookups; j++) {
+#ifdef _OPENMP
+#        pragma omp parallel for reduction(+ : matches)
+#endif
         for (size_t i = 0; i < outersize; i++) {
             uint64_t hash[2]; /* Output for the hash */
 
