@@ -198,17 +198,18 @@ for ((i=start; i<=max_index; i++)); do
     echo "Profiling started (perf PID: $PERF_PID, system-wide)"
 
     echo "Waiting for benchmark to complete..."
-    BENCH_CRASHED=0
-    while [[ ! -f "$BENCH_DONE" ]]; do
-        if ! kill -0 $SCRIPT_PID 2>/dev/null; then
-            echo "WARNING: Benchmark process ended without writing DONE file (likely crashed)"
-            BENCH_CRASHED=1
-            break
-        fi
-        sleep 0.5
-    done
+    wait $SCRIPT_PID
+    BENCH_EXIT_CODE=$?
 
     DURATION=$SECONDS
+
+    # Check if benchmark signaled completion properly
+    if [[ ! -f "$BENCH_DONE" ]]; then
+        echo "WARNING: Benchmark exited without writing DONE file (exit code: $BENCH_EXIT_CODE)"
+        BENCH_CRASHED=1
+    else
+        BENCH_CRASHED=0
+    fi
 
     # Stop perf gracefully
     stop_perf $PERF_PID
@@ -217,8 +218,6 @@ for ((i=start; i<=max_index; i++)); do
     if [[ -s "$PERF_ERR" ]] && grep -qi -E "fail|error|not counted|not supported|cannot" "$PERF_ERR"; then
         echo "ERROR: perf reported errors during iteration $i:"
         cat "$PERF_ERR"
-        kill $SCRIPT_PID 2>/dev/null
-        wait $SCRIPT_PID 2>/dev/null
         exit 1
     fi
 
@@ -229,8 +228,6 @@ for ((i=start; i<=max_index; i++)); do
             echo "--- perf stderr ---"
             cat "$PERF_ERR" 2>/dev/null
             echo "---"
-            kill $SCRIPT_PID 2>/dev/null
-            wait $SCRIPT_PID 2>/dev/null
             exit 1
         fi
     elif [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
@@ -239,26 +236,8 @@ for ((i=start; i<=max_index; i++)); do
             echo "--- perf stderr ---"
             cat "$PERF_ERR" 2>/dev/null
             echo "---"
-            kill $SCRIPT_PID 2>/dev/null
-            wait $SCRIPT_PID 2>/dev/null
             exit 1
         fi
-    fi
-
-    # Kill benchmark process tree now that we have all the data we need
-    echo "Cleaning up benchmark processes..."
-    kill -TERM $SCRIPT_PID $BENCH_PID 2>/dev/null
-    pkill -TERM -P $SCRIPT_PID 2>/dev/null
-    sleep 0.5
-    kill -KILL $SCRIPT_PID $BENCH_PID 2>/dev/null
-    pkill -KILL -P $SCRIPT_PID 2>/dev/null
-    wait $SCRIPT_PID 2>/dev/null
-
-    # Determine exit code
-    if [[ $BENCH_CRASHED -eq 1 ]]; then
-        BENCH_EXIT_CODE=139
-    else
-        BENCH_EXIT_CODE=0
     fi
 
     # Validate perf counter multiplexing (Intel only)
