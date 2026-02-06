@@ -25,8 +25,8 @@ NUM_CPUS=$(nproc)
 
 # Determine perf events based on CPU
 if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
-    PROFILE_MODE="amd_ibs"
-    echo "Using AMD IBS profiling (system-wide)"
+    PROFILE_MODE="none"
+    echo "AMD CPU detected, skipping profiling"
 elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
     PROFILE_MODE="intel_perf"
 
@@ -173,29 +173,27 @@ for ((i=start; i<=max_index; i++)); do
     # Start timing
     SECONDS=0
 
-    # Start SYSTEM-WIDE perf between READY and DONE
+    # Start SYSTEM-WIDE perf between READY and DONE (Intel/generic only)
     # NOTE: "trap - INT" resets SIGINT from SIG_IGN (inherited from non-interactive
     # bash backgrounding) back to default, so kill -INT works later.
     PERF_OUTPUT="${output_folder}/perf_${prefix}${i}"
     PERF_ERR="${PERF_OUTPUT}.err"
+    PERF_PID=""
 
-    if [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
-        echo "Starting system-wide IBS recording..."
-        (trap - INT; exec perf record -a -e ibs_op//p -c 10000003 -W -d -o "${PERF_OUTPUT}.data") 2>"$PERF_ERR" &
-    else
+    if [[ "$PROFILE_MODE" != "none" ]]; then
         echo "Starting system-wide perf stat..."
         (trap - INT; exec perf stat -a -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt") 2>"$PERF_ERR" &
-    fi
-    PERF_PID=$!
+        PERF_PID=$!
 
-    sleep 0.2
-    if ! kill -0 $PERF_PID 2>/dev/null; then
-        echo "ERROR: perf failed to start"
-        [[ -f "$PERF_ERR" ]] && cat "$PERF_ERR"
-        kill $SCRIPT_PID 2>/dev/null
-        exit 1
+        sleep 0.2
+        if ! kill -0 $PERF_PID 2>/dev/null; then
+            echo "ERROR: perf failed to start"
+            [[ -f "$PERF_ERR" ]] && cat "$PERF_ERR"
+            kill $SCRIPT_PID 2>/dev/null
+            exit 1
+        fi
+        echo "Profiling started (perf PID: $PERF_PID, system-wide)"
     fi
-    echo "Profiling started (perf PID: $PERF_PID, system-wide)"
 
     echo "Waiting for benchmark to complete..."
     wait $SCRIPT_PID
@@ -211,18 +209,18 @@ for ((i=start; i<=max_index; i++)); do
         BENCH_CRASHED=0
     fi
 
-    # Stop perf gracefully
-    stop_perf $PERF_PID
-    wait $PERF_PID 2>/dev/null
+    # Stop perf gracefully (if it was started)
+    if [[ -n "$PERF_PID" ]]; then
+        stop_perf $PERF_PID
+        wait $PERF_PID 2>/dev/null
 
-    if [[ -s "$PERF_ERR" ]] && grep -qi -E "fail|error|not counted|not supported|cannot" "$PERF_ERR"; then
-        echo "ERROR: perf reported errors during iteration $i:"
-        cat "$PERF_ERR"
-        exit 1
-    fi
+        if [[ -s "$PERF_ERR" ]] && grep -qi -E "fail|error|not counted|not supported|cannot" "$PERF_ERR"; then
+            echo "ERROR: perf reported errors during iteration $i:"
+            cat "$PERF_ERR"
+            exit 1
+        fi
 
-    # Validate perf output exists and is non-empty
-    if [[ "$PROFILE_MODE" == "intel_perf" || "$PROFILE_MODE" == "generic" ]]; then
+        # Validate perf output exists and is non-empty
         if [[ ! -s "${PERF_OUTPUT}.txt" ]]; then
             echo "ERROR: perf output file missing or empty for iteration $i"
             echo "--- perf stderr ---"
@@ -230,25 +228,17 @@ for ((i=start; i<=max_index; i++)); do
             echo "---"
             exit 1
         fi
-    elif [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
-        if [[ ! -s "${PERF_OUTPUT}.data" ]]; then
-            echo "ERROR: perf record output missing or empty for iteration $i"
-            echo "--- perf stderr ---"
-            cat "$PERF_ERR" 2>/dev/null
-            echo "---"
-            exit 1
-        fi
-    fi
 
-    # Validate perf counter multiplexing (Intel only)
-    if [[ "$PROFILE_MODE" == "intel_perf" ]]; then
-        FIRST_LINE=$(grep -m1 'cycles' "${PERF_OUTPUT}.txt" 2>/dev/null)
-        if [[ -n "$FIRST_LINE" ]]; then
-            MUX_PCT=$(echo "$FIRST_LINE" | awk -F, '{printf "%.1f", $5}')
-            echo "Perf stat scaling: ${MUX_PCT}% time on HW (perf auto-scales values)"
-            MUX_LOW=$(awk "BEGIN { print ($MUX_PCT + 0 < 10) ? 1 : 0 }")
-            if [[ "$MUX_LOW" -eq 1 ]]; then
-                echo "WARNING: Heavy multiplexing (${MUX_PCT}% on HW). Scaled values may be noisy."
+        # Validate perf counter multiplexing (Intel only)
+        if [[ "$PROFILE_MODE" == "intel_perf" ]]; then
+            FIRST_LINE=$(grep -m1 'cycles' "${PERF_OUTPUT}.txt" 2>/dev/null)
+            if [[ -n "$FIRST_LINE" ]]; then
+                MUX_PCT=$(echo "$FIRST_LINE" | awk -F, '{printf "%.1f", $5}')
+                echo "Perf stat scaling: ${MUX_PCT}% time on HW (perf auto-scales values)"
+                MUX_LOW=$(awk "BEGIN { print ($MUX_PCT + 0 < 10) ? 1 : 0 }")
+                if [[ "$MUX_LOW" -eq 1 ]]; then
+                    echo "WARNING: Heavy multiplexing (${MUX_PCT}% on HW). Scaled values may be noisy."
+                fi
             fi
         fi
     fi
@@ -257,30 +247,20 @@ for ((i=start; i<=max_index; i++)); do
     STATS_FILE="${output_folder}/stats_${prefix}${i}.txt"
     echo "Processing profiling data..."
 
-    if [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
-        {
-            echo "Execution Time (seconds): $DURATION"
-            echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
-            if [[ $BENCH_CRASHED -eq 1 ]]; then
-                echo "WARNING: Benchmark crashed (no DONE file). Results may be partial."
-            fi
-            echo ""
-            perf script -i "${PERF_OUTPUT}.data" -F data_src,weight 2>/dev/null | \
-                awk '/TLB L2 miss/ && $NF > 0 { sum += $NF; count++ }
-                     END { printf "Walk Samples: %d\nAvg Walk Latency: %.1f cycles\n", count, count ? sum/count : 0 }'
-        } | tee "$STATS_FILE"
-    else
-        {
-            echo "Execution Time (seconds): $DURATION"
-            echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
-            if [[ $BENCH_CRASHED -eq 1 ]]; then
-                echo "WARNING: Benchmark crashed (no DONE file). Results may be partial."
-            fi
-            echo ""
+    {
+        echo "Execution Time (seconds): $DURATION"
+        echo "Benchmark Exit Code: $BENCH_EXIT_CODE"
+        if [[ $BENCH_CRASHED -eq 1 ]]; then
+            echo "WARNING: Benchmark crashed (no DONE file). Results may be partial."
+        fi
+        echo ""
+        if [[ -n "$PERF_PID" ]]; then
             echo "=== Perf Counters (system-wide) ==="
             cat "${PERF_OUTPUT}.txt"
-        } | tee "$STATS_FILE"
-    fi
+        else
+            echo "(No profiling data — AMD CPU)"
+        fi
+    } | tee "$STATS_FILE"
 
     echo ""
     echo "Statistics saved to $STATS_FILE"
