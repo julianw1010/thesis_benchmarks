@@ -114,6 +114,12 @@ int main(int argc, char* argv[]) {
   }
 
   fclose(fd_ready);
+
+  FILE *fd_pid = fopen(CONFIG_SHM_FILE_NAME ".pid", "w");
+  if (fd_pid) {
+          fprintf(fd_pid, "%d", getpid());
+          fclose(fd_pid);
+  }
   
   // Wait for external setup to complete
   const char *flush_signal = CONFIG_SHM_FILE_NAME ".flushed";

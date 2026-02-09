@@ -104,16 +104,32 @@ static int ___main (int argc, char * argv[]) {
 	auto total_start = std::chrono::high_resolution_clock::now();
 	netlist my_netlist(filename);
         #define CONFIG_SHM_FILE_NAME "/tmp/alloctest-bench"
-	FILE *fd_pid = fopen(CONFIG_SHM_FILE_NAME ".pid", "w");
-	if (fd_pid) {
-	    fprintf(fd_pid, "%d", getpid());
-	    fclose(fd_pid);
-	}
-        FILE *fd2 = fopen(CONFIG_SHM_FILE_NAME ".ready", "w");
-        if (fd2 == NULL) {
-            printf("unable to create tmp file\n");
-            exit(1);
-        }
+
+  fprintf(stderr, "signalling readyness to %s\n", CONFIG_SHM_FILE_NAME ".ready");
+  FILE *fd_ready = fopen(CONFIG_SHM_FILE_NAME ".ready", "w");
+  if (fd_ready == NULL) {
+    fprintf(stderr, "ERROR: could not create the ready file descriptor\n");
+    exit(-1);
+  }
+
+  fclose(fd_ready);
+
+  FILE *fd_pid = fopen(CONFIG_SHM_FILE_NAME ".pid", "w");
+  if (fd_pid) {
+          fprintf(fd_pid, "%d", getpid());
+          fclose(fd_pid);
+  }
+  
+  // Wait for external setup to complete
+  const char *flush_signal = CONFIG_SHM_FILE_NAME ".flushed";
+  for (int i = 0; i < 600; i++) {  // 30s timeout
+    if (access(flush_signal, F_OK) == 0) {
+      unlink(flush_signal);
+      break;
+    }
+    usleep(50000);  // 50ms
+  }	
+
 	annealer_thread a_thread(&my_netlist,num_threads,swaps_per_temp,start_temp,number_temp_steps);
 	
 #ifdef ENABLE_PARSEC_HOOKS
@@ -138,7 +154,7 @@ static int ___main (int argc, char * argv[]) {
 #ifdef ENABLE_PARSEC_HOOKS
 	__parsec_roi_end();
 #endif
-	fd2 = fopen(CONFIG_SHM_FILE_NAME ".done", "w");
+	FILE *fd2 = fopen(CONFIG_SHM_FILE_NAME ".done", "w");
         if (fd2 == NULL) {
             printf("Unable to create tmp file");
             exit(1);

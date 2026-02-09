@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
     return -1;
   Builder b(cli);
   Graph g = b.MakeGraph();
-  
+
   // Signal ready (after graph is built, before computation)
   fprintf(stderr, "signalling readyness to %s\n", CONFIG_SHM_FILE_NAME ".ready");
   FILE *fd_ready = fopen(CONFIG_SHM_FILE_NAME ".ready", "w");
@@ -110,7 +110,14 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "ERROR: could not create the ready file descriptor\n");
     exit(-1);
   }
+
   fclose(fd_ready);
+
+  FILE *fd_pid = fopen(CONFIG_SHM_FILE_NAME ".pid", "w");
+  if (fd_pid) {
+          fprintf(fd_pid, "%d", getpid());
+          fclose(fd_pid);
+  }
   
   // Wait for external setup to complete
   const char *flush_signal = CONFIG_SHM_FILE_NAME ".flushed";
@@ -120,7 +127,7 @@ int main(int argc, char* argv[]) {
       break;
     }
     usleep(50000);  // 50ms
-  }
+  }  
   
   auto PRBound = [&cli] (const Graph &g) {
     return PageRankPull(g, cli.max_iters(), cli.tolerance(), cli.logging_en());
