@@ -47,6 +47,7 @@ fi
 
 # Benchmark synchronization files
 BENCH_READY="/tmp/alloctest-bench.ready"
+BENCH_FLUSHED="/tmp/alloctest-bench.flushed"
 BENCH_DONE="/tmp/alloctest-bench.done"
 BENCH_PID_FILE="/tmp/alloctest-bench.pid"
 
@@ -110,17 +111,13 @@ stop_perf() {
 for ((i=start; i<=max_index; i++)); do
     echo "=== Running iteration=$i ==="
 
-    rm -f "$BENCH_READY" "$BENCH_DONE" "$BENCH_PID_FILE"
-
-    # Flush caches before every benchmark run
-    sync
-    echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
+    rm -f "$BENCH_READY" "$BENCH_FLUSHED" "$BENCH_DONE" "$BENCH_PID_FILE"
 
     # Reset history
     echo -1 | sudo tee $history_interface > /dev/null
 
-    # Launch benchmark
-    LAUNCH_CMD="numactl $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
+    # Launch benchmark (caches are flushed AFTER the benchmark signals ready)
+    LAUNCH_CMD="numactl-wasp $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
     echo "Launch command: $LAUNCH_CMD"
 
     script -q -f -c "$LAUNCH_CMD" "${output_folder}/output_${prefix}${i}.txt" &
@@ -136,6 +133,13 @@ for ((i=start; i<=max_index; i++)); do
         sleep 0.1
     done
     echo "Benchmark is ready!"
+
+    # Flush caches now that the benchmark has allocated/initialized
+    echo "Flushing page cache..."
+    sync
+    echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
+    touch "$BENCH_FLUSHED"
+    echo "Caches flushed, benchmark signaled to proceed"
 
     if [[ ! -f "$BENCH_PID_FILE" ]]; then
         echo "ERROR: Benchmark did not write PID file"
