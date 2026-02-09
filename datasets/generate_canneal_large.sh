@@ -1,4 +1,4 @@
-if [ -f canneal_35gb_int ]; then
+if [ -f canneal_large ]; then
     echo "canneal_35gb_int already exists. Skipping generation."
     exit 0
 fi
