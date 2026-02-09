@@ -111,7 +111,16 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
   fclose(fd_ready);
-  usleep(250);
+  
+  // Wait for external setup to complete
+  const char *flush_signal = CONFIG_SHM_FILE_NAME ".flushed";
+  for (int i = 0; i < 600; i++) {  // 30s timeout
+    if (access(flush_signal, F_OK) == 0) {
+      unlink(flush_signal);
+      break;
+    }
+    usleep(50000);  // 50ms
+  }
   
   auto PRBound = [&cli] (const Graph &g) {
     return PageRankPull(g, cli.max_iters(), cli.tolerance(), cli.logging_en());
