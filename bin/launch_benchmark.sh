@@ -124,6 +124,9 @@ for ((i=start; i<=max_index; i++)); do
     # Reset history
     echo -1 | sudo tee $history_interface > /dev/null
 
+    sync
+    echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
+
     # Launch benchmark (caches are flushed AFTER the benchmark signals ready)
     LAUNCH_CMD="$NUMACTL_BIN $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
     echo "Launch command: $LAUNCH_CMD"
