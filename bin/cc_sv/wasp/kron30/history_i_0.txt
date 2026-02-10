@@ -1,0 +1,142 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #1094
+Process: numactl-wasp (PID: 288298, TGID: 288298) [CACHE-ONLY]
+Cmdline: numactl-wasp -P -i all /usr/bin/time -v -o wasp/kron30/time_i_0.txt -- ./bench_cc_sv_mt -f ../../datasets/graphs/kron30.sg -n 5 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 514
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 5
+  PGD pages: 3
+  Total:     534
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0           0/0           0/0           0/0           0/0           0/0           1/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           2/0           0/0           2/0     
+PUD           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           3/0     
+PMD           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           3/0     
+PTE           0/0           0/0           0/0           0/0           0/0           0/0           5/0           0/0           5/0     
+
+Memory: 14 primary pages (56 KB), 0 replica pages (0 KB)
+Total:  14 pages (56 KB)
+
+================================================================================
+History Entry #1095
+Process: bench_cc_sv_mt (PID: 288299, TGID: 288299) [REPLICATED]
+Cmdline: ./bench_cc_sv_mt -f ../../datasets/graphs/kron30.sg -n 5 
+Duration: 206174 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 4531
+  TLB IPIs sent:    575253
+
+CR3 Write Statistics:
+  Total CR3 writes: 7370
+  Replica hits:     6112
+  Primary hits:     1258
+  Replica hit rate: 82%
+
+Page Table Pages Modified:
+  PTE pages: 72045072
+  PMD pages: 779175
+  PUD pages: 1528
+  P4D pages: 6
+  PGD pages: 3
+  Total:     72825784
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 326787908
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              326787908
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/7     
+P4D           0/1           1/1           0/1           0/1           0/1           1/0           0/1           0/1           2/7     
+PUD           0/4           1/3           1/4           0/4           0/4           1/3           2/2           0/4           5/28    
+PMD          29/142        32/126        34/126        35/124        33/126        32/128        33/127        34/124       262/1023  
+PTE        9161/69479    9931/62310    9924/62313    9925/62313    9925/62314    9928/62310    9923/62311    9923/62312   78640/505662
+
+Memory: 78910 primary pages (315640 KB), 506727 replica pages (2026908 KB)
+Total:  585637 pages (2342548 KB)
+
+================================================================================
+History Entry #1096
+Process: time (PID: 288298, TGID: 288298) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o wasp/kron30/time_i_0.txt -- ./bench_cc_sv_mt -f ../../datasets/graphs/kron30.sg -n 5 
+Duration: 289741 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+  Replica hits:     0
+  Primary hits:     2
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 492
+  PMD pages: 7
+  PUD pages: 6
+  P4D pages: 5
+  PGD pages: 3
+  Total:     513
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     18
+  ptep_clear_young:   0
+  Total:              43
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           1/0           0/0           0/0           0/0           1/0           0/0           0/0           2/0     
+PUD           0/0           1/0           1/0           0/0           0/0           1/0           1/0           0/0           4/0     
+PMD           0/0           1/0           1/0           1/0           0/0           0/0           1/0           1/0           5/0     
+PTE           2/0           0/0           1/0           1/0           1/0           0/0           0/0           1/0           6/0     
+
+Memory: 18 primary pages (72 KB), 0 replica pages (0 KB)
+Total:  18 pages (72 KB)
+
+Total historical entries: 3 (max: 64)
