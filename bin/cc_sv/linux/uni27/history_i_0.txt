@@ -1,0 +1,142 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #173
+Process: numactl-wasp (PID: 165128, TGID: 165128) [CACHE-ONLY]
+Cmdline: numactl-wasp -P -i all /usr/bin/time -v -o linux/uni27/time_i_0.txt -- ./bench_cc_sv_mt -f ../../datasets/graphs/uni27.sg -n 5 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 514
+  PMD pages: 8
+  PUD pages: 5
+  P4D pages: 5
+  PGD pages: 3
+  Total:     535
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           2/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           2/0     
+PUD           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PMD           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PTE           6/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           6/0     
+
+Memory: 15 primary pages (60 KB), 0 replica pages (0 KB)
+Total:  15 pages (60 KB)
+
+================================================================================
+History Entry #174
+Process: bench_cc_sv_mt (PID: 165129, TGID: 165129) [CACHE-ONLY]
+Cmdline: ./bench_cc_sv_mt -f ../../datasets/graphs/uni27.sg -n 5 
+Duration: 37456 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 560
+  TLB IPIs sent:    70985
+
+CR3 Write Statistics:
+  Total CR3 writes: 490
+  Replica hits:     0
+  Primary hits:     490
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 5375443
+  PMD pages: 21138
+  PUD pages: 41
+  P4D pages: 5
+  PGD pages: 3
+  Total:     5396630
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 5374010
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              5374010
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           1/0           0/0           0/0           0/0           1/0           0/0           0/0           2/0     
+PUD           0/0           1/0           1/0           0/0           0/0           1/0           1/0           0/0           4/0     
+PMD           2/0           1/0           3/0           2/0           2/0           3/0           4/0           5/0          22/0     
+PTE        1170/0        1169/0        1169/0        1169/0        1170/0        1168/0        1168/0        1167/0        9350/0     
+
+Memory: 9379 primary pages (37516 KB), 0 replica pages (0 KB)
+Total:  9379 pages (37516 KB)
+
+================================================================================
+History Entry #175
+Process: time (PID: 165128, TGID: 165128) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o linux/uni27/time_i_0.txt -- ./bench_cc_sv_mt -f ../../datasets/graphs/uni27.sg -n 5 
+Duration: 37458 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+  Replica hits:     0
+  Primary hits:     2
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 491
+  PMD pages: 8
+  PUD pages: 5
+  P4D pages: 5
+  PGD pages: 3
+  Total:     512
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 24
+  ptep_wrprotect:     17
+  ptep_clear_young:   0
+  Total:              41
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           1/0           0/0           0/0           0/0           1/0           0/0           0/0           2/0     
+PUD           0/0           1/0           1/0           0/0           0/0           1/0           1/0           0/0           4/0     
+PMD           0/0           0/0           1/0           1/0           0/0           0/0           1/0           1/0           4/0     
+PTE           2/0           1/0           1/0           1/0           1/0           0/0           0/0           1/0           7/0     
+
+Memory: 18 primary pages (72 KB), 0 replica pages (0 KB)
+Total:  18 pages (72 KB)
+
+Total historical entries: 3 (max: 64)

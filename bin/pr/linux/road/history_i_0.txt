@@ -1,0 +1,142 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #77
+Process: numactl-wasp (PID: 151505, TGID: 151505) [CACHE-ONLY]
+Cmdline: numactl-wasp -P -i all /usr/bin/time -v -o linux/road/time_i_0.txt -- ./bench_pr_mt -f ../../datasets/graphs/road.sg -n 5 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 515
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 5
+  PGD pages: 3
+  Total:     535
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           2/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           2/0     
+PUD           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PMD           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PTE           5/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           5/0     
+
+Memory: 14 primary pages (56 KB), 0 replica pages (0 KB)
+Total:  14 pages (56 KB)
+
+================================================================================
+History Entry #78
+Process: bench_pr_mt (PID: 151506, TGID: 151506) [CACHE-ONLY]
+Cmdline: ./bench_pr_mt -f ../../datasets/graphs/road.sg -n 5 
+Duration: 1525 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 57
+  TLB IPIs sent:    7239
+
+CR3 Write Statistics:
+  Total CR3 writes: 329
+  Replica hits:     0
+  Primary hits:     329
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 488396
+  PMD pages: 2044
+  PUD pages: 8
+  P4D pages: 5
+  PGD pages: 3
+  Total:     490456
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 486954
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              486954
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           1/0           0/0           0/0           0/0           1/0           0/0           0/0           2/0     
+PUD           0/0           1/0           1/0           0/0           0/0           1/0           1/0           0/0           4/0     
+PMD           1/0           0/0           1/0           1/0           0/0           1/0           1/0           1/0           6/0     
+PTE          94/0          94/0          90/0          89/0          90/0          89/0          93/0          85/0         724/0     
+
+Memory: 737 primary pages (2948 KB), 0 replica pages (0 KB)
+Total:  737 pages (2948 KB)
+
+================================================================================
+History Entry #79
+Process: time (PID: 151505, TGID: 151505) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o linux/road/time_i_0.txt -- ./bench_pr_mt -f ../../datasets/graphs/road.sg -n 5 
+Duration: 1527 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+  Replica hits:     0
+  Primary hits:     2
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 492
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 5
+  PGD pages: 3
+  Total:     512
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     18
+  ptep_clear_young:   0
+  Total:              43
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           1/0           0/0           0/0           0/0           1/0           0/0           0/0           2/0     
+PUD           0/0           1/0           1/0           0/0           0/0           1/0           1/0           0/0           4/0     
+PMD           0/0           0/0           1/0           1/0           0/0           0/0           1/0           1/0           4/0     
+PTE           2/0           1/0           0/0           1/0           1/0           0/0           0/0           1/0           6/0     
+
+Memory: 17 primary pages (68 KB), 0 replica pages (0 KB)
+Total:  17 pages (68 KB)
+
+Total historical entries: 3 (max: 64)
