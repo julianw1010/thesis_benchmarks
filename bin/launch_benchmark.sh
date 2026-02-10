@@ -117,7 +117,7 @@ for ((i=start; i<=max_index; i++)); do
     echo -1 | sudo tee $history_interface > /dev/null
 
     # Launch benchmark (caches are flushed AFTER the benchmark signals ready)
-    LAUNCH_CMD="numactl-wasp $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
+    LAUNCH_CMD="numactl-hydra $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
     echo "Launch command: $LAUNCH_CMD"
 
     script -q -f -c "$LAUNCH_CMD" "${output_folder}/output_${prefix}${i}.txt" &
