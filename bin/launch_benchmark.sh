@@ -72,6 +72,14 @@ case $mode in
     *) echo "Error: Invalid mode $mode (must be 0-3)"; exit 1 ;;
 esac
 
+# Select numactl variant based on output folder
+if [[ "$output_folder" == *"hydra"* ]]; then
+    NUMACTL_BIN="numactl-hydra"
+else
+    NUMACTL_BIN="numactl-wasp"
+fi
+echo "Using numactl binary: $NUMACTL_BIN"
+
 echo -1 | sudo tee $cache_interface > /dev/null
 echo 250000 | sudo tee $cache_interface > /dev/null
 
@@ -117,7 +125,7 @@ for ((i=start; i<=max_index; i++)); do
     echo -1 | sudo tee $history_interface > /dev/null
 
     # Launch benchmark (caches are flushed AFTER the benchmark signals ready)
-    LAUNCH_CMD="numactl-hydra $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
+    LAUNCH_CMD="$NUMACTL_BIN $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
     echo "Launch command: $LAUNCH_CMD"
 
     script -q -f -c "$LAUNCH_CMD" "${output_folder}/output_${prefix}${i}.txt" &
