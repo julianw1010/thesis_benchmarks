@@ -1,0 +1,208 @@
+Hydra Page Table Replication - Historical Data
+===============================================
+
+================================================================================
+Process: numactl-hydra (PID: 38893, TGID: 38893)
+Seq ID: 334 | Active NUMA nodes: 8
+Cmdline: numactl-hydra -r all /usr/bin/time -v -o hydra/web/repl_order_9/time_r_0.txt -- ./bench_cc_mt -f ../../datasets/graphs/web.sg -n 5 
+Duration: 0 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+
+Replication Statistics:
+  Events:           0
+  Entries copied:   0
+  Avg copied:       0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 513
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 5
+  PGD pages: 3
+  Total:     533
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Tables per Node:
+LEVEL        NODE0     NODE1     NODE2     NODE3     NODE4     NODE5     NODE6     NODE7      TOTAL
+--------------------------------------------------------------------------------
+PGD             1        1        1        1        1        1        1        1          8
+P4D             0        0        0        0        0        2        0        0          2
+PUD             0        0        0        0        0        3        0        0          3
+PMD             0        0        0        0        0        3        0        0          3
+PTE             0        0        0        0        0        5        0        0          5
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    21 pages = 84 KB
+================================================================================
+Process: time (PID: 38893, TGID: 38893)
+Seq ID: 335 | Active NUMA nodes: 8
+Cmdline: /usr/bin/time -v -o hydra/web/repl_order_9/time_r_0.txt -- ./bench_cc_mt -f ../../datasets/graphs/web.sg -n 5 
+Duration: 0 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+
+Replication Statistics:
+  Events:           0
+  Entries copied:   0
+  Avg copied:       0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 114
+  PMD pages: 6
+  PUD pages: 3
+  P4D pages: 3
+  PGD pages: 1
+  Total:     127
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 5
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              5
+
+Peak Page Tables per Node:
+LEVEL        NODE0     NODE1     NODE2     NODE3     NODE4     NODE5     NODE6     NODE7      TOTAL
+--------------------------------------------------------------------------------
+PGD             1        1        1        1        1        1        1        1          8
+P4D             0        0        0        0        0        1        0        0          1
+PUD             0        0        0        0        0        3        0        0          3
+PMD             0        0        0        0        0        3        0        0          3
+PTE             0        0        0        0        0        6        0        0          6
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    21 pages = 84 KB
+================================================================================
+Process: time (PID: 38894, TGID: 38894)
+Seq ID: 336 | Active NUMA nodes: 8
+Cmdline: /usr/bin/time -v -o hydra/web/repl_order_9/time_r_0.txt -- ./bench_cc_mt -f ../../datasets/graphs/web.sg -n 5 
+Duration: 8978 ms
+
+TLB Statistics:
+  Shootdowns: 454 events
+  IPIs sent:  57020
+  IPIs saved: 512
+
+CR3 Write Statistics:
+  Total CR3 writes: 552
+
+Replication Statistics:
+  Events:           428603
+  Entries copied:   219148006
+  Avg copied:       511.30
+
+Race Conditions:
+  PTE page races:  840 (concurrent page allocations)
+  Master faults:   32 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 4723651
+  PMD pages: 92859
+  PUD pages: 282
+  P4D pages: 26
+  PGD pages: 10
+  Total:     4816828
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 23688771
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              23688771
+
+Peak Page Tables per Node:
+LEVEL        NODE0     NODE1     NODE2     NODE3     NODE4     NODE5     NODE6     NODE7      TOTAL
+--------------------------------------------------------------------------------
+PGD             1        1        1        1        1        1        1        1          8
+P4D             1        1        1        1        1        2        1        1          9
+PUD             3        5        5        4        6        3        4        5         35
+PMD            20       24       26       20       28       20       28       28        194
+PTE          8078     5970     5571     5536     4621     4621     4263     4538      43198
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    43444 pages = 173776 KB (169 MB)
+================================================================================
+Process: numactl-hydra (PID: 38893, TGID: 38893)
+Seq ID: 337 | Active NUMA nodes: 8
+Cmdline: numactl-hydra -r all /usr/bin/time -v -o hydra/web/repl_order_9/time_r_0.txt -- ./bench_cc_mt -f ../../datasets/graphs/web.sg -n 5 
+Duration: 8979 ms
+
+TLB Statistics:
+  Shootdowns: 0 events
+  IPIs sent:  0
+  IPIs saved: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+
+Replication Statistics:
+  Events:           1
+  Entries copied:   33
+  Avg copied:       33.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified:
+  PTE pages: 493
+  PMD pages: 9
+  PUD pages: 6
+  P4D pages: 6
+  PGD pages: 4
+  Total:     518
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 24
+  ptep_wrprotect:     18
+  ptep_clear_young:   0
+  Total:              42
+
+Peak Page Tables per Node:
+LEVEL        NODE0     NODE1     NODE2     NODE3     NODE4     NODE5     NODE6     NODE7      TOTAL
+--------------------------------------------------------------------------------
+PGD             1        1        1        1        1        1        1        1          8
+P4D             1        0        0        0        0        2        0        0          3
+PUD             1        0        0        0        0        3        0        0          4
+PMD             1        0        0        0        0        3        0        0          4
+PTE             1        0        0        0        0        6        0        0          7
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    26 pages = 104 KB
+Total entries: 4
