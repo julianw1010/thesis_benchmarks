@@ -1,0 +1,729 @@
+# Connected Components (bench_cc_mt) Benchmark Results — All Raw Trial Times (seconds)
+# 128 threads, 5 trials each
+
+================================================================================
+## LINUX (numactl-wasp -P)
+## No suffix = First-Touch | _i = Interleaved
+================================================================================
+
+### linux/kron27 — First-Touch (output_0)
+  Trial 1:    0.33432
+  Trial 2:    0.33719
+  Trial 3:    0.33736
+  Trial 4:    0.33210
+  Trial 5:    0.33170
+  Average:    0.33453
+
+### linux/kron27 — Interleaved (output_i_0)
+  Trial 1:    0.25568
+  Trial 2:    0.26908
+  Trial 3:    0.25490
+  Trial 4:    0.25550
+  Trial 5:    0.25602
+  Average:    0.25823
+
+### linux/kron28 — First-Touch (output_0)
+  Trial 1:    0.60428
+  Trial 2:    0.61037
+  Trial 3:    0.60743
+  Trial 4:    0.60363
+  Trial 5:    0.61118
+  Average:    0.60738
+
+### linux/kron28 — Interleaved (output_i_0)
+  Trial 1:    0.46972
+  Trial 2:    0.47812
+  Trial 3:    0.47114
+  Trial 4:    0.47250
+  Trial 5:    0.49086
+  Average:    0.47647
+
+### linux/kron29 — First-Touch (output_0)
+  Trial 1:    1.21015
+  Trial 2:    1.20480
+  Trial 3:    1.19634
+  Trial 4:    1.16316
+  Trial 5:    1.18709
+  Average:    1.19231
+
+### linux/kron29 — Interleaved (output_i_0)
+  Trial 1:    0.92636
+  Trial 2:    0.91469
+  Trial 3:    0.93650
+  Trial 4:    0.92920
+  Trial 5:    0.90505
+  Average:    0.92236
+
+### linux/kron30 — First-Touch (output_0)
+  Trial 1:    2.09808
+  Trial 2:    2.21373
+  Trial 3:    2.17341
+  Trial 4:    2.28224
+  Trial 5:    2.20104
+  Average:    2.19370
+
+### linux/kron30 — Interleaved (output_i_0)
+  Trial 1:    1.87866
+  Trial 2:    1.88115
+  Trial 3:    1.90174
+  Trial 4:    1.90381
+  Trial 5:    1.91024
+  Average:    1.89512
+
+### linux/uni27 — First-Touch (output_0)
+  Trial 1:    1.18827
+  Trial 2:    1.16887
+  Trial 3:    1.15323
+  Trial 4:    1.15058
+  Trial 5:    1.17195
+  Average:    1.16658
+
+### linux/uni27 — Interleaved (output_i_0)
+  Trial 1:    0.76189
+  Trial 2:    0.73479
+  Trial 3:    0.74908
+  Trial 4:    0.74255
+  Trial 5:    0.73844
+  Average:    0.74535
+
+### linux/uni28 — First-Touch (output_0)
+  Trial 1:    2.45903
+  Trial 2:    2.49955
+  Trial 3:    2.56540
+  Trial 4:    2.55408
+  Trial 5:    2.52200
+  Average:    2.52001
+
+### linux/uni28 — Interleaved (output_i_0)
+  Trial 1:    1.74240
+  Trial 2:    1.75118
+  Trial 3:    1.75498
+  Trial 4:    1.74074
+  Trial 5:    1.75582
+  Average:    1.74902
+
+### linux/uni29 — First-Touch (output_0)
+  Trial 1:    5.47980
+  Trial 2:    5.45273
+  Trial 3:    5.55925
+  Trial 4:    5.50595
+  Trial 5:    5.45401
+  Average:    5.49035
+
+### linux/uni29 — Interleaved (output_i_0)
+  Trial 1:    4.10651
+  Trial 2:    4.04614
+  Trial 3:    4.06896
+  Trial 4:    4.08327
+  Trial 5:    4.06141
+  Average:    4.07326
+
+### linux/uni30 — First-Touch (output_0)
+  Trial 1:   12.10859
+  Trial 2:   12.12118
+  Trial 3:   12.08304
+  Trial 4:   12.19501
+  Trial 5:   12.17252
+  Average:   12.13607
+
+### linux/uni30 — Interleaved (output_i_0)
+  Trial 1:    9.35257
+  Trial 2:    9.35723
+  Trial 3:    9.36331
+  Trial 4:    9.35796
+  Trial 5:    9.46177
+  Average:    9.37857
+
+### linux/twitter — First-Touch (output_0)
+  Trial 1:    0.18231
+  Trial 2:    0.17170
+  Trial 3:    0.17307
+  Trial 4:    0.17776
+  Trial 5:    0.17210
+  Average:    0.17539
+
+### linux/twitter — Interleaved (output_i_0)
+  Trial 1:    0.13059
+  Trial 2:    0.13006
+  Trial 3:    0.13119
+  Trial 4:    0.12852
+  Trial 5:    0.12938
+  Average:    0.12995
+
+### linux/web — First-Touch (output_0)
+  Trial 1:    0.12921
+  Trial 2:    0.11152
+  Trial 3:    0.14532
+  Trial 4:    0.11367
+  Trial 5:    0.13373
+  Average:    0.12669
+
+### linux/web — Interleaved (output_i_0)
+  Trial 1:    0.07028
+  Trial 2:    0.06937
+  Trial 3:    0.06963
+  Trial 4:    0.06934
+  Trial 5:    0.06867
+  Average:    0.06946
+
+### linux/road — First-Touch (output_0)
+  Trial 1:    0.03938
+  Trial 2:    0.04308
+  Trial 3:    0.04179
+  Trial 4:    0.04394
+  Trial 5:    0.04215
+  Average:    0.04207
+
+### linux/road — Interleaved (output_i_0)
+  Trial 1:    0.02967
+  Trial 2:    0.03030
+  Trial 3:    0.03044
+  Trial 4:    0.04164
+  Trial 5:    0.03055
+  Average:    0.03252
+
+
+================================================================================
+## MITOSIS (numactl-wasp -r all)
+## _r = Replication | _ri = Replication + Interleaved
+================================================================================
+
+### mitosis/kron27 — Replication (output_r_0)
+  Trial 1:    0.34886
+  Trial 2:    0.34696
+  Trial 3:    0.34402
+  Trial 4:    0.34417
+  Trial 5:    0.34352
+  Average:    0.34551
+
+### mitosis/kron27 — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.25968
+  Trial 2:    0.25756
+  Trial 3:    0.25533
+  Trial 4:    0.25687
+  Trial 5:    0.25584
+  Average:    0.25706
+
+### mitosis/kron28 — Replication (output_r_0)
+  Trial 1:    0.63570
+  Trial 2:    0.62427
+  Trial 3:    0.63464
+  Trial 4:    0.62502
+  Trial 5:    0.62136
+  Average:    0.62820
+
+### mitosis/kron28 — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.47911
+  Trial 2:    0.46570
+  Trial 3:    0.46784
+  Trial 4:    0.47068
+  Trial 5:    0.46172
+  Average:    0.46901
+
+### mitosis/kron29 — Replication (output_r_0)
+  Trial 1:    1.24479
+  Trial 2:    1.24005
+  Trial 3:    1.22290
+  Trial 4:    1.23012
+  Trial 5:    1.25852
+  Average:    1.23928
+
+### mitosis/kron29 — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.91337
+  Trial 2:    0.92042
+  Trial 3:    0.93662
+  Trial 4:    0.91907
+  Trial 5:    0.91425
+  Average:    0.92075
+
+### mitosis/kron30 — Replication (output_r_0)
+  Trial 1:    2.12465
+  Trial 2:    2.22176
+  Trial 3:    2.14811
+  Trial 4:    2.14393
+  Trial 5:    2.16096
+  Average:    2.15988
+
+### mitosis/kron30 — Replication + Interleaved (output_ri_0)
+  Trial 1:    1.77704
+  Trial 2:    1.83280
+  Trial 3:    1.77881
+  Trial 4:    1.74097
+  Trial 5:    1.74171
+  Average:    1.77427
+
+### mitosis/uni27 — Replication (output_r_0)
+  Trial 1:    1.25579
+  Trial 2:    1.21579
+  Trial 3:    1.28107
+  Trial 4:    1.23458
+  Trial 5:    1.25247
+  Average:    1.24794
+
+### mitosis/uni27 — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.74402
+  Trial 2:    0.74084
+  Trial 3:    0.74025
+  Trial 4:    0.73736
+  Trial 5:    0.74931
+  Average:    0.74235
+
+### mitosis/uni28 — Replication (output_r_0)
+  Trial 1:    2.54689
+  Trial 2:    2.49474
+  Trial 3:    2.47363
+  Trial 4:    2.51197
+  Trial 5:    2.49002
+  Average:    2.50345
+
+### mitosis/uni28 — Replication + Interleaved (output_ri_0)
+  Trial 1:    1.73375
+  Trial 2:    1.74838
+  Trial 3:    1.73782
+  Trial 4:    1.74728
+  Trial 5:    1.74103
+  Average:    1.74165
+
+### mitosis/uni29 — Replication (output_r_0)
+  Trial 1:    6.02214
+  Trial 2:    5.81009
+  Trial 3:    5.98436
+  Trial 4:    5.90102
+  Trial 5:    5.89157
+  Average:    5.92184
+
+### mitosis/uni29 — Replication + Interleaved (output_ri_0)
+  Trial 1:    4.02504
+  Trial 2:    4.04885
+  Trial 3:    4.05882
+  Trial 4:    4.07201
+  Trial 5:    4.03096
+  Average:    4.04714
+
+### mitosis/uni30 — Replication (output_r_0)
+  Trial 1:   13.26237
+  Trial 2:   13.32196
+  Trial 3:   13.18052
+  Trial 4:   13.27089
+  Trial 5:   13.21549
+  Average:   13.25025
+
+### mitosis/uni30 — Replication + Interleaved (output_ri_0)
+  Trial 1:    9.31540
+  Trial 2:    9.35624
+  Trial 3:    9.29052
+  Trial 4:    9.26697
+  Trial 5:    9.34132
+  Average:    9.31409
+
+### mitosis/twitter — Replication (output_r_0)
+  Trial 1:    0.18049
+  Trial 2:    0.17791
+  Trial 3:    0.18010
+  Trial 4:    0.17678
+  Trial 5:    0.17723
+  Average:    0.17850
+
+### mitosis/twitter — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.13144
+  Trial 2:    0.13206
+  Trial 3:    0.13004
+  Trial 4:    0.12971
+  Trial 5:    0.12970
+  Average:    0.13059
+
+### mitosis/web — Replication (output_r_0)
+  Trial 1:    0.12836
+  Trial 2:    0.11718
+  Trial 3:    0.11773
+  Trial 4:    0.12013
+  Trial 5:    0.11819
+  Average:    0.12032
+
+### mitosis/web — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.06971
+  Trial 2:    0.06858
+  Trial 3:    0.06930
+  Trial 4:    0.06887
+  Trial 5:    0.06879
+  Average:    0.06905
+
+### mitosis/road — Replication (output_r_0)
+  Trial 1:    0.04078
+  Trial 2:    0.04251
+  Trial 3:    0.04212
+  Trial 4:    0.04227
+  Trial 5:    0.04184
+  Average:    0.04190
+
+### mitosis/road — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.03096
+  Trial 2:    0.03015
+  Trial 3:    0.03020
+  Trial 4:    0.03045
+  Trial 5:    0.03063
+  Average:    0.03048
+
+
+================================================================================
+## WASP (numactl-wasp -P)
+## No suffix = First-Touch | _i = Interleaved
+================================================================================
+
+### wasp/kron27 — First-Touch (output_0)
+  Trial 1:    0.33527
+  Trial 2:    0.34038
+  Trial 3:    0.34087
+  Trial 4:    0.34007
+  Trial 5:    0.43727
+  Average:    0.35877
+
+### wasp/kron27 — Interleaved (output_i_0)
+  Trial 1:    0.25634
+  Trial 2:    0.26579
+  Trial 3:    0.25337
+  Trial 4:    0.25540
+  Trial 5:    0.30581
+  Average:    0.26734
+
+### wasp/kron28 — First-Touch (output_0)
+  Trial 1:    0.60347
+  Trial 2:    0.62062
+  Trial 3:    0.63099
+  Trial 4:    0.63286
+  Trial 5:    0.62883
+  Average:    0.62335
+
+### wasp/kron28 — Interleaved (output_i_0)
+  Trial 1:    0.48778
+  Trial 2:    0.48226
+  Trial 3:    0.48061
+  Trial 4:    0.46740
+  Trial 5:    0.46592
+  Average:    0.47679
+
+### wasp/kron29 — First-Touch (output_0)
+  Trial 1:    1.19862
+  Trial 2:    1.40999
+  Trial 3:    1.26841
+  Trial 4:    1.23482
+  Trial 5:    1.23059
+  Average:    1.26849
+
+### wasp/kron29 — Interleaved (output_i_0)
+  Trial 1:    0.92352
+  Trial 2:    0.94378
+  Trial 3:    0.94426
+  Trial 4:    0.92688
+  Trial 5:    0.93075
+  Average:    0.93384
+
+### wasp/kron30 — First-Touch (output_0)
+  Trial 1:    2.37828
+  Trial 2:    2.16981
+  Trial 3:    2.23374
+  Trial 4:    2.20839
+  Trial 5:    2.11691
+  Average:    2.22143
+
+### wasp/kron30 — Interleaved (output_i_0)
+  Trial 1:    2.34424
+  Trial 2:    1.83257
+  Trial 3:    1.76604
+  Trial 4:    1.79748
+  Trial 5:    1.82377
+  Average:    1.91282
+
+### wasp/uni27 — First-Touch (output_0)
+  Trial 1:    1.11689
+  Trial 2:    1.11587
+  Trial 3:    1.12409
+  Trial 4:    1.12318
+  Trial 5:    1.11606
+  Average:    1.11922
+
+### wasp/uni27 — Interleaved (output_i_0)
+  Trial 1:    0.73522
+  Trial 2:    0.73883
+  Trial 3:    0.74124
+  Trial 4:    0.73380
+  Trial 5:    0.74116
+  Average:    0.73805
+
+### wasp/uni28 — First-Touch (output_0)
+  Trial 1:    2.55775
+  Trial 2:    2.52966
+  Trial 3:    2.53246
+  Trial 4:    2.52459
+  Trial 5:    2.47480
+  Average:    2.52385
+
+### wasp/uni28 — Interleaved (output_i_0)
+  Trial 1:    1.87841
+  Trial 2:    1.74229
+  Trial 3:    1.73700
+  Trial 4:    1.75124
+  Trial 5:    1.75105
+  Average:    1.77200
+
+### wasp/uni29 — First-Touch (output_0)
+  Trial 1:    5.46369
+  Trial 2:    5.69698
+  Trial 3:    5.72876
+  Trial 4:    5.72185
+  Trial 5:    5.70470
+  Average:    5.66320
+
+### wasp/uni29 — Interleaved (output_i_0)
+  Trial 1:    4.11585
+  Trial 2:    4.03830
+  Trial 3:    4.03221
+  Trial 4:    4.06124
+  Trial 5:    4.05638
+  Average:    4.06080
+
+### wasp/uni30 — First-Touch (output_0)
+  Trial 1:   13.00939
+  Trial 2:   12.94447
+  Trial 3:   12.68042
+  Trial 4:   12.82998
+  Trial 5:   12.62236
+  Average:   12.81733
+
+### wasp/uni30 — Interleaved (output_i_0)
+  Trial 1:    9.29679
+  Trial 2:    9.28747
+  Trial 3:    9.32106
+  Trial 4:    9.32014
+  Trial 5:    9.37765
+  Average:    9.32062
+
+### wasp/twitter — First-Touch (output_0)
+  Trial 1:    0.18163
+  Trial 2:    0.17186
+  Trial 3:    0.17432
+  Trial 4:    0.17254
+  Trial 5:    0.17664
+  Average:    0.17540
+
+### wasp/twitter — Interleaved (output_i_0)
+  Trial 1:    0.12882
+  Trial 2:    0.13339
+  Trial 3:    0.12998
+  Trial 4:    0.13955
+  Trial 5:    0.12865
+  Average:    0.13208
+
+### wasp/web — First-Touch (output_0)
+  Trial 1:    0.12749
+  Trial 2:    0.11511
+  Trial 3:    0.11400
+  Trial 4:    0.11412
+  Trial 5:    0.11218
+  Average:    0.11658
+
+### wasp/web — Interleaved (output_i_0)
+  Trial 1:    0.07056
+  Trial 2:    0.07019
+  Trial 3:    0.06941
+  Trial 4:    0.06937
+  Trial 5:    0.07045
+  Average:    0.07000
+
+### wasp/road — First-Touch (output_0)
+  Trial 1:    0.05861
+  Trial 2:    0.04301
+  Trial 3:    0.04140
+  Trial 4:    0.04249
+  Trial 5:    0.04187
+  Average:    0.04548
+
+### wasp/road — Interleaved (output_i_0)
+  Trial 1:    0.02987
+  Trial 2:    0.03020
+  Trial 3:    0.03050
+  Trial 4:    0.03047
+  Trial 5:    0.03095
+  Average:    0.03040
+
+
+================================================================================
+## HYDRA (numactl-hydra, repl_order_9)
+## _r = Replication | _ri = Replication + Interleaved
+================================================================================
+
+### hydra/kron27 — Replication (output_r_0)
+  Trial 1:    0.36914
+  Trial 2:    0.34359
+  Trial 3:    0.34791
+  Trial 4:    0.34817
+  Trial 5:    0.36161
+  Average:    0.35408
+
+### hydra/kron27 — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.24175
+  Trial 2:    0.23935
+  Trial 3:    0.26174
+  Trial 4:    0.25478
+  Trial 5:    0.25545
+  Average:    0.25061
+
+### hydra/kron28 — Replication (output_r_0)
+  Trial 1:    0.67069
+  Trial 2:    0.65018
+  Trial 3:    0.65746
+  Trial 4:    0.65463
+  Trial 5:    0.65877
+  Average:    0.65835
+
+### hydra/kron28 — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.46746
+  Trial 2:    0.47608
+  Trial 3:    0.46362
+  Trial 4:    0.48639
+  Trial 5:    0.47549
+  Average:    0.47381
+
+### hydra/kron29 — Replication (output_r_0)
+  Trial 1:    1.21586
+  Trial 2:    1.24727
+  Trial 3:    1.23666
+  Trial 4:    1.22624
+  Trial 5:    1.25073
+  Average:    1.23535
+
+### hydra/kron29 — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.93557
+  Trial 2:    0.95258
+  Trial 3:    0.90745
+  Trial 4:    0.92060
+  Trial 5:    0.90686
+  Average:    0.92461
+
+### hydra/kron30 — Replication (output_r_0)
+  Trial 1:    2.18219
+  Trial 2:    2.18830
+  Trial 3:    2.17792
+  Trial 4:    2.19172
+  Trial 5:    2.07314
+  Average:    2.16265
+
+### hydra/kron30 — Replication + Interleaved (output_ri_0)
+  Trial 1:    1.75343
+  Trial 2:    1.84890
+  Trial 3:    1.77762
+  Trial 4:    1.86501
+  Trial 5:    1.79378
+  Average:    1.80775
+
+### hydra/uni27 — Replication (output_r_0)
+  Trial 1:    1.18717
+  Trial 2:    1.21247
+  Trial 3:    1.20780
+  Trial 4:    1.20146
+  Trial 5:    1.21323
+  Average:    1.20443
+
+### hydra/uni27 — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.74274
+  Trial 2:    0.73695
+  Trial 3:    0.73650
+  Trial 4:    0.74413
+  Trial 5:    0.73997
+  Average:    0.74006
+
+### hydra/uni28 — Replication (output_r_0)
+  Trial 1:    2.49349
+  Trial 2:    2.49622
+  Trial 3:    2.50323
+  Trial 4:    2.50483
+  Trial 5:    2.50630
+  Average:    2.50081
+
+### hydra/uni28 — Replication + Interleaved (output_ri_0)
+  Trial 1:    1.75516
+  Trial 2:    1.77303
+  Trial 3:    1.74849
+  Trial 4:    1.74639
+  Trial 5:    1.73972
+  Average:    1.75256
+
+### hydra/uni29 — Replication (output_r_0)
+  Trial 1:    5.71528
+  Trial 2:    5.79724
+  Trial 3:    5.88380
+  Trial 4:    5.78073
+  Trial 5:    5.76615
+  Average:    5.78864
+
+### hydra/uni29 — Replication + Interleaved (output_ri_0)
+  Trial 1:    4.04427
+  Trial 2:    4.04295
+  Trial 3:    4.05114
+  Trial 4:    4.02582
+  Trial 5:    4.05104
+  Average:    4.04304
+
+### hydra/uni30 — Replication (output_r_0)
+  Trial 1:   13.02523
+  Trial 2:   13.16519
+  Trial 3:   13.24926
+  Trial 4:   13.48782
+  Trial 5:   13.07836
+  Average:   13.20117
+
+### hydra/uni30 — Replication + Interleaved (output_ri_0)
+  Trial 1:    9.39343
+  Trial 2:    9.34908
+  Trial 3:    9.33556
+  Trial 4:    9.32547
+  Trial 5:    9.36958
+  Average:    9.35462
+
+### hydra/twitter — Replication (output_r_0)
+  Trial 1:    0.18016
+  Trial 2:    0.17822
+  Trial 3:    0.17699
+  Trial 4:    0.17940
+  Trial 5:    0.17606
+  Average:    0.17817
+
+### hydra/twitter — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.13787
+  Trial 2:    0.13057
+  Trial 3:    0.13137
+  Trial 4:    0.13000
+  Trial 5:    0.12967
+  Average:    0.13189
+
+### hydra/web — Replication (output_r_0)
+  Trial 1:    0.11971
+  Trial 2:    0.11806
+  Trial 3:    0.13615
+  Trial 4:    0.11644
+  Trial 5:    0.13770
+  Average:    0.12561
+
+### hydra/web — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.06916
+  Trial 2:    0.06829
+  Trial 3:    0.06829
+  Trial 4:    0.06842
+  Trial 5:    0.06892
+  Average:    0.06862
+
+### hydra/road — Replication (output_r_0)
+  Trial 1:    0.03986
+  Trial 2:    0.04351
+  Trial 3:    0.04288
+  Trial 4:    0.04293
+  Trial 5:    0.04314
+  Average:    0.04246
+
+### hydra/road — Replication + Interleaved (output_ri_0)
+  Trial 1:    0.03005
+  Trial 2:    0.03039
+  Trial 3:    0.04955
+  Trial 4:    0.03045
+  Trial 5:    0.03059
+  Average:    0.03420
