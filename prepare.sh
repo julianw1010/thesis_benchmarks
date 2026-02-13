@@ -6,3 +6,5 @@ sudo apt-get -y install build-essential libncurses-dev \
                      libncurses5-dev wget pandoc libevent-dev \
                      libreadline-dev python3-setuptools
 
+sudo apt-get -y install pkg-config libevent-dev libssl-dev
+sudo apt-get -y install autoconf automake libtool
