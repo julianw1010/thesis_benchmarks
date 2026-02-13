@@ -1,0 +1,188 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #101
+Process: numactl-wasp (PID: 71875, TGID: 71875) [REPLICATED]
+Cmdline: numactl-wasp -r all /usr/bin/time -v -o mitosis/time_r_2.txt -- ./bench_xsbench_mt -- -p 25000000 -g 600000 
+Duration: 8 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 514
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 5
+  PGD pages: 3
+  Total:     534
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           1/7     
+P4D           0/1           0/1           0/1           0/1           0/1           0/1           2/0           0/1           2/7     
+PUD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PMD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PTE           0/5           0/5           0/5           0/5           0/5           0/5           5/0           0/5           5/35    
+
+Memory: 14 primary pages (56 KB), 91 replica pages (364 KB)
+Total:  105 pages (420 KB)
+
+================================================================================
+History Entry #102
+Process: time (PID: 71875, TGID: 71875) [REPLICATED]
+Cmdline: /usr/bin/time -v -o mitosis/time_r_2.txt -- ./bench_xsbench_mt -- -p 25000000 -g 600000 
+Duration: 7 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+  Replica hits:     0
+  Primary hits:     2
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 730
+  PMD pages: 5
+  PUD pages: 3
+  P4D pages: 3
+  PGD pages: 1
+  Total:     742
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 40
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              40
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           1/7     
+P4D           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           1/7     
+PUD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PMD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PTE           0/5           0/5           0/5           0/5           0/5           0/5           5/0           0/5           5/35    
+
+Memory: 13 primary pages (52 KB), 91 replica pages (364 KB)
+Total:  104 pages (416 KB)
+
+================================================================================
+History Entry #103
+Process: bench_xsbench_m (PID: 71876, TGID: 71876) [REPLICATED]
+Cmdline: ./bench_xsbench_mt -- -p 25000000 -g 600000 
+Duration: 410025 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1799
+  Replica hits:     1775
+  Primary hits:     24
+  Replica hit rate: 98%
+
+Page Table Pages Modified:
+  PTE pages: 644035549
+  PMD pages: 1311980
+  PUD pages: 2692
+  P4D pages: 12
+  PGD pages: 3
+  Total:     645350236
+
+Page Table Pages Read:
+  PTE pages: 3464
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 26643834
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              26643834
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           1/7     
+P4D           0/1           0/1           0/1           0/1           0/1           0/1           2/0           0/1           2/7     
+PUD           1/2           0/3           0/3           0/3           0/3           0/3           2/1           0/3           3/21    
+PMD          59/255        45/269        46/268        46/268        45/269        46/268        61/291        15/310       363/2198  
+PTE       29596/121391  23189/127798  23327/127660  23359/127628  23396/127591  23379/127608   4709/146278     32/150955  150987/1056909
+
+Memory: 151356 primary pages (605424 KB), 1059142 replica pages (4236568 KB)
+Total:  1210498 pages (4841992 KB)
+
+================================================================================
+History Entry #104
+Process: time (PID: 71875, TGID: 71875) [REPLICATED]
+Cmdline: /usr/bin/time -v -o mitosis/time_r_2.txt -- ./bench_xsbench_mt -- -p 25000000 -g 600000 
+Duration: 418213 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+  Replica hits:     0
+  Primary hits:     1
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 3886
+  PMD pages: 21
+  PUD pages: 5
+  P4D pages: 5
+  PGD pages: 3
+  Total:     3920
+
+Page Table Pages Read:
+  PTE pages: 56
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 186
+  ptep_wrprotect:     144
+  ptep_clear_young:   0
+  Total:              330
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           1/7     
+P4D           0/1           0/1           0/1           0/1           0/1           0/1           2/0           0/1           2/7     
+PUD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PMD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PTE           0/5           0/5           0/5           0/5           0/5           0/5           5/0           0/5           5/35    
+
+Memory: 14 primary pages (56 KB), 91 replica pages (364 KB)
+Total:  105 pages (420 KB)
+
+Total historical entries: 4 (max: 64)
