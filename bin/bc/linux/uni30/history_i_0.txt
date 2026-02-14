@@ -1,0 +1,142 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #511
+Process: numactl-wasp (PID: 135044, TGID: 135044) [CACHE-ONLY]
+Cmdline: numactl-wasp -P -i all /usr/bin/time -v -o linux/uni30/time_i_0.txt -- ./bench_bc_mt -f ../../datasets/graphs/uni30.sg -n 5 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 483
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     498
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0           0/0           0/0           0/0           0/0           0/0           1/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           3/0     
+PMD           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           3/0     
+PTE           0/0           0/0           0/0           0/0           0/0           0/0           5/0           0/0           5/0     
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+================================================================================
+History Entry #512
+Process: bench_bc_mt (PID: 135045, TGID: 135045) [CACHE-ONLY]
+Cmdline: ./bench_bc_mt -f ../../datasets/graphs/uni30.sg -n 5 
+Duration: 903250 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 7711
+  TLB IPIs sent:    485751
+
+CR3 Write Statistics:
+  Total CR3 writes: 5725
+  Replica hits:     0
+  Primary hits:     5725
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 74451316
+  PMD pages: 290953
+  PUD pages: 551
+  P4D pages: 0
+  PGD pages: 4
+  Total:     74742824
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 74448973
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              74448973
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0           1/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/0           0/0           1/0           0/0           0/0           2/0           1/0           0/0           4/0     
+PMD          25/0          30/0          29/0          37/0          27/0          34/0          27/0          30/0         239/0     
+PTE       10241/0       10250/0       10265/0       10260/0       10280/0       10279/0       10272/0       10264/0       82111/0     
+
+Memory: 82355 primary pages (329420 KB), 0 replica pages (0 KB)
+Total:  82355 pages (329420 KB)
+
+================================================================================
+History Entry #513
+Process: time (PID: 135044, TGID: 135044) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o linux/uni30/time_i_0.txt -- ./bench_bc_mt -f ../../datasets/graphs/uni30.sg -n 5 
+Duration: 903254 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+  Replica hits:     0
+  Primary hits:     2
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 460
+  PMD pages: 7
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     475
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 24
+  ptep_wrprotect:     18
+  ptep_clear_young:   0
+  Total:              42
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/0           1/0           1/0           1/0           0/0           0/0           0/0           0/0           3/0     
+PMD           0/0           1/0           1/0           1/0           1/0           0/0           0/0           0/0           4/0     
+PTE           0/0           1/0           1/0           1/0           1/0           1/0           0/0           1/0           6/0     
+
+Memory: 14 primary pages (56 KB), 0 replica pages (0 KB)
+Total:  14 pages (56 KB)
+
+Total historical entries: 3 (max: 64)
