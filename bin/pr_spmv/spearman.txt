@@ -1,0 +1,142 @@
+======================================================================
+  PR_SPMV: Spearman correlation between MaxRSS and Speedup vs Linux
+  Permutation test (two-sided, 100k permutations)
+  11 graphs, mean speedup per graph
+======================================================================
+
+  System      Policy    Rho    p_value Sig
+ Mitosis First-Touch 0.9455 5.9999e-05 ***
+ Mitosis Interleaved 0.7818   0.006430  **
+    WASP First-Touch 0.9364 9.9999e-05 ***
+    WASP Interleaved 0.8182   0.003300  **
+   Hydra First-Touch 0.8636   0.001320  **
+   Hydra Interleaved 0.6909   0.023330   *
+
+Interpretation:
+  rho > 0 → larger working sets see MORE speedup over Linux
+  rho < 0 → larger working sets see LESS speedup over Linux
+  * p < 0.05  ** p < 0.01  *** p < 0.001
+
+======================================================================
+  Per-graph speedup vs MaxRSS (sorted by MaxRSS ascending)
+======================================================================
+
+--- Mitosis - First-Touch ---
+  Graph       RSS(GB)    Speedup    % Improv.
+  road           0.95     0.9615       -3.85%
+  twitter       12.32     0.9930       -0.70%
+  web           15.51     0.9900       -1.00%
+  kron27        17.74     0.9926       -0.74%
+  uni27         18.00     0.9993       -0.07%
+  kron28        35.56     1.0063       +0.63%
+  uni28         36.00     1.0012       +0.12%
+  kron29        71.28     1.1198      +11.98%
+  uni29         72.00     1.0882       +8.82%
+  kron30       142.84     1.3491      +34.91%
+  uni30        143.98     1.3082      +30.82%
+  >> Small graphs (RSS < 20 GB, n=5): mean speedup = 0.9873
+  >> Large graphs (RSS >= 40 GB, n=4): mean speedup = 1.2163
+
+--- Mitosis - Interleaved ---
+  Graph       RSS(GB)    Speedup    % Improv.
+  road           0.95     0.9974       -0.26%
+  twitter       12.32     1.0150       +1.50%
+  web           15.51     1.0067       +0.67%
+  kron27        17.74     0.9997       -0.03%
+  uni27         18.00     0.9936       -0.64%
+  kron28        35.56     1.0095       +0.95%
+  uni28         36.00     1.0133       +1.33%
+  kron29        71.28     1.1728      +17.28%
+  uni29         72.00     1.0427       +4.27%
+  kron30       142.84     1.3091      +30.91%
+  uni30        143.98     1.3213      +32.13%
+  >> Small graphs (RSS < 20 GB, n=5): mean speedup = 1.0025
+  >> Large graphs (RSS >= 40 GB, n=4): mean speedup = 1.2115
+
+--- WASP - First-Touch ---
+  Graph       RSS(GB)    Speedup    % Improv.
+  road           0.95     0.9859       -1.41%
+  twitter       12.32     0.9991       -0.09%
+  web           15.51     0.9985       -0.15%
+  kron27        17.74     1.0019       +0.19%
+  uni27         18.00     1.0093       +0.93%
+  kron28        35.56     1.0075       +0.75%
+  uni28         36.00     1.0047       +0.47%
+  kron29        71.28     1.1245      +12.45%
+  uni29         72.00     1.0953       +9.53%
+  kron30       142.84     1.3541      +35.41%
+  uni30        143.98     1.3098      +30.98%
+  >> Small graphs (RSS < 20 GB, n=5): mean speedup = 0.9989
+  >> Large graphs (RSS >= 40 GB, n=4): mean speedup = 1.2209
+
+--- WASP - Interleaved ---
+  Graph       RSS(GB)    Speedup    % Improv.
+  road           0.95     0.9361       -6.39%
+  twitter       12.32     1.0213       +2.13%
+  web           15.51     1.0020       +0.20%
+  kron27        17.74     1.0000       +0.00%
+  uni27         18.00     0.9955       -0.45%
+  kron28        35.56     1.0052       +0.52%
+  uni28         36.00     1.0121       +1.21%
+  kron29        71.28     1.1785      +17.85%
+  uni29         72.00     1.0440       +4.40%
+  kron30       142.84     1.2997      +29.97%
+  uni30        143.98     1.3146      +31.46%
+  >> Small graphs (RSS < 20 GB, n=5): mean speedup = 0.9910
+  >> Large graphs (RSS >= 40 GB, n=4): mean speedup = 1.2092
+
+--- Hydra - First-Touch ---
+  Graph       RSS(GB)    Speedup    % Improv.
+  road           0.95     0.9949       -0.51%
+  twitter       12.32     1.0003       +0.03%
+  web           15.51     0.9919       -0.81%
+  kron27        17.74     0.9913       -0.87%
+  uni27         18.00     0.9991       -0.09%
+  kron28        35.56     1.0098       +0.98%
+  uni28         36.00     1.0070       +0.70%
+  kron29        71.28     1.1317      +13.17%
+  uni29         72.00     1.0957       +9.57%
+  kron30       142.84     1.3528      +35.28%
+  uni30        143.98     1.3093      +30.93%
+  >> Small graphs (RSS < 20 GB, n=5): mean speedup = 0.9955
+  >> Large graphs (RSS >= 40 GB, n=4): mean speedup = 1.2224
+
+--- Hydra - Interleaved ---
+  Graph       RSS(GB)    Speedup    % Improv.
+  road           0.95     1.0212       +2.12%
+  twitter       12.32     1.0065       +0.65%
+  web           15.51     1.0091       +0.91%
+  kron27        17.74     1.0047       +0.47%
+  uni27         18.00     1.0005       +0.05%
+  kron28        35.56     1.0075       +0.75%
+  uni28         36.00     1.0137       +1.37%
+  kron29        71.28     1.1830      +18.30%
+  uni29         72.00     1.0492       +4.92%
+  kron30       142.84     1.3139      +31.39%
+  uni30        143.98     1.3228      +32.28%
+  >> Small graphs (RSS < 20 GB, n=5): mean speedup = 1.0084
+  >> Large graphs (RSS >= 40 GB, n=4): mean speedup = 1.2172
+
+======================================================================
+  Summary: Average speedup by MaxRSS group across all systems
+======================================================================
+
+--- First-Touch ---
+  RSS Group       Mitosis         WASP        Hydra
+  Small (<20GB)        0.9873       0.9989       0.9955
+  Medium (20-80GB)     1.0539       1.0580       1.0610
+  Large (>80GB)        1.3286       1.3320       1.3311
+
+--- Interleaved ---
+  RSS Group       Mitosis         WASP        Hydra
+  Small (<20GB)        1.0025       0.9910       1.0084
+  Medium (20-80GB)     1.0596       1.0600       1.0634
+  Large (>80GB)        1.3152       1.3071       1.3184
+
+Interpretation guide:
+  If speedup increases monotonically with RSS group (small < medium < large),
+  this supports the hypothesis that the tiered-memory systems benefit more
+  when the working set is larger (exceeding fast-tier capacity).
+  The Spearman rho and permutation p-value above test this formally.
+
+Saved plot to pr_spmv_rss_speedup.pdf
