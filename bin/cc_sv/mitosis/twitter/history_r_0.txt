@@ -1,0 +1,188 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #96
+Process: numactl-wasp (PID: 35173, TGID: 35173) [REPLICATED]
+Cmdline: numactl-wasp -r all /usr/bin/time -v -o mitosis/twitter/time_r_0.txt -- ./bench_cc_sv_mt -f ../../datasets/graphs/twitter.sg -n 5 
+Duration: 7 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified:
+  PTE pages: 482
+  PMD pages: 8
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     498
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 25
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              25
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           1/7     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PMD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PTE           0/6           0/6           0/6           0/6           0/6           0/6           6/0           0/6           6/42    
+
+Memory: 13 primary pages (52 KB), 91 replica pages (364 KB)
+Total:  104 pages (416 KB)
+
+================================================================================
+History Entry #97
+Process: time (PID: 35173, TGID: 35173) [REPLICATED]
+Cmdline: /usr/bin/time -v -o mitosis/twitter/time_r_0.txt -- ./bench_cc_sv_mt -f ../../datasets/graphs/twitter.sg -n 5 
+Duration: 5 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+  Replica hits:     0
+  Primary hits:     1
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 738
+  PMD pages: 5
+  PUD pages: 3
+  P4D pages: 0
+  PGD pages: 3
+  Total:     749
+
+Page Table Pages Read:
+  PTE pages: 0
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 32
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              32
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           1/7     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PMD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PTE           0/5           0/5           0/5           0/5           0/5           0/5           5/0           0/5           5/35    
+
+Memory: 12 primary pages (48 KB), 84 replica pages (336 KB)
+Total:  96 pages (384 KB)
+
+================================================================================
+History Entry #98
+Process: bench_cc_sv_mt (PID: 35177, TGID: 35177) [REPLICATED]
+Cmdline: ./bench_cc_sv_mt -f ../../datasets/graphs/twitter.sg -n 5 
+Duration: 63985 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 370
+  TLB IPIs sent:    23310
+
+CR3 Write Statistics:
+  Total CR3 writes: 768
+  Replica hits:     661
+  Primary hits:     107
+  Replica hit rate: 86%
+
+Page Table Pages Modified:
+  PTE pages: 28245374
+  PMD pages: 110893
+  PUD pages: 205
+  P4D pages: 0
+  PGD pages: 3
+  Total:     28356475
+
+Page Table Pages Read:
+  PTE pages: 2240
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 28235546
+  ptep_wrprotect:     0
+  ptep_clear_young:   0
+  Total:              28235546
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           1/7     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PMD          13/3           0/16          0/16          0/16          0/16          0/16          3/13          0/16         16/112   
+PTE        6034/419       129/6319      133/6320      134/6319      129/6319      133/6320       68/6825      133/6320     6893/45161 
+
+Memory: 6913 primary pages (27652 KB), 45301 replica pages (181204 KB)
+Total:  52214 pages (208856 KB)
+
+================================================================================
+History Entry #99
+Process: time (PID: 35173, TGID: 35173) [REPLICATED]
+Cmdline: /usr/bin/time -v -o mitosis/twitter/time_r_0.txt -- ./bench_cc_sv_mt -f ../../datasets/graphs/twitter.sg -n 5 
+Duration: 64234 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7 (8 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+  Replica hits:     0
+  Primary hits:     1
+  Replica hit rate: 0%
+
+Page Table Pages Modified:
+  PTE pages: 3638
+  PMD pages: 21
+  PUD pages: 5
+  P4D pages: 0
+  PGD pages: 3
+  Total:     3667
+
+Page Table Pages Read:
+  PTE pages: 56
+
+Page Table Pages Touched (Special Ops):
+  ptep_get_and_clear: 194
+  ptep_wrprotect:     144
+  ptep_clear_young:   0
+  Total:              338
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7              TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           1/7     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PMD           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           3/21    
+PTE           0/5           0/5           0/5           0/5           0/5           0/5           5/0           0/5           5/35    
+
+Memory: 12 primary pages (48 KB), 84 replica pages (336 KB)
+Total:  96 pages (384 KB)
+
+Total historical entries: 4 (max: 64)

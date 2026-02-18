@@ -1,7 +1,0 @@
-# started on Mon Feb  2 04:20:05 2026
-
-20299866436708,,cycles,9322209596470,99.00,,
-1224865286985,,instructions,9322261355641,99.00,0.06,insn per cycle
-5282911871103,,dtlb_load_misses.walk_duration,9322269141772,99.00,,
-3599447914,,dtlb_store_misses.walk_duration,9322256618804,99.00,,
-302491977,,itlb_misses.walk_duration,9322196736092,99.00,,
