@@ -1,6 +1,7 @@
 ###############################################################################
 ###   BC: Does speedup over Linux depend on working-set size (maxRSS)?    ###
 ###   Permutation test on Spearman correlation, per system × policy       ###
+###   ONE-SIDED test: H1: rho > 0 (larger RSS → more speedup)            ###
 ###############################################################################
 
 # =============================================================================
@@ -117,8 +118,9 @@ rt <- list(
 
 # =============================================================================
 # 3. Permutation test on Spearman rho
-#    H0: no monotonic association between maxRSS and speedup
-#    Two-sided test
+#    H0: rho <= 0 (no positive association)
+#    H1: rho > 0  (larger RSS → more speedup)
+#    One-sided test (greater)
 # =============================================================================
 
 perm_cor_test <- function(x, y, n_perm = 100000) {
@@ -127,7 +129,7 @@ perm_cor_test <- function(x, y, n_perm = 100000) {
   count <- 0
   for (i in seq_len(n_perm)) {
     perm_rho <- cor(sample(x), y, method = "spearman")
-    if (abs(perm_rho) >= abs(obs_rho)) count <- count + 1
+    if (perm_rho >= obs_rho) count <- count + 1
   }
   list(rho = obs_rho, p = (count + 1) / (n_perm + 1), n = n)
 }
@@ -203,7 +205,7 @@ for (sys in systems) {
 cat("\n")
 cat("======================================================================\n")
 cat("  BC: Spearman correlation between MaxRSS and Speedup vs Linux\n")
-cat("  Permutation test (two-sided, 100k permutations)\n")
+cat("  Permutation test (ONE-SIDED, H1: rho > 0, 100k permutations)\n")
 cat("  11 graphs, mean speedup per graph\n")
 cat("======================================================================\n\n")
 
@@ -213,8 +215,8 @@ colnames(print_results)[4] <- "p_value"
 print(print_results, row.names = FALSE)
 
 cat("\nInterpretation:\n")
-cat("  rho > 0 → larger working sets see MORE speedup over Linux\n")
-cat("  rho < 0 → larger working sets see LESS speedup over Linux\n")
+cat("  H1: rho > 0 → larger working sets see MORE speedup over Linux\n")
+cat("  Small p → reject H0 in favour of positive association\n")
 cat("  * p < 0.05  ** p < 0.01  *** p < 0.001\n")
 
 # =============================================================================
@@ -301,7 +303,7 @@ cat("Interpretation guide:\n")
 cat("  If speedup increases monotonically with RSS group (small < medium < large),\n")
 cat("  this supports the hypothesis that the tiered-memory systems benefit more\n")
 cat("  when the working set is larger (exceeding fast-tier capacity).\n")
-cat("  The Spearman rho and permutation p-value above test this formally.\n")
+cat("  The Spearman rho and one-sided permutation p-value above test this formally.\n")
 
 # =============================================================================
 # 6. Scatter plots (base R): Speedup vs MaxRSS, per system × policy
@@ -339,9 +341,10 @@ for (sys in systems) {
     xseq <- seq(min(sub$MaxRSS), max(sub$MaxRSS), length.out = 100)
     lines(xseq, predict(fit, newdata = data.frame(MaxRSS = xseq)),
           lty = 3, col = "black")
-    # Annotate with rho and p
+    # Annotate with rho and p (one-sided)
     legend("topleft",
-           legend = paste0("rho = ", rho_val, ",  p = ", p_str, " ", sig_val),
+           legend = paste0("rho = ", rho_val, ",  p = ", p_str, " ", sig_val,
+                           " (one-sided)"),
            bty = "n", cex = 0.9)
     # Label points
     text(sub$MaxRSS, sub$Speedup, labels = sub$Graph,
