@@ -1,6 +1,3 @@
-
-
-
 ###############################################################################
 ###                              cc.R                                       ###
 ###############################################################################
@@ -209,6 +206,11 @@ for (graph in graphs) {
     df <- do.call(rbind, df_list)
     df$Vergleich <- factor(df$Vergleich, levels = unique(df$Vergleich))
     
+    # Compute y-axis limits with padding for better spread
+    y_min <- min(df$Zeit)
+    y_max <- max(df$Zeit)
+    y_pad <- (y_max - y_min) * 0.15
+    
     p <- ggplot(df, aes(x = Bedingung, y = Zeit)) +
       geom_line(aes(group = Trial), color = "gray50", linewidth = 0.5) +
       geom_point(aes(color = Bedingung), size = 2) +
@@ -216,7 +218,7 @@ for (graph in graphs) {
                                     "Mitosis" = "#2ECC71",
                                     "Wasp" = "#3498DB",
                                     "Hydra" = "#9B59B6")) +
-      coord_cartesian(ylim = c(0, NA)) +
+      coord_cartesian(ylim = c(y_min - y_pad, y_max + y_pad)) +
       facet_wrap(~ Vergleich, scales = "free_x") +
       labs(
         title = paste0("GAP Connected Components (CC) - ",
