@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
   
   // Wait for external setup to complete
   const char *flush_signal = CONFIG_SHM_FILE_NAME ".flushed";
-  for (int i = 0; i < 600; i++) {  // 30s timeout
+  while (1) {
     if (access(flush_signal, F_OK) == 0) {
       unlink(flush_signal);
       break;
