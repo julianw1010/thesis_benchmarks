@@ -1,0 +1,23 @@
+	Command being timed: "./bench_pr_spmv_mt -f ../../datasets/graphs/uni29.sg -n 5"
+	User time (seconds): 56888.10
+	System time (seconds): 243.11
+	Percent of CPU this job got: 10525%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 9:02.78
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 75500132
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 15
+	Minor (reclaiming a frame) page faults: 24117685
+	Voluntary context switches: 39478
+	Involuntary context switches: 42054
+	Swaps: 0
+	File system inputs: 142608712
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
