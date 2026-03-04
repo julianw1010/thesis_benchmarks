@@ -1,0 +1,338 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #481
+Process: numactl-wasp (PID: 104890, TGID: 104890) [REPLICATED]
+Cmdline: numactl-wasp -r all -i all /usr/bin/time -v -o mitosis/uni27/time_ri_0.txt -- ./bench_bc_mt -f ../../datasets/graphs/uni27.sg -n 5 
+Duration: 20 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 (16 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 1
+  TLB IPIs sent:    0
+  Per-node flushes:
+    Node 11: 1
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Page Table Pages Modified (logical / physical / fan-out):
+  PTE pages: 483 / 483 / 1x
+  PMD pages: 8 / 8 / 1x
+  PUD pages: 5 / 5 / 1x
+  P4D pages: 0 / 0 / 0x
+  PGD pages: 3 / 3 / 1x
+  Total:     499 / 499 / 1x
+
+Page Table Pages Read (logical / physical / fan-out):
+  PTE pages: 0 / 0 / 0x
+
+Page Table Pages Touched - Special Ops (logical / physical / fan-out):
+  ptep_get_and_clear: 26 / 26 / 1x
+  ptep_wrprotect:     0 / 0 / 0x
+  ptep_clear_young:   0 / 0 / 0x
+  Total:              26 / 26 / 1x
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           0/1           0/1           0/1           1/15    
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           0/3           0/3           0/3           3/45    
+PMD           0/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           0/3           0/3           0/3           3/45    
+PTE           0/6           0/6           0/6           0/6           0/6           0/6           0/6           0/6           0/6           0/6           0/6           6/0           0/6           0/6           0/6           0/6           6/90    
+
+Memory: 13 primary pages (52 KB), 195 replica pages (780 KB)
+Total:  208 pages (832 KB)
+Replica PTE Entry Usage (Mitosis Tracking):
+  Entries propagated:   6855
+  Entries ever accessed: 0
+  Entries wasted:       6855
+  Waste ratio:          100.00%
+
+Page Fault Latency (cycles):
+  Local-node faults:  24782 avg over 76 faults
+  Remote-node faults: 0 avg over 0 faults
+  Propagation overhead: 0 avg per fault (0 total)
+
+Page Fault Breakdown (first-touch vs fill-existing):
+  First-touch faults:   4804 avg cycles over 5 faults
+  Fill-existing faults: 26189 avg cycles over 71 faults
+  First-touch ratio:    6%
+  First-touch/Fill ratio: 0.18x
+
+Page Table Access NUMA Locality (local / remote / local%%):
+  Writes:
+    PTE: 483 / 0 / 100%
+    PMD: 8 / 0 / 100%
+    PUD: 5 / 0 / 100%
+    P4D: 0 / 0 / 0%
+    PGD: 3 / 0 / 100%
+    Total: 499 / 0 / 100%
+  Reads:
+    PTE: 0 / 0 / 0%
+  Special Ops:
+    get_and_clear: 26 / 0 / 100%
+    wrprotect:     0 / 0 / 0%
+    clear_young:   0 / 0 / 0%
+    Total: 26 / 0 / 100%
+
+================================================================================
+History Entry #482
+Process: time (PID: 104890, TGID: 104890) [REPLICATED]
+Cmdline: /usr/bin/time -v -o mitosis/uni27/time_ri_0.txt -- ./bench_bc_mt -f ../../datasets/graphs/uni27.sg -n 5 
+Duration: 18 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 (16 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 6
+  TLB IPIs sent:    0
+  Per-node flushes:
+    Node 10: 6
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+  Replica hits:     1
+  Primary hits:     0
+  Replica hit rate: 100%
+
+Page Table Pages Modified (logical / physical / fan-out):
+  PTE pages: 113 / 1433 / 12x
+  PMD pages: 5 / 5 / 1x
+  PUD pages: 3 / 3 / 1x
+  P4D pages: 0 / 0 / 0x
+  PGD pages: 3 / 3 / 1x
+  Total:     124 / 1444 / 11x
+
+Page Table Pages Read (logical / physical / fan-out):
+  PTE pages: 0 / 0 / 0x
+
+Page Table Pages Touched - Special Ops (logical / physical / fan-out):
+  ptep_get_and_clear: 5 / 80 / 16x
+  ptep_wrprotect:     0 / 0 / 0x
+  ptep_clear_young:   0 / 0 / 0x
+  Total:              5 / 80 / 16x
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/15    
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           1/2           0/3           0/3           0/3           1/2           0/3           0/3           0/3           1/2           0/3           0/3           0/3           0/3           0/3           0/3           3/45    
+PMD           0/3           0/3           1/2           0/3           0/3           0/3           1/2           0/3           0/3           0/3           1/2           0/3           0/3           0/3           0/3           0/3           3/45    
+PTE           0/5           0/5           0/5           1/4           1/4           0/5           0/5           1/4           1/4           0/5           0/5           1/4           0/5           0/5           0/5           0/5           5/75    
+
+Memory: 12 primary pages (48 KB), 180 replica pages (720 KB)
+Total:  192 pages (768 KB)
+Replica PTE Entry Usage (Mitosis Tracking):
+  Entries propagated:   1582
+  Entries ever accessed: 22
+  Entries wasted:       1560
+  Waste ratio:          98.60%
+
+Page Fault Latency (cycles):
+  Local-node faults:  0 avg over 0 faults
+  Remote-node faults: 42231 avg over 12 faults
+  Propagation overhead: 14074 avg per fault (168896 total)
+
+Page Fault Breakdown (first-touch vs fill-existing):
+  First-touch faults:   0 avg cycles over 0 faults
+  Fill-existing faults: 42231 avg cycles over 12 faults
+  First-touch ratio:    0%
+
+Page Table Access NUMA Locality (local / remote / local%%):
+  Writes:
+    PTE: 92 / 1341 / 6%
+    PMD: 0 / 5 / 0%
+    PUD: 0 / 3 / 0%
+    P4D: 0 / 0 / 0%
+    PGD: 0 / 3 / 0%
+    Total: 92 / 1352 / 6%
+  Reads:
+    PTE: 0 / 0 / 0%
+  Special Ops:
+    get_and_clear: 5 / 75 / 6%
+    wrprotect:     0 / 0 / 0%
+    clear_young:   0 / 0 / 0%
+    Total: 5 / 75 / 6%
+
+================================================================================
+History Entry #483
+Process: bench_bc_mt (PID: 104891, TGID: 104891) [REPLICATED]
+Cmdline: ./bench_bc_mt -f ../../datasets/graphs/uni27.sg -n 5 
+Duration: 78256 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 (16 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 125932
+  TLB IPIs sent:    124455
+  Per-node flushes:
+    Node 0: 7933
+    Node 1: 8011
+    Node 2: 7854
+    Node 3: 7857
+    Node 4: 7849
+    Node 5: 7848
+    Node 6: 7848
+    Node 7: 7852
+    Node 8: 7858
+    Node 9: 7848
+    Node 10: 7914
+    Node 11: 7852
+    Node 12: 7864
+    Node 13: 7848
+    Node 14: 7848
+    Node 15: 7848
+
+CR3 Write Statistics:
+  Total CR3 writes: 598
+  Replica hits:     376
+  Primary hits:     222
+  Replica hit rate: 62%
+
+Page Table Pages Modified (logical / physical / fan-out):
+  PTE pages: 9309761 / 148956086 / 15x
+  PMD pages: 36617 / 585797 / 15x
+  PUD pages: 62 / 917 / 14x
+  P4D pages: 0 / 0 / 0x
+  PGD pages: 3 / 3 / 1x
+  Total:     9346443 / 149542803 / 15x
+
+Page Table Pages Read (logical / physical / fan-out):
+  PTE pages: 531 / 8496 / 16x
+
+Page Table Pages Touched - Special Ops (logical / physical / fan-out):
+  ptep_get_and_clear: 9306190 / 148899010 / 15x
+  ptep_wrprotect:     0 / 0 / 0x
+  ptep_clear_young:   0 / 0 / 0x
+  Total:              9306190 / 148899010 / 15x
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/15    
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           1/2           0/3           0/3           0/3           0/3           1/2           0/3           0/3           0/3           1/2           0/3           0/3           0/3           0/3           0/3           3/45    
+PMD           3/33          3/33          4/32          3/33          7/28          4/32          4/32          5/30          4/32          3/33          3/33          6/30          2/33          4/30          3/33          2/34         60/511   
+PTE         663/9849      665/9848      664/9848      661/9850      659/9858      663/9851      657/9851      663/9850      664/9849      663/9847      661/9850      661/9850      662/9851      661/9853      662/9849      665/9846    10594/157600
+
+Memory: 10658 primary pages (42632 KB), 158171 replica pages (632684 KB)
+Total:  168829 pages (675316 KB)
+Replica PTE Entry Usage (Mitosis Tracking):
+  Entries propagated:   130920185
+  Entries ever accessed: 135275502
+  Extra accessed:       4355317
+
+Page Fault Latency (cycles):
+  Local-node faults:  16931 avg over 5376936 faults
+  Remote-node faults: 232427 avg over 3933026 faults
+  Remote/Local ratio: 13.72x
+  Propagation overhead: 62552 avg per fault (582356896492 total)
+
+Page Fault Breakdown (first-touch vs fill-existing):
+  First-touch faults:   6206043 avg cycles over 18435 faults
+  Fill-existing faults: 95869 avg cycles over 9291527 faults
+  First-touch ratio:    0%
+  First-touch/Fill ratio: 64.73x
+
+Page Table Access NUMA Locality (local / remote / local%%):
+  Writes:
+    PTE: 9309755 / 139646331 / 6%
+    PMD: 36612 / 549185 / 6%
+    PUD: 58 / 859 / 6%
+    P4D: 0 / 0 / 0%
+    PGD: 0 / 3 / 0%
+    Total: 9346425 / 140196378 / 6%
+  Reads:
+    PTE: 531 / 7965 / 6%
+  Special Ops:
+    get_and_clear: 9306188 / 139592822 / 6%
+    wrprotect:     0 / 0 / 0%
+    clear_young:   0 / 0 / 0%
+    Total: 9306188 / 139592822 / 6%
+
+================================================================================
+History Entry #484
+Process: time (PID: 104890, TGID: 104890) [REPLICATED]
+Cmdline: /usr/bin/time -v -o mitosis/uni27/time_ri_0.txt -- ./bench_bc_mt -f ../../datasets/graphs/uni27.sg -n 5 
+Duration: 78306 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 (16 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 15
+  TLB IPIs sent:    0
+  Per-node flushes:
+    Node 11: 15
+
+CR3 Write Statistics:
+  Total CR3 writes: 3
+  Replica hits:     2
+  Primary hits:     1
+  Replica hit rate: 66%
+
+Page Table Pages Modified (logical / physical / fan-out):
+  PTE pages: 460 / 7270 / 15x
+  PMD pages: 7 / 37 / 5x
+  PUD pages: 5 / 5 / 1x
+  P4D pages: 0 / 0 / 0x
+  PGD pages: 3 / 3 / 1x
+  Total:     475 / 7315 / 15x
+
+Page Table Pages Read (logical / physical / fan-out):
+  PTE pages: 7 / 112 / 16x
+
+Page Table Pages Touched - Special Ops (logical / physical / fan-out):
+  ptep_get_and_clear: 25 / 370 / 14x
+  ptep_wrprotect:     17 / 272 / 16x
+  ptep_clear_young:   0 / 0 / 0x
+  Total:              42 / 642 / 15x
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           1/0           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/15    
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           1/2           0/3           0/3           0/3           0/3           1/2           0/3           0/3           0/3           1/2           0/3           0/3           0/3           0/3           0/3           3/45    
+PMD           0/3           0/3           1/3           0/3           1/2           0/3           0/3           1/2           0/3           0/3           0/3           1/2           0/3           0/3           0/3           0/3           4/45    
+PTE           0/5           0/5           0/5           1/5           0/5           1/4           0/5           0/5           1/5           1/4           0/5           0/5           1/4           1/4           1/4           0/5           7/75    
+
+Memory: 15 primary pages (60 KB), 180 replica pages (720 KB)
+Total:  195 pages (780 KB)
+Replica PTE Entry Usage (Mitosis Tracking):
+  Entries propagated:   6412
+  Entries ever accessed: 209
+  Entries wasted:       6203
+  Waste ratio:          96.74%
+
+Page Fault Latency (cycles):
+  Local-node faults:  0 avg over 0 faults
+  Remote-node faults: 28276 avg over 78 faults
+  Propagation overhead: 8824 avg per fault (688296 total)
+
+Page Fault Breakdown (first-touch vs fill-existing):
+  First-touch faults:   83783 avg cycles over 4 faults
+  Fill-existing faults: 25275 avg cycles over 74 faults
+  First-touch ratio:    5%
+  First-touch/Fill ratio: 3.31x
+
+Page Table Access NUMA Locality (local / remote / local%%):
+  Writes:
+    PTE: 454 / 6816 / 6%
+    PMD: 3 / 34 / 8%
+    PUD: 0 / 5 / 0%
+    P4D: 0 / 0 / 0%
+    PGD: 0 / 3 / 0%
+    Total: 457 / 6858 / 6%
+  Reads:
+    PTE: 7 / 105 / 6%
+  Special Ops:
+    get_and_clear: 23 / 347 / 6%
+    wrprotect:     17 / 255 / 6%
+    clear_young:   0 / 0 / 0%
+    Total: 40 / 602 / 6%
+
+Total historical entries: 4 (max: 64)
