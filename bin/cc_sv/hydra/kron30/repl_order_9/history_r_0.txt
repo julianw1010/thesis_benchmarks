@@ -1,0 +1,401 @@
+Hydra Page Table Replication - Historical Data
+===============================================
+
+================================================================================
+Process: numactl-hydra (PID: 47122, TGID: 47122)
+Seq ID: 205 | Active NUMA nodes: 16
+Cmdline: numactl-hydra -r all /usr/bin/time -v -o hydra/kron30/repl_order_9/time_r_0.txt -- ./bench_cc_sv_mt -f ../../datasets/graphs/kron30.sg -n 5 
+Duration: 0 ms
+
+TLB Statistics:
+  Shootdowns: 1 events
+  IPIs sent:  0
+  IPIs saved: 0
+  Per-node flush participation:
+    Node 0: 0
+    Node 1: 1
+    Node 2: 0
+    Node 3: 0
+    Node 4: 0
+    Node 5: 0
+    Node 6: 0
+    Node 7: 0
+    Node 8: 0
+    Node 9: 0
+    Node 10: 0
+    Node 11: 0
+    Node 12: 0
+    Node 13: 0
+    Node 14: 0
+    Node 15: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+
+Replication Statistics:
+  Events:           0
+  Entries copied:   0
+  Avg copied:       0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified (logical / physical / fan-out):
+  PTE pages: 482 / 482 / 1x
+  PMD pages: 12 / 12 / 1x
+  PUD pages: 8 / 8 / 1x
+  P4D pages: 0 / 0 / 0x
+  PGD pages: 6 / 6 / 1x
+  Total:     508 / 508 / 1x
+
+Page Table Pages Read (logical / physical / fan-out):
+  PTE pages: 0 / 0 / 0x
+
+Page Table Pages Touched - Special Ops (logical / physical / fan-out):
+  ptep_get_and_clear: 482 / 482 / 1x
+  ptep_wrprotect:     0 / 0 / 0x
+  ptep_clear_young:   0 / 0 / 0x
+  Total:              482 / 482 / 1x
+
+Peak Page Tables per Node:
+LEVEL        NODE0     NODE1     NODE2     NODE3     NODE4     NODE5     NODE6     NODE7     NODE8     NODE9     NODE10     NODE11     NODE12     NODE13     NODE14     NODE15      TOTAL
+--------------------------------------------------------------------------------
+PGD             1        1        1        1        1        1        1        1        1        1        1        1        1        1        1        1         16
+P4D             0        0        0        0        0        0        0        0        0        0        0        0        0        0        0        0          0
+PUD             0        3        0        0        0        0        0        0        0        0        0        0        0        0        0        0          3
+PMD             0        3        0        0        0        0        0        0        0        0        0        0        0        0        0        0          3
+PTE             0        5        0        0        0        0        0        0        0        0        0        0        0        0        0        0          5
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    27 pages = 108 KB
+
+Replica PTE Entry Usage (Mitosis Tracking):
+  Entries propagated:   0
+  Entries ever accessed: 0
+  Entries wasted:       0
+
+Page Fault Latency (cycles):
+  Local-node faults:  0 avg over 0 faults
+  Remote-node faults: 0 avg over 0 faults
+
+Page Fault Breakdown (first-touch vs fill-existing):
+  First-touch faults:   0 avg cycles over 0 faults
+  Fill-existing faults: 0 avg cycles over 0 faults
+
+Page Table Access NUMA Locality (local / remote / local%%):
+  Writes:
+    PTE: 482 / 0 / 100%
+    PMD: 12 / 0 / 100%
+    PUD: 8 / 0 / 100%
+    P4D: 0 / 0 / 0%
+    PGD: 6 / 0 / 100%
+    Total: 508 / 0 / 100%
+  Reads:
+    PTE: 0 / 0 / 0%
+  Special Ops:
+    get_and_clear: 482 / 0 / 100%
+    wrprotect:     0 / 0 / 0%
+    clear_young:   0 / 0 / 0%
+    Total: 482 / 0 / 100%
+================================================================================
+Process: time (PID: 47122, TGID: 47122)
+Seq ID: 206 | Active NUMA nodes: 16
+Cmdline: /usr/bin/time -v -o hydra/kron30/repl_order_9/time_r_0.txt -- ./bench_cc_sv_mt -f ../../datasets/graphs/kron30.sg -n 5 
+Duration: 0 ms
+
+TLB Statistics:
+  Shootdowns: 5 events
+  IPIs sent:  0
+  IPIs saved: 1
+  Per-node flush participation:
+    Node 0: 5
+    Node 1: 0
+    Node 2: 0
+    Node 3: 0
+    Node 4: 0
+    Node 5: 0
+    Node 6: 0
+    Node 7: 0
+    Node 8: 0
+    Node 9: 0
+    Node 10: 0
+    Node 11: 0
+    Node 12: 0
+    Node 13: 0
+    Node 14: 0
+    Node 15: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 1
+
+Replication Statistics:
+  Events:           18
+  Entries copied:   489
+  Avg copied:       27.16
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   6 (master establishment failures)
+
+Page Table Pages Modified (logical / physical / fan-out):
+  PTE pages: 114 / 183 / 1x
+  PMD pages: 18 / 18 / 1x
+  PUD pages: 12 / 12 / 1x
+  P4D pages: 0 / 0 / 0x
+  PGD pages: 12 / 12 / 1x
+  Total:     156 / 225 / 1x
+
+Page Table Pages Read (logical / physical / fan-out):
+  PTE pages: 0 / 0 / 0x
+
+Page Table Pages Touched - Special Ops (logical / physical / fan-out):
+  ptep_get_and_clear: 113 / 224 / 1x
+  ptep_wrprotect:     0 / 0 / 0x
+  ptep_clear_young:   0 / 0 / 0x
+  Total:              113 / 224 / 1x
+
+Peak Page Tables per Node:
+LEVEL        NODE0     NODE1     NODE2     NODE3     NODE4     NODE5     NODE6     NODE7     NODE8     NODE9     NODE10     NODE11     NODE12     NODE13     NODE14     NODE15      TOTAL
+--------------------------------------------------------------------------------
+PGD             1        1        1        1        1        1        1        1        1        1        1        1        1        1        1        1         16
+P4D             0        0        0        0        0        0        0        0        0        0        0        0        0        0        0        0          0
+PUD             3        3        0        0        0        0        0        0        0        0        0        0        0        0        0        0          6
+PMD             3        3        0        0        0        0        0        0        0        0        0        0        0        0        0        0          6
+PTE             4        5        0        0        0        0        0        0        0        0        0        0        0        0        0        0          9
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    37 pages = 148 KB
+
+Replica PTE Entry Usage (Mitosis Tracking):
+  Entries propagated:   114
+  Entries ever accessed: 19
+  Entries wasted:       95
+  Waste ratio:          83.33%
+
+Page Fault Latency (cycles):
+  Local-node faults:  0 avg over 0 faults
+  Remote-node faults: 4940 avg over 18 faults
+
+Page Fault Breakdown (first-touch vs fill-existing):
+  First-touch faults:   8127 avg cycles over 4 faults
+  Fill-existing faults: 4030 avg cycles over 14 faults
+  First-touch ratio:    22%
+  First-touch/Fill ratio: 2.01x
+
+Page Table Access NUMA Locality (local / remote / local%%):
+  Writes:
+    PTE: 95 / 88 / 51%
+    PMD: 13 / 5 / 72%
+    PUD: 9 / 3 / 75%
+    P4D: 0 / 0 / 0%
+    PGD: 9 / 3 / 75%
+    Total: 126 / 99 / 56%
+  Reads:
+    PTE: 0 / 0 / 0%
+  Special Ops:
+    get_and_clear: 111 / 113 / 49%
+    wrprotect:     0 / 0 / 0%
+    clear_young:   0 / 0 / 0%
+    Total: 111 / 113 / 49%
+================================================================================
+Process: time (PID: 47123, TGID: 47123)
+Seq ID: 207 | Active NUMA nodes: 16
+Cmdline: /usr/bin/time -v -o hydra/kron30/repl_order_9/time_r_0.txt -- ./bench_cc_sv_mt -f ../../datasets/graphs/kron30.sg -n 5 
+Duration: 520580 ms
+
+TLB Statistics:
+  Shootdowns: 359354 events
+  IPIs sent:  355234
+  IPIs saved: 205796
+  Per-node flush participation:
+    Node 0: 35318
+    Node 1: 33356
+    Node 2: 31474
+    Node 3: 29543
+    Node 4: 27616
+    Node 5: 25696
+    Node 6: 23759
+    Node 7: 21836
+    Node 8: 19881
+    Node 9: 17962
+    Node 10: 16018
+    Node 11: 14097
+    Node 12: 12164
+    Node 13: 10242
+    Node 14: 8298
+    Node 15: 32094
+
+CR3 Write Statistics:
+  Total CR3 writes: 2624
+
+Replication Statistics:
+  Events:           7093283
+  Entries copied:   3631405510
+  Avg copied:       511.94
+
+Race Conditions:
+  PTE page races:  1245 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified (logical / physical / fan-out):
+  PTE pages: 42686796 / 49600407 / 1x
+  PMD pages: 611976 / 611976 / 1x
+  PUD pages: 1412 / 1412 / 1x
+  P4D pages: 0 / 0 / 0x
+  PGD pages: 96 / 96 / 1x
+  Total:     43300280 / 50213891 / 1x
+
+Page Table Pages Read (logical / physical / fan-out):
+  PTE pages: 0 / 0 / 0x
+
+Page Table Pages Touched - Special Ops (logical / physical / fan-out):
+  ptep_get_and_clear: 42685868 / 156462487 / 3x
+  ptep_wrprotect:     0 / 0 / 0x
+  ptep_clear_young:   33 / 33 / 1x
+  Total:              42685901 / 156462520 / 3x
+
+Peak Page Tables per Node:
+LEVEL        NODE0     NODE1     NODE2     NODE3     NODE4     NODE5     NODE6     NODE7     NODE8     NODE9     NODE10     NODE11     NODE12     NODE13     NODE14     NODE15      TOTAL
+--------------------------------------------------------------------------------
+PGD             1        1        1        1        1        1        1        1        1        1        1        1        1        1        1        1         16
+P4D             0        0        0        0        0        0        0        0        0        0        0        0        0        0        0        0          0
+PUD             3        3        4        3        3        3        3        3        4        3        3        3        4        4        4        4         54
+PMD           237       26       24       26       24       24       24       24       24       25       24       24       23       25       24       23        601
+PTE         73260     6380     6384     6367     6373     6379     6388     6407     6372     6405     6370     6376     6368     6394     6335     6390     168948
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    169619 pages = 678476 KB (662 MB)
+
+Replica PTE Entry Usage (Mitosis Tracking):
+  Entries propagated:   1880102208
+  Entries ever accessed: 113742834
+  Entries wasted:       1766359374
+  Waste ratio:          93.95%
+
+Page Fault Latency (cycles):
+  Local-node faults:  3330 avg over 35802526 faults
+  Remote-node faults: 89433 avg over 7093283 faults
+  Remote/Local ratio: 26.85x
+
+Page Fault Breakdown (first-touch vs fill-existing):
+  First-touch faults:   117638 avg cycles over 292584 faults
+  Fill-existing faults: 16881 avg cycles over 42603225 faults
+  First-touch ratio:    0%
+  First-touch/Fill ratio: 6.96x
+
+Page Table Access NUMA Locality (local / remote / local%%):
+  Writes:
+    PTE: 42671852 / 6928555 / 86%
+    PMD: 376049 / 235927 / 61%
+    PUD: 852 / 560 / 60%
+    P4D: 0 / 0 / 0%
+    PGD: 51 / 45 / 53%
+    Total: 43048804 / 7165087 / 85%
+  Reads:
+    PTE: 0 / 0 / 0%
+  Special Ops:
+    get_and_clear: 42685221 / 113777266 / 27%
+    wrprotect:     0 / 0 / 0%
+    clear_young:   33 / 0 / 100%
+    Total: 42685254 / 113777266 / 27%
+================================================================================
+Process: numactl-hydra (PID: 47122, TGID: 47122)
+Seq ID: 208 | Active NUMA nodes: 16
+Cmdline: numactl-hydra -r all /usr/bin/time -v -o hydra/kron30/repl_order_9/time_r_0.txt -- ./bench_cc_sv_mt -f ../../datasets/graphs/kron30.sg -n 5 
+Duration: 520581 ms
+
+TLB Statistics:
+  Shootdowns: 15 events
+  IPIs sent:  0
+  IPIs saved: 0
+  Per-node flush participation:
+    Node 0: 0
+    Node 1: 15
+    Node 2: 0
+    Node 3: 0
+    Node 4: 0
+    Node 5: 0
+    Node 6: 0
+    Node 7: 0
+    Node 8: 0
+    Node 9: 0
+    Node 10: 0
+    Node 11: 0
+    Node 12: 0
+    Node 13: 0
+    Node 14: 0
+    Node 15: 0
+
+CR3 Write Statistics:
+  Total CR3 writes: 2
+
+Replication Statistics:
+  Events:           0
+  Entries copied:   0
+  Avg copied:       0.00
+
+Race Conditions:
+  PTE page races:  0 (concurrent page allocations)
+  Master faults:   0 (master establishment failures)
+
+Page Table Pages Modified (logical / physical / fan-out):
+  PTE pages: 461 / 461 / 1x
+  PMD pages: 12 / 12 / 1x
+  PUD pages: 8 / 8 / 1x
+  P4D pages: 0 / 0 / 0x
+  PGD pages: 6 / 6 / 1x
+  Total:     487 / 487 / 1x
+
+Page Table Pages Read (logical / physical / fan-out):
+  PTE pages: 0 / 0 / 0x
+
+Page Table Pages Touched - Special Ops (logical / physical / fan-out):
+  ptep_get_and_clear: 450 / 450 / 1x
+  ptep_wrprotect:     18 / 18 / 1x
+  ptep_clear_young:   6 / 6 / 1x
+  Total:              474 / 474 / 1x
+
+Peak Page Tables per Node:
+LEVEL        NODE0     NODE1     NODE2     NODE3     NODE4     NODE5     NODE6     NODE7     NODE8     NODE9     NODE10     NODE11     NODE12     NODE13     NODE14     NODE15      TOTAL
+--------------------------------------------------------------------------------
+PGD             1        1        1        1        1        1        1        1        1        1        1        1        1        1        1        1         16
+P4D             0        0        0        0        0        0        0        0        0        0        0        0        0        0        0        0          0
+PUD             0        3        0        0        0        0        0        0        0        0        0        0        0        0        0        0          3
+PMD             0        3        0        0        0        0        0        0        0        0        0        0        0        0        0        0          3
+PTE             0        5        0        0        0        0        0        0        0        0        0        0        0        0        0        0          5
+--------------------------------------------------------------------------------
+Peak Memory Summary:
+  Total:    27 pages = 108 KB
+
+Replica PTE Entry Usage (Mitosis Tracking):
+  Entries propagated:   0
+  Entries ever accessed: 0
+  Entries wasted:       0
+
+Page Fault Latency (cycles):
+  Local-node faults:  7274 avg over 78 faults
+  Remote-node faults: 0 avg over 0 faults
+
+Page Fault Breakdown (first-touch vs fill-existing):
+  First-touch faults:   4774 avg cycles over 4 faults
+  Fill-existing faults: 7409 avg cycles over 74 faults
+  First-touch ratio:    5%
+  First-touch/Fill ratio: 0.64x
+
+Page Table Access NUMA Locality (local / remote / local%%):
+  Writes:
+    PTE: 461 / 0 / 100%
+    PMD: 12 / 0 / 100%
+    PUD: 8 / 0 / 100%
+    P4D: 0 / 0 / 0%
+    PGD: 6 / 0 / 100%
+    Total: 487 / 0 / 100%
+  Reads:
+    PTE: 0 / 0 / 0%
+  Special Ops:
+    get_and_clear: 450 / 0 / 100%
+    wrprotect:     18 / 0 / 100%
+    clear_young:   6 / 0 / 100%
+    Total: 474 / 0 / 100%
+Total entries: 4
