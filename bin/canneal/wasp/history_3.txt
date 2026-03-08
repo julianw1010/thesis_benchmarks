@@ -1,0 +1,204 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #501
+Process: numactl-wasp (PID: 237071, TGID: 237071) [CACHE-ONLY]
+Cmdline: numactl-wasp -P /usr/bin/time -v -o wasp/time_3.txt -- ./bench_canneal_mt 128 450000 2000 ../../datasets/canneal_large 260 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+  Per-node flushes:
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PMD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PTE           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           5/0           0/0           0/0           0/0           0/0           0/0           0/0           5/0     
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+================================================================================
+History Entry #502
+Process: bench_canneal_m (PID: 237072, TGID: 237072) [REPLICATED]
+Cmdline: ./bench_canneal_mt 128 450000 2000 ../../datasets/canneal_large 260 
+Duration: 41665 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 (16 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 86296
+  TLB IPIs sent:    102987
+  Per-node flushes:
+    Node 0: 5373
+    Node 1: 5530
+    Node 2: 5282
+    Node 3: 4955
+    Node 4: 5385
+    Node 5: 5412
+    Node 6: 5586
+    Node 7: 5748
+    Node 8: 5180
+    Node 9: 5552
+    Node 10: 5177
+    Node 11: 4946
+    Node 12: 5589
+    Node 13: 5136
+    Node 14: 5520
+    Node 15: 5925
+
+CR3 Write Statistics:
+  Total CR3 writes: 6750
+  Replica hits:     5157
+  Primary hits:     1593
+  Replica hit rate: 76%
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/15    
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           1/2           0/3           0/3           0/3           0/3           0/3           0/3           0/3           2/1           0/3           0/3           0/3           0/3           0/3           0/3           0/3           3/45    
+PMD         127/12          0/139         0/139         0/139         0/139         2/138         0/139         0/139         4/135         3/138         5/138         2/138         3/138         3/137         7/138         6/139       162/2085  
+PTE       64363/1322       91/65595      90/65596      88/65599      94/65593      97/65589      95/65592      92/65594     108/65586      97/65589      96/65591      97/65591      95/65593      96/65591      98/65590      98/65589   65795/985200
+
+Memory: 65961 primary pages (263844 KB), 987345 replica pages (3949380 KB)
+Total:  1053306 pages (4213224 KB)
+
+================================================================================
+History Entry #503
+Process: bench_canneal_m (PID: 237072, TGID: 237072) [REPLICATED]
+Cmdline: ./bench_canneal_mt 128 450000 2000 ../../datasets/canneal_large 260 
+Duration: 56358 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 (16 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 8225120
+  TLB IPIs sent:    12443967
+  Per-node flushes:
+    Node 0: 466654
+    Node 1: 532693
+    Node 2: 526571
+    Node 3: 520478
+    Node 4: 469179
+    Node 5: 524470
+    Node 6: 522527
+    Node 7: 522401
+    Node 8: 512035
+    Node 9: 516553
+    Node 10: 522327
+    Node 11: 517916
+    Node 12: 515663
+    Node 13: 515869
+    Node 14: 513775
+    Node 15: 526009
+
+CR3 Write Statistics:
+  Total CR3 writes: 35217
+  Replica hits:     11408
+  Primary hits:     23809
+  Replica hit rate: 32%
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/15    
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           1/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           2/1           0/3           0/3           0/3           0/3           0/3           0/3           0/3           3/46    
+PMD         127/198         5/200         6/199         4/201         0/205         7/198         2/203         4/201         8/197         6/199         6/200         4/201         5/200         3/203         7/203         6/202       200/3210  
+PTE       64363/97122    2099/98416    2100/98415    2103/98412    2097/98418    2093/98422    2096/98419    2098/98417    2188/98327    2093/98422    2095/98420    2095/98420    2097/98418    2095/98420    2094/98421    2093/98422   95899/1573311
+
+Memory: 96103 primary pages (384412 KB), 1576582 replica pages (6306328 KB)
+Total:  1672685 pages (6690740 KB)
+
+================================================================================
+History Entry #504
+Process: bench_canneal_m (PID: 237072, TGID: 237072) [REPLICATED]
+Cmdline: ./bench_canneal_mt 128 450000 2000 ../../datasets/canneal_large 260 
+Duration: 258081 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 (16 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 8230406
+  TLB IPIs sent:    12447687
+  Per-node flushes:
+    Node 0: 467756
+    Node 1: 533095
+    Node 2: 526858
+    Node 3: 520790
+    Node 4: 469473
+    Node 5: 524807
+    Node 6: 522806
+    Node 7: 522704
+    Node 8: 512277
+    Node 9: 516741
+    Node 10: 522630
+    Node 11: 518178
+    Node 12: 515912
+    Node 13: 516135
+    Node 14: 514005
+    Node 15: 526239
+
+CR3 Write Statistics:
+  Total CR3 writes: 40003
+  Replica hits:     15921
+  Primary hits:     24082
+  Replica hit rate: 39%
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/15    
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           1/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           2/1           0/3           0/3           0/3           0/3           0/3           0/3           0/3           3/46    
+PMD         127/198         5/200         6/199         4/201         0/205         7/198         2/203         4/201         8/197         6/199         6/200         4/201         5/200         3/203         7/203         6/202       200/3210  
+PTE       64363/97122    2099/98416    2100/98415    2103/98412    2097/98418    2093/98422    2096/98419    2098/98417    2188/98327    2093/98422    2095/98420    2095/98420    2097/98418    2095/98420    2094/98421    2093/98422   95899/1573311
+
+Memory: 96103 primary pages (384412 KB), 1576582 replica pages (6306328 KB)
+Total:  1672685 pages (6690740 KB)
+
+================================================================================
+History Entry #505
+Process: time (PID: 237071, TGID: 237071) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o wasp/time_3.txt -- ./bench_canneal_mt 128 450000 2000 ../../datasets/canneal_large 260 
+Duration: 536249 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 20
+  TLB IPIs sent:    0
+  Per-node flushes:
+    Node 0: 4
+    Node 9: 16
+
+CR3 Write Statistics:
+  Total CR3 writes: 5
+  Replica hits:     0
+  Primary hits:     5
+  Replica hit rate: 0%
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PMD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PTE           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           5/0           0/0           0/0           0/0           0/0           0/0           0/0           5/0     
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+Total historical entries: 5 (max: 64)
