@@ -3,4 +3,4 @@ if [ -f canneal_large ]; then
     exit 0
 fi
 [ ! -f fast_canneal_int ] && gcc -O3 -fopenmp -o fast_canneal_int fast_canneal_int.c
-./fast_canneal_int 24000 24000 555000000 > canneal_large
+./fast_canneal_int 29000 29000 816000000 > canneal_large
