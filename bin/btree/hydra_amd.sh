@@ -8,6 +8,6 @@ for repl_order in {0..9}; do
     echo "=== Setting repl_order=$repl_order ==="
     echo $repl_order | sudo tee /proc/hydra/repl_order
     
-    ../launch_benchmark.sh 2 5 "hydra/repl_order_${repl_order}" ./bench_btree_mt -- -n 3000000000
-    ../launch_benchmark.sh 3 5 "hydra/repl_order_${repl_order}" ./bench_btree_mt -- -n 3000000000
+    ../launch_benchmark.sh 2 5 "hydra/repl_order_${repl_order}" ./bench_btree_mt -- -n 3000000000 -l 1310000000
+    ../launch_benchmark.sh 3 5 "hydra/repl_order_${repl_order}" ./bench_btree_mt -- -n 3000000000 -l 1310000000
 done
