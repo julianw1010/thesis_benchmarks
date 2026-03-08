@@ -36,6 +36,17 @@ max_index=$((num_runs - 1))
 # Create output folder if it doesn't exist
 mkdir -p "$output_folder"
 
+# ─── Detect numactl variant ──────────────────────────────────────────────────
+KERNEL_REL=$(uname -r)
+if [[ "$KERNEL_REL" == *"wasp"* ]]; then
+    NUMACTL="numactl-wasp"
+elif [[ "$KERNEL_REL" == *"hydra"* ]]; then
+    NUMACTL="numactl-hydra"
+else
+    NUMACTL="numactl"
+fi
+echo "Kernel: $KERNEL_REL → using $NUMACTL"
+
 # ─── CPU / perf event detection ───────────────────────────────────────────────
 CPU_MODEL=$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs)
 echo "Detected CPU: $CPU_MODEL"
@@ -152,8 +163,8 @@ for ((i=start; i<=max_index; i++)); do
     echo -1 | sudo tee $history_interface
 
     # Launch memcached with appropriate numactl options (background, with timing)
-    echo "Starting memcached with numactl $numactl_opts..."
-    numactl $numactl_opts /usr/bin/time --verbose -- ./bench_memcached -m 220000 -t 32 -p 11211 -c 8192 -o hashpower=31 > "${output_folder}/output_${prefix}${i}.txt" 2>&1 &
+    echo "Starting memcached with $NUMACTL $numactl_opts..."
+    $NUMACTL $numactl_opts /usr/bin/time --verbose -- ./bench_memcached -m 220000 -t 32 -p 11211 -c 8192 -o hashpower=31 > "${output_folder}/output_${prefix}${i}.txt" 2>&1 &
     memcached_pid=$!
 
     # Wait for memcached to actually be listening
@@ -181,27 +192,25 @@ for ((i=start; i<=max_index; i++)); do
         --threads=32 --clients=32 \
         -n 1500000 --hide-histogram
 
-    # ─── Start perf (system-wide) before GET phase ────────────────────────────
+    # ─── Start perf (system-wide, Intel only) before GET phase ──────────────
     PERF_OUTPUT="${output_folder}/perf_${prefix}${i}"
     PERF_ERR="${PERF_OUTPUT}.err"
+    PERF_PID=""
 
-    if [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
-        echo "Starting system-wide IBS recording..."
-        perf record -a -e ibs_op//p -c 10000003 -W -d -o "${PERF_OUTPUT}.data" 2>"$PERF_ERR" &
-    else
+    if [[ "$PROFILE_MODE" != "amd_ibs" ]]; then
         echo "Starting system-wide perf stat..."
         perf stat -a -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt" 2>"$PERF_ERR" &
-    fi
-    PERF_PID=$!
+        PERF_PID=$!
 
-    sleep 0.2
-    if ! kill -0 $PERF_PID 2>/dev/null; then
-        echo "ERROR: perf failed to start"
-        [[ -f "$PERF_ERR" ]] && cat "$PERF_ERR"
-        kill_memcached
-        exit 1
+        sleep 0.2
+        if ! kill -0 $PERF_PID 2>/dev/null; then
+            echo "ERROR: perf failed to start"
+            [[ -f "$PERF_ERR" ]] && cat "$PERF_ERR"
+            kill_memcached
+            exit 1
+        fi
+        echo "Profiling started (PID: $PERF_PID)"
     fi
-    echo "Profiling started (PID: $PERF_PID)"
 
     # Start timing the GET phase
     SECONDS=0
@@ -216,51 +225,43 @@ for ((i=start; i<=max_index; i++)); do
 
     DURATION=$SECONDS
 
-    # ─── Stop perf ────────────────────────────────────────────────────────────
-    kill -INT $PERF_PID 2>/dev/null
-    sleep 0.5
-    wait $PERF_PID 2>/dev/null
+    # ─── Stop perf (Intel only) ──────────────────────────────────────────────
+    if [[ -n "$PERF_PID" ]]; then
+        kill -INT $PERF_PID 2>/dev/null
+        sleep 0.5
+        wait $PERF_PID 2>/dev/null
 
-    if [[ -s "$PERF_ERR" ]] && grep -qi -E "fail|error|not counted|not supported|cannot" "$PERF_ERR"; then
-        echo "ERROR: perf reported errors during iteration $i:"
-        cat "$PERF_ERR"
-        kill_memcached
-        exit 1
-    fi
+        if [[ -s "$PERF_ERR" ]] && grep -qi -E "fail|error|not counted|not supported|cannot" "$PERF_ERR"; then
+            echo "ERROR: perf reported errors during iteration $i:"
+            cat "$PERF_ERR"
+            kill_memcached
+            exit 1
+        fi
 
-    # ─── Validate perf multiplexing (Intel only) ──────────────────────────────
-    if [[ "$PROFILE_MODE" == "intel_perf" ]]; then
-        FIRST_LINE=$(grep -m1 'cycles' "${PERF_OUTPUT}.txt" 2>/dev/null)
-        if [[ -n "$FIRST_LINE" ]]; then
-            MUX_PCT=$(echo "$FIRST_LINE" | awk -F, '{printf "%.1f", $5}')
-            echo "Perf stat scaling: ${MUX_PCT}% time on HW (perf auto-scales values)"
-            MUX_LOW=$(awk "BEGIN { print ($MUX_PCT + 0 < 10) ? 1 : 0 }")
-            if [[ "$MUX_LOW" -eq 1 ]]; then
-                echo "WARNING: Heavy multiplexing (${MUX_PCT}% on HW). Scaled values may be noisy."
+        # ─── Validate perf multiplexing (Intel only) ──────────────────────────
+        if [[ "$PROFILE_MODE" == "intel_perf" ]]; then
+            FIRST_LINE=$(grep -m1 'cycles' "${PERF_OUTPUT}.txt" 2>/dev/null)
+            if [[ -n "$FIRST_LINE" ]]; then
+                MUX_PCT=$(echo "$FIRST_LINE" | awk -F, '{printf "%.1f", $5}')
+                echo "Perf stat scaling: ${MUX_PCT}% time on HW (perf auto-scales values)"
+                MUX_LOW=$(awk "BEGIN { print ($MUX_PCT + 0 < 10) ? 1 : 0 }")
+                if [[ "$MUX_LOW" -eq 1 ]]; then
+                    echo "WARNING: Heavy multiplexing (${MUX_PCT}% on HW). Scaled values may be noisy."
+                fi
             fi
         fi
     fi
 
     # ─── Collect stats ────────────────────────────────────────────────────────
     STATS_FILE="${output_folder}/stats_${prefix}${i}.txt"
-    echo "Processing profiling data..."
-
-    if [[ "$PROFILE_MODE" == "amd_ibs" ]]; then
-        {
-            echo "Execution Time (seconds): $DURATION"
-            echo ""
-            perf script -i "${PERF_OUTPUT}.data" -F data_src,weight 2>/dev/null | \
-                awk '/TLB L2 miss/ && $NF > 0 { sum += $NF; count++ }
-                     END { printf "Walk Samples: %d\nAvg Walk Latency: %.1f cycles\n", count, count ? sum/count : 0 }'
-        } | tee "$STATS_FILE"
-    else
-        {
-            echo "Execution Time (seconds): $DURATION"
+    {
+        echo "Execution Time (seconds): $DURATION"
+        if [[ -n "$PERF_PID" ]]; then
             echo ""
             echo "=== Perf Counters (system-wide) ==="
             cat "${PERF_OUTPUT}.txt"
-        } | tee "$STATS_FILE"
-    fi
+        fi
+    } | tee "$STATS_FILE"
 
     echo "Statistics saved to $STATS_FILE"
 
