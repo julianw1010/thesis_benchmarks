@@ -25,8 +25,18 @@ NUM_CPUS=$(nproc)
 
 # Determine perf events based on CPU
 if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
-    PROFILE_MODE="none"
-    echo "AMD CPU detected, skipping profiling"
+    PROFILE_MODE="amd_perf"
+    echo "AMD CPU detected"
+
+    # Group 1: Data cache fills by source (the key mitosis metric)
+    # Group 2: TLB misses, page walks, cycles, instructions
+    # Split into two groups to minimize multiplexing on 6 PMC counters
+    PERF_EVENTS_G1="ls_dmnd_fills_from_sys.lcl_l2,ls_dmnd_fills_from_sys.int_cache,ls_dmnd_fills_from_sys.ext_cache_local,ls_dmnd_fills_from_sys.ext_cache_remote,ls_dmnd_fills_from_sys.mem_io_local,ls_dmnd_fills_from_sys.mem_io_remote"
+    PERF_EVENTS_G2="cycles,instructions,l2_dtlb_misses,ls_tablewalker.dside,ls_tablewalker.iside,stalled-cycles-backend"
+
+    PERF_EVENTS="${PERF_EVENTS_G1},${PERF_EVENTS_G2}"
+    echo "Perf events: $PERF_EVENTS"
+
 elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
     PROFILE_MODE="intel_perf"
 
@@ -188,27 +198,25 @@ for ((i=start; i<=max_index; i++)); do
     # Start timing
     SECONDS=0
 
-    # Start SYSTEM-WIDE perf between READY and DONE (Intel/generic only)
+    # Start SYSTEM-WIDE perf between READY and DONE
     # NOTE: "trap - INT" resets SIGINT from SIG_IGN (inherited from non-interactive
     # bash backgrounding) back to default, so kill -INT works later.
     PERF_OUTPUT="${output_folder}/perf_${prefix}${i}"
     PERF_ERR="${PERF_OUTPUT}.err"
     PERF_PID=""
 
-    if [[ "$PROFILE_MODE" != "none" ]]; then
-        echo "Starting system-wide perf stat..."
-        (trap - INT; exec perf stat -a -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt") 2>"$PERF_ERR" &
-        PERF_PID=$!
+    echo "Starting system-wide perf stat..."
+    (trap - INT; exec perf stat -a -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt") 2>"$PERF_ERR" &
+    PERF_PID=$!
 
-        sleep 0.2
-        if ! kill -0 $PERF_PID 2>/dev/null; then
-            echo "ERROR: perf failed to start"
-            [[ -f "$PERF_ERR" ]] && cat "$PERF_ERR"
-            kill $SCRIPT_PID 2>/dev/null
-            exit 1
-        fi
-        echo "Profiling started (perf PID: $PERF_PID, system-wide)"
+    sleep 0.2
+    if ! kill -0 $PERF_PID 2>/dev/null; then
+        echo "ERROR: perf failed to start"
+        [[ -f "$PERF_ERR" ]] && cat "$PERF_ERR"
+        kill $SCRIPT_PID 2>/dev/null
+        exit 1
     fi
+    echo "Profiling started (perf PID: $PERF_PID, system-wide)"
 
     echo "Waiting for benchmark to complete..."
     wait $SCRIPT_PID
@@ -224,37 +232,46 @@ for ((i=start; i<=max_index; i++)); do
         BENCH_CRASHED=0
     fi
 
-    # Stop perf gracefully (if it was started)
-    if [[ -n "$PERF_PID" ]]; then
-        stop_perf $PERF_PID
-        wait $PERF_PID 2>/dev/null
+    # Stop perf gracefully
+    stop_perf $PERF_PID
+    wait $PERF_PID 2>/dev/null
 
-        if [[ -s "$PERF_ERR" ]] && grep -qi -E "fail|error|not counted|not supported|cannot" "$PERF_ERR"; then
-            echo "ERROR: perf reported errors during iteration $i:"
-            cat "$PERF_ERR"
-            exit 1
-        fi
+    if [[ -s "$PERF_ERR" ]] && grep -qi -E "fail|error|not counted|not supported|cannot" "$PERF_ERR"; then
+        echo "WARNING: perf reported issues during iteration $i:"
+        cat "$PERF_ERR"
+    fi
 
-        # Validate perf output exists and is non-empty
-        if [[ ! -s "${PERF_OUTPUT}.txt" ]]; then
-            echo "ERROR: perf output file missing or empty for iteration $i"
-            echo "--- perf stderr ---"
-            cat "$PERF_ERR" 2>/dev/null
-            echo "---"
-            exit 1
-        fi
+    # Validate perf output exists and is non-empty
+    if [[ ! -s "${PERF_OUTPUT}.txt" ]]; then
+        echo "ERROR: perf output file missing or empty for iteration $i"
+        echo "--- perf stderr ---"
+        cat "$PERF_ERR" 2>/dev/null
+        echo "---"
+        exit 1
+    fi
 
-        # Validate perf counter multiplexing (Intel only)
-        if [[ "$PROFILE_MODE" == "intel_perf" ]]; then
-            FIRST_LINE=$(grep -m1 'cycles' "${PERF_OUTPUT}.txt" 2>/dev/null)
-            if [[ -n "$FIRST_LINE" ]]; then
-                MUX_PCT=$(echo "$FIRST_LINE" | awk -F, '{printf "%.1f", $5}')
-                echo "Perf stat scaling: ${MUX_PCT}% time on HW (perf auto-scales values)"
-                MUX_LOW=$(awk "BEGIN { print ($MUX_PCT + 0 < 10) ? 1 : 0 }")
-                if [[ "$MUX_LOW" -eq 1 ]]; then
-                    echo "WARNING: Heavy multiplexing (${MUX_PCT}% on HW). Scaled values may be noisy."
-                fi
+    # Validate perf counter multiplexing
+    if [[ "$PROFILE_MODE" == "intel_perf" ]]; then
+        FIRST_LINE=$(grep -m1 'cycles' "${PERF_OUTPUT}.txt" 2>/dev/null)
+        if [[ -n "$FIRST_LINE" ]]; then
+            MUX_PCT=$(echo "$FIRST_LINE" | awk -F, '{printf "%.1f", $5}')
+            echo "Perf stat scaling: ${MUX_PCT}% time on HW (perf auto-scales values)"
+            MUX_LOW=$(awk "BEGIN { print ($MUX_PCT + 0 < 10) ? 1 : 0 }")
+            if [[ "$MUX_LOW" -eq 1 ]]; then
+                echo "WARNING: Heavy multiplexing (${MUX_PCT}% on HW). Scaled values may be noisy."
             fi
+        fi
+    elif [[ "$PROFILE_MODE" == "amd_perf" ]]; then
+        # Check multiplexing for AMD — column 5 in CSV is the percentage of time counted
+        MUX_WARN=0
+        while IFS=, read -r count unit event runtime pct _rest; do
+            if [[ -n "$pct" && "$pct" != "100.00" ]]; then
+                MUX_WARN=1
+                break
+            fi
+        done < <(grep -v '^#' "${PERF_OUTPUT}.txt" | grep -v '^$')
+        if [[ "$MUX_WARN" -eq 1 ]]; then
+            echo "NOTE: Some AMD perf counters were multiplexed (12 events > 6 PMCs). Values are scaled by perf."
         fi
     fi
 
@@ -269,11 +286,34 @@ for ((i=start; i<=max_index; i++)); do
             echo "WARNING: Benchmark crashed (no DONE file). Results may be partial."
         fi
         echo ""
-        if [[ -n "$PERF_PID" ]]; then
-            echo "=== Perf Counters (system-wide) ==="
-            cat "${PERF_OUTPUT}.txt"
-        else
-            echo "(No profiling data — AMD CPU)"
+        echo "=== Perf Counters (system-wide) ==="
+        cat "${PERF_OUTPUT}.txt"
+
+        # AMD: print human-readable summary of fill sources
+        if [[ "$PROFILE_MODE" == "amd_perf" ]]; then
+            echo ""
+            echo "=== Data Cache Fill Source Summary ==="
+            LCL_L2=$(grep 'ls_dmnd_fills_from_sys.lcl_l2' "${PERF_OUTPUT}.txt" | head -1 | cut -d, -f1)
+            INT_CACHE=$(grep 'ls_dmnd_fills_from_sys.int_cache' "${PERF_OUTPUT}.txt" | head -1 | cut -d, -f1)
+            EXT_LOCAL=$(grep 'ls_dmnd_fills_from_sys.ext_cache_local' "${PERF_OUTPUT}.txt" | head -1 | cut -d, -f1)
+            EXT_REMOTE=$(grep 'ls_dmnd_fills_from_sys.ext_cache_remote' "${PERF_OUTPUT}.txt" | head -1 | cut -d, -f1)
+            MEM_LOCAL=$(grep 'ls_dmnd_fills_from_sys.mem_io_local' "${PERF_OUTPUT}.txt" | head -1 | cut -d, -f1)
+            MEM_REMOTE=$(grep 'ls_dmnd_fills_from_sys.mem_io_remote' "${PERF_OUTPUT}.txt" | head -1 | cut -d, -f1)
+
+            TOTAL=$(( ${LCL_L2:-0} + ${INT_CACHE:-0} + ${EXT_LOCAL:-0} + ${EXT_REMOTE:-0} + ${MEM_LOCAL:-0} + ${MEM_REMOTE:-0} ))
+
+            if [[ $TOTAL -gt 0 ]]; then
+                echo "  Local L2:            ${LCL_L2:-0}  ($(awk "BEGIN{printf \"%.1f\", ${LCL_L2:-0}*100/$TOTAL}")%)"
+                echo "  Local L3/CCX:        ${INT_CACHE:-0}  ($(awk "BEGIN{printf \"%.1f\", ${INT_CACHE:-0}*100/$TOTAL}")%)"
+                echo "  Remote CCX same node:${EXT_LOCAL:-0}  ($(awk "BEGIN{printf \"%.1f\", ${EXT_LOCAL:-0}*100/$TOTAL}")%)"
+                echo "  Remote CCX diff node:${EXT_REMOTE:-0}  ($(awk "BEGIN{printf \"%.1f\", ${EXT_REMOTE:-0}*100/$TOTAL}")%)"
+                echo "  Local DRAM:          ${MEM_LOCAL:-0}  ($(awk "BEGIN{printf \"%.1f\", ${MEM_LOCAL:-0}*100/$TOTAL}")%)"
+                echo "  Remote DRAM:         ${MEM_REMOTE:-0}  ($(awk "BEGIN{printf \"%.1f\", ${MEM_REMOTE:-0}*100/$TOTAL}")%)"
+                echo "  ---"
+                REMOTE_TOTAL=$(( ${EXT_REMOTE:-0} + ${MEM_REMOTE:-0} ))
+                echo "  Remote fill ratio:   $(awk "BEGIN{printf \"%.1f\", $REMOTE_TOTAL*100/$TOTAL}")%"
+                echo "  Total fills:         $TOTAL"
+            fi
         fi
     } | tee "$STATS_FILE"
 
