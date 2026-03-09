@@ -1,0 +1,15 @@
+# started on Mon Mar  9 11:10:37 2026
+
+24209100134,,ls_dmnd_fills_from_sys.lcl_l2,26338075015718,41.00,,
+10978798057,,ls_dmnd_fills_from_sys.int_cache,26337105336943,41.00,,
+1424502303,,ls_dmnd_fills_from_sys.ext_cache_local,26336329893196,41.00,,
+2623455458,,ls_dmnd_fills_from_sys.ext_cache_remote,26335477494139,41.00,,
+38970927867,,ls_dmnd_fills_from_sys.mem_io_local,26334698067071,41.00,,
+77360569196,,ls_dmnd_fills_from_sys.mem_io_remote,26333776191505,41.00,,
+174871888566669,,cycles,26333024650078,41.00,,
+3511997074950,,instructions,26332712523363,41.00,0.02,insn per cycle
+,,,,,0.32,stalled cycles per insn
+91664702495,,l2_dtlb_misses,26332068909015,41.00,,
+96784553604,,ls_tablewalker.dside,26331851153630,41.00,,
+113460437366,,ls_tablewalker.iside,26331329022956,41.00,,
+1139489617437,,stalled-cycles-backend,26331234283804,41.00,0.65,backend cycles idle
