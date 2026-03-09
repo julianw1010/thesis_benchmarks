@@ -11,6 +11,7 @@
 #include <stdatomic.h>
 #include <signal.h>
 #include <math.h>
+#include <stdint.h>
 
 #define HOT_DURATION_MS   5000
 #define COLD_DURATION_MS  5000
