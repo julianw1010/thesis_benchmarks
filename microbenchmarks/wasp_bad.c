@@ -11,11 +11,10 @@
 #include <stdatomic.h>
 #include <signal.h>
 #include <math.h>
-#include <stdint.h>
 
 #define HOT_DURATION_MS   5000
 #define COLD_DURATION_MS  5000
-#define REGION_SIZE       (512UL * 1024 * 1024)
+#define REGION_SIZE       (100UL * 1024 * 1024 * 1024)
 #define NUM_THREADS       4
 #define STRIDE            4096
 #define BATCH             256
@@ -105,9 +104,9 @@ static void print_summary(int num_cycles) {
     printf("Stddev:           %.2f Mops/s\n", sd / 1e6);
     printf("CoV:              %.1f%%\n", cv);
     printf("Mode:             %s\n", baseline_mode ? "BASELINE (hot only)" : "OSCILLATING");
-    printf("Config:           hot=%dms cold=%dms threads=%d region=%luMB\n",
+    printf("Config:           hot=%dms cold=%dms threads=%d region=%luGB\n",
            HOT_DURATION_MS, COLD_DURATION_MS, NUM_THREADS,
-           REGION_SIZE / (1024 * 1024));
+           REGION_SIZE / (1024UL * 1024 * 1024));
 }
 
 int main(int argc, char *argv[]) {
@@ -131,20 +130,26 @@ int main(int argc, char *argv[]) {
     signal(SIGTERM, sighandler);
 
     region = mmap(NULL, REGION_SIZE, PROT_READ | PROT_WRITE,
-                  MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE, -1, 0);
+                  MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (region == MAP_FAILED) {
         perror("mmap");
         return 1;
     }
-    memset((void *)region, 0xAB, REGION_SIZE);
+
+    printf("faulting in %lu GB...\n", REGION_SIZE / (1024UL * 1024 * 1024));
+    fflush(stdout);
+    for (size_t off = 0; off < REGION_SIZE; off += STRIDE)
+        ((volatile char *)region)[off] = 0xAB;
+    printf("fault-in complete\n");
+    fflush(stdout);
 
     pthread_t threads[NUM_THREADS];
     for (int i = 0; i < NUM_THREADS; i++)
         pthread_create(&threads[i], NULL, worker, (void *)(long)i);
 
-    printf("PID %d — %s mode, %d cycles, %d threads, %lu MB region\n",
+    printf("PID %d — %s mode, %d cycles, %d threads, %lu GB region\n",
            getpid(), baseline_mode ? "baseline" : "oscillating",
-           max_cycles, NUM_THREADS, REGION_SIZE / (1024 * 1024));
+           max_cycles, NUM_THREADS, REGION_SIZE / (1024UL * 1024 * 1024));
 
     for (int c = 0; c < max_cycles && atomic_load(&running); c++) {
         cycle_stats_t *s = &cycles[c];
