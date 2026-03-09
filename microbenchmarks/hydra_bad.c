@@ -14,7 +14,7 @@
 #define PAGE_SIZE 4096
 #define PAGES_PER_REGION (256 * 1024)
 #define REGION_SIZE ((size_t)PAGES_PER_REGION * PAGE_SIZE)
-#define ITERATIONS 3
+#define ITERATIONS 1
 #define RANDOM_READS_PER_ITER (PAGES_PER_REGION * 2)
 
 static int num_nodes;
