@@ -206,7 +206,7 @@ for ((i=start; i<=max_index; i++)); do
     PERF_PID=""
 
     echo "Starting system-wide perf stat..."
-    (trap - INT; exec perf stat -a -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt") 2>"$PERF_ERR" &
+    (trap - INT; exec perf stat -p $BENCH_PID -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt") 2>"$PERF_ERR" &
     PERF_PID=$!
 
     sleep 0.2
