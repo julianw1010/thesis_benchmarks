@@ -65,6 +65,7 @@ fi
 BENCH_READY="/tmp/alloctest-bench.ready"
 BENCH_FLUSHED="/tmp/alloctest-bench.flushed"
 BENCH_DONE="/tmp/alloctest-bench.done"
+BENCH_STATS_CAPTURED="/tmp/alloctest-bench.stats_captured"
 BENCH_PID_FILE="/tmp/alloctest-bench.pid"
 
 # Detect cache interface
@@ -271,7 +272,7 @@ process_ibs_data() {
 for ((i=start; i<=max_index; i++)); do
     echo "=== Running iteration=$i ==="
 
-    rm -f "$BENCH_READY" "$BENCH_FLUSHED" "$BENCH_DONE" "$BENCH_PID_FILE"
+    rm -f "$BENCH_READY" "$BENCH_FLUSHED" "$BENCH_DONE" "$BENCH_STATS_CAPTURED" "$BENCH_PID_FILE"
 
     # Reset history
     echo -1 | sudo tee $history_interface > /dev/null
@@ -422,7 +423,8 @@ for ((i=start; i<=max_index; i++)); do
         # so that exit_mmap will record teardown-only stats
         echo -1 | sudo tee ${history_interface%/*}/snapshot > /dev/null 2>&1
         cat $history_interface > "${output_folder}/history_sim_${prefix}${i}.txt"
-        echo "Simulation stats captured, waiting for teardown..."
+        echo "Simulation stats captured, releasing benchmark for teardown..."
+        touch "$BENCH_STATS_CAPTURED"
     fi
 
     # Wait for full process exit (teardown phase)
