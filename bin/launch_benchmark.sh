@@ -373,10 +373,13 @@ for ((i=start; i<=max_index; i++)); do
         #   -W                   record weight (load latency in cycles)
         #   -d                   record data addresses (for c2c analysis)
         #   --phys-data          record physical addresses (for NUMA node attribution)
+        # Use frequency-based sampling: 97 samples/sec per thread
+        # With 128 threads: ~12K samples/sec total → ~5M samples over 400s
+        # Data file: ~200-400 MB (manageable)
         (trap - INT; exec perf record \
             -e "$IBS_EVENT" \
             -p $BENCH_PID \
-            -c 100000 \
+            -F 97 \
             --sample-cpu \
             -W \
             -d \
