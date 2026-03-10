@@ -37,7 +37,7 @@ if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
     # IBS configuration
     # cnt_ctl=1: count cycles (not dispatched ops), gives time-based sampling
     # val=100000: sample roughly every 100K cycles (~1 sample per 36us at 2.8GHz)
-    IBS_EVENT="ibs_op/cnt_ctl=1,val=100000/"
+    IBS_EVENT="ibs_op/cnt_ctl=1/"
     IBS_ENABLED=1
     echo "IBS event: $IBS_EVENT"
 
