@@ -23,18 +23,6 @@ echo "Detected CPU: $CPU_MODEL"
 
 NUM_CPUS=$(nproc)
 
-# Determine reset interface based on kernel version
-KERNEL_VERSION=$(uname -r)
-if [[ "$KERNEL_VERSION" == *"wasp"* ]]; then
-    reset_interface="/proc/mitosis/reset"
-elif [[ "$KERNEL_VERSION" == *"hydra"* ]]; then
-    reset_interface="/proc/hydra/reset"
-else
-    echo "Error: uname -r ('$KERNEL_VERSION') contains neither 'wasp' nor 'hydra'"
-    exit 1
-fi
-echo "Using reset interface: $reset_interface"
-
 # Determine perf events based on CPU
 if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
     PROFILE_MODE="amd_perf"
@@ -172,12 +160,8 @@ for ((i=start; i<=max_index; i++)); do
     sync
     echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
 
-    # Reset replication state before the benchmark proceeds
-    echo "Resetting replication state via $reset_interface..."
-    echo 1 | sudo tee "$reset_interface" > /dev/null
-
     touch "$BENCH_FLUSHED"
-    echo "Caches flushed, replication reset, benchmark signaled to proceed"
+    echo "Caches flushed, benchmark signaled to proceed"
 
     if [[ ! -f "$BENCH_PID_FILE" ]]; then
         echo "ERROR: Benchmark did not write PID file"
