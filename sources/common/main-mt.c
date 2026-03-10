@@ -273,13 +273,25 @@ int main(int argc, char *argv[])
     fprintf(opt_file_out, "</run>\n");
 
     FILE *fd3 = fopen(CONFIG_SHM_FILE_NAME ".done", "w");
-
     if (fd3 == NULL) {
         fprintf (stderr, "ERROR: could not create the shared memory file descriptor\n");
         exit(-1);
     }
+    fclose(fd3);
 
-    usleep(250);
+    /* Wait for stats to be captured before teardown */
+    {
+        const char *stats_path = CONFIG_SHM_FILE_NAME ".stats_captured";
+        int waited = 0;
+        while (access(stats_path, F_OK) != 0) {
+            usleep(10000); /* 10ms */
+            waited++;
+            if (waited > 3000) { /* 30s timeout */
+                fprintf(stderr, "WARNING: timed out waiting for stats capture\n");
+                break;
+            }
+        }
+    }
 
     gettimeofday(&tend, NULL);
     printf("Took: %zu.%03zu\n", tend.tv_sec - tstart.tv_sec, 
