@@ -409,7 +409,25 @@ for ((i=start; i<=max_index; i++)); do
         IBS_ENABLED_THIS_RUN=0
     fi
 
-    echo "Waiting for benchmark to complete..."
+    echo "Waiting for simulation to complete..."
+
+    # Wait for BENCH_DONE (simulation finished, teardown not yet started)
+    while [[ ! -f "$BENCH_DONE" ]]; do
+        if ! kill -0 $SCRIPT_PID 2>/dev/null; then
+            echo "WARNING: Benchmark exited before writing DONE file"
+            break
+        fi
+        sleep 0.1
+    done
+
+    if [[ -f "$BENCH_DONE" ]]; then
+        echo "Simulation complete — snapshotting simulation-only stats"
+        cat $history_interface > "${output_folder}/history_sim_${prefix}${i}.txt"
+        echo 1 | sudo tee ${history_interface%/*}/reset > /dev/null 2>&1
+        echo "Stats reset, waiting for process teardown..."
+    fi
+
+    # Now wait for full process exit (teardown)
     wait $SCRIPT_PID
     BENCH_EXIT_CODE=$?
 
@@ -533,7 +551,10 @@ for ((i=start; i<=max_index; i++)); do
         } >> "$STATS_FILE"
     fi
 
-    # Save history
+    # Save teardown-only history (stats were reset after simulation)
+    cat $history_interface > "${output_folder}/history_teardown_${prefix}${i}.txt"
+
+    # Also save combined history for backwards compatibility
     cat $history_interface > "${output_folder}/history_${prefix}${i}.txt"
 
     if [[ $BENCH_CRASHED -eq 1 ]]; then
