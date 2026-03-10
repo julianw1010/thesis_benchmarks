@@ -302,10 +302,6 @@ for ((i=start; i<=max_index; i++)); do
     sync
     echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
 
-    # Reset Hydra/Mitosis stats so history only captures the simulation phase
-    echo 1 | sudo tee ${history_interface%/*}/reset > /dev/null 2>&1
-    echo "Page table stats reset (simulation-only measurement)"
-
     touch "$BENCH_FLUSHED"
     echo "Caches flushed, benchmark signaled to proceed"
 
@@ -422,18 +418,19 @@ for ((i=start; i<=max_index; i++)); do
 
     if [[ -f "$BENCH_DONE" ]]; then
         echo "Simulation complete — snapshotting simulation-only stats"
+        # Snapshot live stats into history AND reset counters (-1)
+        # so that exit_mmap will record teardown-only stats
+        echo -1 | sudo tee ${history_interface%/*}/snapshot > /dev/null 2>&1
         cat $history_interface > "${output_folder}/history_sim_${prefix}${i}.txt"
-        echo 1 | sudo tee ${history_interface%/*}/reset > /dev/null 2>&1
-        echo "Stats reset, waiting for process teardown..."
+        echo "Simulation stats captured, waiting for teardown..."
     fi
 
-    # Now wait for full process exit (teardown)
+    # Wait for full process exit (teardown phase)
     wait $SCRIPT_PID
     BENCH_EXIT_CODE=$?
 
     DURATION=$SECONDS
 
-    # Check if benchmark signaled completion properly
     if [[ ! -f "$BENCH_DONE" ]]; then
         echo "WARNING: Benchmark exited without writing DONE file (exit code: $BENCH_EXIT_CODE)"
         BENCH_CRASHED=1
@@ -551,10 +548,9 @@ for ((i=start; i<=max_index; i++)); do
         } >> "$STATS_FILE"
     fi
 
-    # Save teardown-only history (stats were reset after simulation)
+    # Save teardown-only history (counters were reset after simulation snapshot)
     cat $history_interface > "${output_folder}/history_teardown_${prefix}${i}.txt"
-
-    # Also save combined history for backwards compatibility
+    # Also save as history_ for backwards compatibility
     cat $history_interface > "${output_folder}/history_${prefix}${i}.txt"
 
     if [[ $BENCH_CRASHED -eq 1 ]]; then
