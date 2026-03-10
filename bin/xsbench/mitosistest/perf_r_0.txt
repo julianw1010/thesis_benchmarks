@@ -1,15 +1,15 @@
-# started on Tue Mar 10 12:12:55 2026
+# started on Tue Mar 10 16:10:54 2026
 
-22881047537,,ls_dmnd_fills_from_sys.lcl_l2,22488920938450,41.00,,
-11774404754,,ls_dmnd_fills_from_sys.int_cache,22486516799728,41.00,,
-1330416662,,ls_dmnd_fills_from_sys.ext_cache_local,22485879281971,41.00,,
-3209863475,,ls_dmnd_fills_from_sys.ext_cache_remote,22483650218619,41.00,,
-34967294656,,ls_dmnd_fills_from_sys.mem_io_local,22482296138855,41.00,,
-83875193643,,ls_dmnd_fills_from_sys.mem_io_remote,22479819859938,41.00,,
-149472348571526,,cycles,22478026527000,41.00,,
-3455865577381,,instructions,22477205910785,41.00,0.02,insn per cycle
-,,,,,0.32,stalled cycles per insn
-94866809484,,l2_dtlb_misses,22476463136455,41.00,,
-99704841092,,ls_tablewalker.dside,22475369043209,41.00,,
-116835974035,,ls_tablewalker.iside,22474970031804,41.00,,
-1094163847092,,stalled-cycles-backend,22474221943788,41.00,0.73,backend cycles idle
+3122507659,,ls_dmnd_fills_from_sys.lcl_l2,2292074461289,41.00,,
+2574682584,,ls_dmnd_fills_from_sys.int_cache,2289914816307,41.00,,
+135112527,,ls_dmnd_fills_from_sys.ext_cache_local,2287897228131,41.00,,
+313025892,,ls_dmnd_fills_from_sys.ext_cache_remote,2286193642135,41.00,,
+3541249679,,ls_dmnd_fills_from_sys.mem_io_local,2283325070028,41.00,,
+8178038342,,ls_dmnd_fills_from_sys.mem_io_remote,2281550425947,41.00,,
+15014997043999,,cycles,2279461148434,41.00,,
+439785675299,,instructions,2278874336342,41.00,0.03,insn per cycle
+,,,,,0.48,stalled cycles per insn
+9240301732,,l2_dtlb_misses,2278288551440,41.00,,
+9958768900,,ls_tablewalker.dside,2278023999336,41.00,,
+11732650842,,ls_tablewalker.iside,2277689552264,41.00,,
+210639669502,,stalled-cycles-backend,2277343088411,41.00,1.40,backend cycles idle

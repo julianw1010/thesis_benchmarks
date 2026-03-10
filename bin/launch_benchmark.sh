@@ -146,124 +146,126 @@ process_ibs_data() {
     size_mb=$(du -m "$perf_data" | cut -f1)
     echo "IBS data file: ${size_mb} MB"
 
-    # 1. Top symbols by sample count
+    # 1. Primary analysis: perf mem report — decodes data_src into human-readable
+    #    memory levels (L1 hit, LFB hit, L3 hit, Local RAM, Remote RAM, etc.)
+    #    THIS IS THE KEY COMPARISON between Mitosis and Hydra
+    echo "  Generating memory access source report (perf mem report)..."
+    perf mem report -i "$perf_data" --stdio --sort=mem,sym \
+        > "${output_prefix}_mem_report.txt" 2>/dev/null
+
+    # 2. Memory source summary — aggregate by memory level only
+    echo "  Generating memory source summary..."
+    perf mem report -i "$perf_data" --stdio --sort=mem \
+        > "${output_prefix}_mem_summary.txt" 2>/dev/null
+    echo "--- Memory Access Source Summary ---"
+    head -30 "${output_prefix}_mem_summary.txt"
+
+    # 3. Top symbols by sample count
     echo "  Generating top symbols report..."
     perf report -i "$perf_data" --stdio --no-children \
         --sort=dso,symbol --percent-limit=0.5 \
         > "${output_prefix}_symbols.txt" 2>/dev/null
 
-    # 2. Raw script output with data_src and weight (latency) fields
-    #    data_src encodes: cache level, NUMA node, snoop result
-    #    weight = measured load latency in cycles
-    echo "  Extracting per-sample data source + latency..."
+    # 4. Extract raw script data with all fields
+    echo "  Extracting per-sample raw data..."
     perf script -i "$perf_data" \
-        -F pid,tid,cpu,time,event,ip,sym,dso,addr,phys_addr,data_src,weight \
+        -F pid,cpu,addr,data_src,weight,ip,sym,phys_addr \
         > "${output_prefix}_script_raw.txt" 2>/dev/null
 
-    # 3. Memory access latency histogram
-    #    weight field = actual measured latency per sampled op
-    echo "  Building latency histogram..."
-    awk -F'[ \t]+' '
-    /weight:/ {
-        for (i=1; i<=NF; i++) {
-            if ($i ~ /^weight:/) {
-                split($i, a, ":");
-                w = a[2] + 0;
-                if (w > 0) {
-                    total++;
-                    sum += w;
-                    if      (w <= 10)   bucket["0-10"]++;
-                    else if (w <= 50)   bucket["11-50"]++;
-                    else if (w <= 100)  bucket["51-100"]++;
-                    else if (w <= 200)  bucket["101-200"]++;
-                    else if (w <= 500)  bucket["201-500"]++;
-                    else if (w <= 1000) bucket["501-1000"]++;
-                    else                bucket["1001+"]++;
-                }
-            }
+    # 5. Latency histogram from weight field
+    #    In perf script -F output, weight is a positional numeric field
+    #    Format: PID [CPU] ADDR DATA_SRC_HEX |decoded...| WEIGHT IP SYM PHYS
+    echo "  Building latency histogram from IBS weights..."
+    awk '
+    /\|OP LOAD\|/ {
+        # Find weight: it is the number right after the decoded data_src "|...|" block
+        # and before the IP address (hex starting with a letter or digit)
+        match($0, /BLK  N\/A[[:space:]]+([0-9]+)/, m);
+        if (m[1] != "") {
+            w = m[1] + 0;
+            total++;
+            sum += w;
+            if      (w == 0)    bucket["0 (L1)"]++;
+            else if (w <= 50)   bucket["1-50"]++;
+            else if (w <= 100)  bucket["51-100"]++;
+            else if (w <= 200)  bucket["101-200"]++;
+            else if (w <= 500)  bucket["201-500"]++;
+            else if (w <= 1000) bucket["501-1000"]++;
+            else                bucket["1001+"]++;
         }
     }
     END {
         if (total > 0) {
-            printf "Load Latency Histogram (cycles)\n";
-            printf "================================\n";
+            printf "IBS Load Latency Histogram (cycles, LOAD ops only)\n";
+            printf "===================================================\n";
             printf "  %-12s %10s %6s\n", "Range", "Count", "%";
-            printf "  %-12s %10d %5.1f%%\n", "0-10",      bucket["0-10"]+0,      (bucket["0-10"]+0)*100/total;
-            printf "  %-12s %10d %5.1f%%\n", "11-50",     bucket["11-50"]+0,     (bucket["11-50"]+0)*100/total;
-            printf "  %-12s %10d %5.1f%%\n", "51-100",    bucket["51-100"]+0,    (bucket["51-100"]+0)*100/total;
-            printf "  %-12s %10d %5.1f%%\n", "101-200",   bucket["101-200"]+0,   (bucket["101-200"]+0)*100/total;
-            printf "  %-12s %10d %5.1f%%\n", "201-500",   bucket["201-500"]+0,   (bucket["201-500"]+0)*100/total;
-            printf "  %-12s %10d %5.1f%%\n", "501-1000",  bucket["501-1000"]+0,  (bucket["501-1000"]+0)*100/total;
-            printf "  %-12s %10d %5.1f%%\n", "1001+",     bucket["1001+"]+0,     (bucket["1001+"]+0)*100/total;
+            order[1]="0 (L1)"; order[2]="1-50"; order[3]="51-100";
+            order[4]="101-200"; order[5]="201-500"; order[6]="501-1000"; order[7]="1001+";
+            for (i=1; i<=7; i++) {
+                k = order[i];
+                printf "  %-12s %10d %5.1f%%\n", k, bucket[k]+0, (bucket[k]+0)*100/total;
+            }
             printf "  ---\n";
-            printf "  Total samples: %d, Mean latency: %.1f cycles\n", total, sum/total;
+            printf "  Total LOAD samples: %d\n", total;
+            if (total > 0) printf "  Mean latency: %.1f cycles\n", sum/total;
         } else {
-            printf "No latency data found (weight field may not be populated)\n";
+            printf "No LOAD samples with weight data found.\n";
         }
     }' "${output_prefix}_script_raw.txt" > "${output_prefix}_latency_hist.txt"
     cat "${output_prefix}_latency_hist.txt"
 
-    # 4. Data source breakdown (where loads were served from)
-    #    Uses perf mem report which decodes data_src into human-readable form
-    echo "  Generating memory access source report..."
-    perf mem report -i "$perf_data" --stdio --sort=mem,sym \
-        --percent-limit=0.5 \
-        > "${output_prefix}_mem_report.txt" 2>/dev/null
-
-    # 5. NUMA locality summary from data_src field
-    #    Extract snoop/cache level info from raw script
-    echo "  Analyzing NUMA locality from data_src..."
+    # 6. Memory level breakdown from decoded data_src
+    echo "  Counting memory levels from decoded data_src..."
     awk '
-    /data_src:/ {
-        for (i=1; i<=NF; i++) {
-            if ($i ~ /^data_src:/) {
-                split($i, a, ":");
-                ds = strtonum(a[2]);
-                total++;
-
-                # Decode data_src bit fields (AMD IBS encoding)
-                # Bits 0-3:   mem_op (load=1, store=2)
-                # Bits 7-12:  mem_lvl (L1=1, LFB=2, L2=4, L3=8, Local DRAM=16, Remote DRAM1=32, Remote DRAM2=64)
-                # Bits 13-16: mem_snoop (None=1, Hit=2, Miss=4, HitM=8)
-                # Bits 21-22: mem_lock
-                # Bits 24-25: mem_dtlb (L1=1, L2=2, Miss=4)
-                # Bits 29-30: mem_lvl_num (more precise)
-                # Bits 33-36: mem_remote (same_node=1, remote_node1=2, remote_node2=4)
-
-                # Simplified: just count everything
-                src_counts[ds]++;
-            }
-        }
+    /\|OP LOAD\|/ {
+        total++;
+        if      (/LVL L1 hit/)                          lvl["L1 hit"]++;
+        else if (/LVL LFB/)                             lvl["LFB/MAB hit"]++;
+        else if (/LVL L2 hit/)                          lvl["L2 hit"]++;
+        else if (/LVL L3 or Remote Cache \(1 hop\)/)    lvl["L3/Remote Cache (1 hop)"]++;
+        else if (/LVL Remote Cache \(2 hops\)/)         lvl["Remote Cache (2 hops)"]++;
+        else if (/LVL Local RAM/)                       lvl["Local RAM"]++;
+        else if (/LVL Remote RAM \(1 hop\)/)            lvl["Remote RAM (1 hop)"]++;
+        else if (/LVL Remote RAM \(2 hops\)/)           lvl["Remote RAM (2 hops)"]++;
+        else if (/LVL N\/A/)                            lvl["N/A (non-mem op)"]++;
+        else                                            lvl["Other"]++;
     }
     END {
-        printf "Data source distribution (top 20 raw data_src values):\n";
-        n = asorti(src_counts, sorted, "@val_num_desc");
-        for (i=1; i<=n && i<=20; i++) {
-            printf "  data_src=0x%x: %d samples (%.1f%%)\n", sorted[i], src_counts[sorted[i]], src_counts[sorted[i]]*100/total;
+        if (total > 0) {
+            printf "IBS Load Data Source Breakdown\n";
+            printf "==============================\n";
+            # Print in order from fastest to slowest
+            order[1]="L1 hit"; order[2]="LFB/MAB hit"; order[3]="L2 hit";
+            order[4]="L3/Remote Cache (1 hop)"; order[5]="Remote Cache (2 hops)";
+            order[6]="Local RAM"; order[7]="Remote RAM (1 hop)"; order[8]="Remote RAM (2 hops)";
+            order[9]="N/A (non-mem op)"; order[10]="Other";
+            for (i=1; i<=10; i++) {
+                k = order[i];
+                if ((k in lvl) && lvl[k] > 0)
+                    printf "  %-30s %10d  (%5.1f%%)\n", k, lvl[k], lvl[k]*100/total;
+            }
+            printf "  ---\n";
+            printf "  Total LOAD samples: %d\n", total;
+
+            remote = (lvl["Remote RAM (1 hop)"]+0) + (lvl["Remote RAM (2 hops)"]+0) + (lvl["Remote Cache (2 hops)"]+0);
+            local_mem = (lvl["Local RAM"]+0);
+            mem_total = remote + local_mem;
+            if (mem_total > 0)
+                printf "  Remote memory ratio (of DRAM accesses): %.1f%%\n", remote*100/mem_total;
+        } else {
+            printf "No LOAD samples found.\n";
         }
-        printf "  Total: %d samples\n", total;
-    }' "${output_prefix}_script_raw.txt" > "${output_prefix}_datasrc.txt" 2>/dev/null
+    }' "${output_prefix}_script_raw.txt" > "${output_prefix}_datasrc.txt"
     cat "${output_prefix}_datasrc.txt"
-
-    # 6. perf c2c style analysis (cache-line contention)
-    #    This is the most directly useful report for the Mitosis vs Hydra comparison
-    echo "  Running c2c (cache contention) analysis..."
-    perf c2c report -i "$perf_data" --stdio --stats \
-        > "${output_prefix}_c2c_stats.txt" 2>/dev/null
-
-    perf c2c report -i "$perf_data" --stdio \
-        --percent-limit=0.1 \
-        > "${output_prefix}_c2c_full.txt" 2>/dev/null
 
     echo "  IBS post-processing complete."
     echo "  Reports:"
-    echo "    ${output_prefix}_symbols.txt      - Top functions by sample count"
+    echo "    ${output_prefix}_mem_summary.txt   - Memory source summary (KEY FILE)"
+    echo "    ${output_prefix}_mem_report.txt    - Memory source per symbol"
+    echo "    ${output_prefix}_symbols.txt       - Top functions by sample count"
     echo "    ${output_prefix}_latency_hist.txt  - Load latency distribution"
-    echo "    ${output_prefix}_mem_report.txt    - Memory access source report"
-    echo "    ${output_prefix}_datasrc.txt       - Raw data_src breakdown"
-    echo "    ${output_prefix}_c2c_stats.txt     - Cache contention summary"
-    echo "    ${output_prefix}_c2c_full.txt      - Cache contention detail"
-    echo "    ${output_prefix}_script_raw.txt    - Raw per-sample data (large)"
+    echo "    ${output_prefix}_datasrc.txt       - Memory level breakdown"
+    echo "    ${output_prefix}_script_raw.txt    - Raw per-sample data"
 }
 
 for ((i=start; i<=max_index; i++)); do
@@ -516,10 +518,13 @@ for ((i=start; i<=max_index; i++)); do
         # Append IBS summary to stats file
         {
             echo ""
+            echo "=== IBS Memory Source Summary ==="
+            head -30 "${IBS_REPORT_PREFIX}_mem_summary.txt" 2>/dev/null
+            echo ""
             echo "=== IBS Latency Histogram ==="
             cat "${IBS_REPORT_PREFIX}_latency_hist.txt" 2>/dev/null
             echo ""
-            echo "=== IBS Data Source Summary ==="
+            echo "=== IBS Data Source Breakdown ==="
             cat "${IBS_REPORT_PREFIX}_datasrc.txt" 2>/dev/null
         } >> "$STATS_FILE"
     fi
