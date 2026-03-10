@@ -28,17 +28,22 @@ if [[ "$CPU_MODEL" == *"EPYC"* ]] || [[ "$CPU_MODEL" == *"Ryzen"* ]]; then
     PROFILE_MODE="amd_perf"
     echo "AMD CPU detected"
 
-    # Group 1: Data cache fills by source (the key mitosis metric)
-    # Group 2: TLB misses, page walks, cycles, instructions
-    # Split into two groups to minimize multiplexing on 6 PMC counters
     PERF_EVENTS_G1="ls_dmnd_fills_from_sys.lcl_l2,ls_dmnd_fills_from_sys.int_cache,ls_dmnd_fills_from_sys.ext_cache_local,ls_dmnd_fills_from_sys.ext_cache_remote,ls_dmnd_fills_from_sys.mem_io_local,ls_dmnd_fills_from_sys.mem_io_remote"
     PERF_EVENTS_G2="cycles,instructions,l2_dtlb_misses,ls_tablewalker.dside,ls_tablewalker.iside,stalled-cycles-backend"
 
     PERF_EVENTS="${PERF_EVENTS_G1},${PERF_EVENTS_G2}"
     echo "Perf events: $PERF_EVENTS"
 
+    # IBS configuration
+    # cnt_ctl=1: count cycles (not dispatched ops), gives time-based sampling
+    # val=100000: sample roughly every 100K cycles (~1 sample per 36us at 2.8GHz)
+    IBS_EVENT="ibs_op/cnt_ctl=1,val=100000/"
+    IBS_ENABLED=1
+    echo "IBS event: $IBS_EVENT"
+
 elif [[ "$CPU_MODEL" == *"Xeon"* ]] || [[ "$CPU_MODEL" == *"Intel"* ]]; then
     PROFILE_MODE="intel_perf"
+    IBS_ENABLED=0
 
     if perf list | grep -q 'dtlb_load_misses.walk_active'; then
         echo "Detected Skylake+ microarchitecture"
@@ -53,6 +58,7 @@ else
     echo "Warning: Unknown CPU model, using generic perf counters"
     PROFILE_MODE="generic"
     PERF_EVENTS="cycles"
+    IBS_ENABLED=0
 fi
 
 # Benchmark synchronization files
@@ -124,6 +130,140 @@ stop_perf() {
     echo "ERROR: perf (PID $pid) did not exit after ${timeout}s on SIGINT. Aborting."
     echo "       Manual intervention required: kill -INT $pid"
     exit 1
+}
+
+# Post-process IBS data into human-readable reports
+process_ibs_data() {
+    local perf_data="$1"
+    local output_prefix="$2"
+
+    if [[ ! -f "$perf_data" ]]; then
+        echo "WARNING: IBS perf.data not found at $perf_data"
+        return
+    fi
+
+    local size_mb
+    size_mb=$(du -m "$perf_data" | cut -f1)
+    echo "IBS data file: ${size_mb} MB"
+
+    # 1. Top symbols by sample count
+    echo "  Generating top symbols report..."
+    perf report -i "$perf_data" --stdio --no-children \
+        --sort=dso,symbol --percent-limit=0.5 \
+        > "${output_prefix}_symbols.txt" 2>/dev/null
+
+    # 2. Raw script output with data_src and weight (latency) fields
+    #    data_src encodes: cache level, NUMA node, snoop result
+    #    weight = measured load latency in cycles
+    echo "  Extracting per-sample data source + latency..."
+    perf script -i "$perf_data" \
+        -F pid,tid,cpu,time,event,ip,sym,dso,addr,phys_addr,data_src,weight \
+        > "${output_prefix}_script_raw.txt" 2>/dev/null
+
+    # 3. Memory access latency histogram
+    #    weight field = actual measured latency per sampled op
+    echo "  Building latency histogram..."
+    awk -F'[ \t]+' '
+    /weight:/ {
+        for (i=1; i<=NF; i++) {
+            if ($i ~ /^weight:/) {
+                split($i, a, ":");
+                w = a[2] + 0;
+                if (w > 0) {
+                    total++;
+                    sum += w;
+                    if      (w <= 10)   bucket["0-10"]++;
+                    else if (w <= 50)   bucket["11-50"]++;
+                    else if (w <= 100)  bucket["51-100"]++;
+                    else if (w <= 200)  bucket["101-200"]++;
+                    else if (w <= 500)  bucket["201-500"]++;
+                    else if (w <= 1000) bucket["501-1000"]++;
+                    else                bucket["1001+"]++;
+                }
+            }
+        }
+    }
+    END {
+        if (total > 0) {
+            printf "Load Latency Histogram (cycles)\n";
+            printf "================================\n";
+            printf "  %-12s %10s %6s\n", "Range", "Count", "%";
+            printf "  %-12s %10d %5.1f%%\n", "0-10",      bucket["0-10"]+0,      (bucket["0-10"]+0)*100/total;
+            printf "  %-12s %10d %5.1f%%\n", "11-50",     bucket["11-50"]+0,     (bucket["11-50"]+0)*100/total;
+            printf "  %-12s %10d %5.1f%%\n", "51-100",    bucket["51-100"]+0,    (bucket["51-100"]+0)*100/total;
+            printf "  %-12s %10d %5.1f%%\n", "101-200",   bucket["101-200"]+0,   (bucket["101-200"]+0)*100/total;
+            printf "  %-12s %10d %5.1f%%\n", "201-500",   bucket["201-500"]+0,   (bucket["201-500"]+0)*100/total;
+            printf "  %-12s %10d %5.1f%%\n", "501-1000",  bucket["501-1000"]+0,  (bucket["501-1000"]+0)*100/total;
+            printf "  %-12s %10d %5.1f%%\n", "1001+",     bucket["1001+"]+0,     (bucket["1001+"]+0)*100/total;
+            printf "  ---\n";
+            printf "  Total samples: %d, Mean latency: %.1f cycles\n", total, sum/total;
+        } else {
+            printf "No latency data found (weight field may not be populated)\n";
+        }
+    }' "${output_prefix}_script_raw.txt" > "${output_prefix}_latency_hist.txt"
+    cat "${output_prefix}_latency_hist.txt"
+
+    # 4. Data source breakdown (where loads were served from)
+    #    Uses perf mem report which decodes data_src into human-readable form
+    echo "  Generating memory access source report..."
+    perf mem report -i "$perf_data" --stdio --sort=mem,sym \
+        --percent-limit=0.5 \
+        > "${output_prefix}_mem_report.txt" 2>/dev/null
+
+    # 5. NUMA locality summary from data_src field
+    #    Extract snoop/cache level info from raw script
+    echo "  Analyzing NUMA locality from data_src..."
+    awk '
+    /data_src:/ {
+        for (i=1; i<=NF; i++) {
+            if ($i ~ /^data_src:/) {
+                split($i, a, ":");
+                ds = strtonum(a[2]);
+                total++;
+
+                # Decode data_src bit fields (AMD IBS encoding)
+                # Bits 0-3:   mem_op (load=1, store=2)
+                # Bits 7-12:  mem_lvl (L1=1, LFB=2, L2=4, L3=8, Local DRAM=16, Remote DRAM1=32, Remote DRAM2=64)
+                # Bits 13-16: mem_snoop (None=1, Hit=2, Miss=4, HitM=8)
+                # Bits 21-22: mem_lock
+                # Bits 24-25: mem_dtlb (L1=1, L2=2, Miss=4)
+                # Bits 29-30: mem_lvl_num (more precise)
+                # Bits 33-36: mem_remote (same_node=1, remote_node1=2, remote_node2=4)
+
+                # Simplified: just count everything
+                src_counts[ds]++;
+            }
+        }
+    }
+    END {
+        printf "Data source distribution (top 20 raw data_src values):\n";
+        n = asorti(src_counts, sorted, "@val_num_desc");
+        for (i=1; i<=n && i<=20; i++) {
+            printf "  data_src=0x%x: %d samples (%.1f%%)\n", sorted[i], src_counts[sorted[i]], src_counts[sorted[i]]*100/total;
+        }
+        printf "  Total: %d samples\n", total;
+    }' "${output_prefix}_script_raw.txt" > "${output_prefix}_datasrc.txt" 2>/dev/null
+    cat "${output_prefix}_datasrc.txt"
+
+    # 6. perf c2c style analysis (cache-line contention)
+    #    This is the most directly useful report for the Mitosis vs Hydra comparison
+    echo "  Running c2c (cache contention) analysis..."
+    perf c2c report -i "$perf_data" --stdio --stats \
+        > "${output_prefix}_c2c_stats.txt" 2>/dev/null
+
+    perf c2c report -i "$perf_data" --stdio \
+        --percent-limit=0.1 \
+        > "${output_prefix}_c2c_full.txt" 2>/dev/null
+
+    echo "  IBS post-processing complete."
+    echo "  Reports:"
+    echo "    ${output_prefix}_symbols.txt      - Top functions by sample count"
+    echo "    ${output_prefix}_latency_hist.txt  - Load latency distribution"
+    echo "    ${output_prefix}_mem_report.txt    - Memory access source report"
+    echo "    ${output_prefix}_datasrc.txt       - Raw data_src breakdown"
+    echo "    ${output_prefix}_c2c_stats.txt     - Cache contention summary"
+    echo "    ${output_prefix}_c2c_full.txt      - Cache contention detail"
+    echo "    ${output_prefix}_script_raw.txt    - Raw per-sample data (large)"
 }
 
 for ((i=start; i<=max_index; i++)); do
@@ -199,25 +339,66 @@ for ((i=start; i<=max_index; i++)); do
     # Start timing
     SECONDS=0
 
-    # Start SYSTEM-WIDE perf between READY and DONE
-    # NOTE: "trap - INT" resets SIGINT from SIG_IGN (inherited from non-interactive
-    # bash backgrounding) back to default, so kill -INT works later.
+    # --- perf stat (counters) ---
     PERF_OUTPUT="${output_folder}/perf_${prefix}${i}"
     PERF_ERR="${PERF_OUTPUT}.err"
     PERF_PID=""
 
-    echo "Starting system-wide perf stat..."
+    echo "Starting perf stat..."
     (trap - INT; exec perf stat -p $BENCH_PID -x, -e "$PERF_EVENTS" -o "${PERF_OUTPUT}.txt") 2>"$PERF_ERR" &
     PERF_PID=$!
 
     sleep 0.2
     if ! kill -0 $PERF_PID 2>/dev/null; then
-        echo "ERROR: perf failed to start"
+        echo "ERROR: perf stat failed to start"
         [[ -f "$PERF_ERR" ]] && cat "$PERF_ERR"
         kill $SCRIPT_PID 2>/dev/null
         exit 1
     fi
-    echo "Profiling started (perf PID: $PERF_PID, system-wide)"
+    echo "perf stat started (PID: $PERF_PID)"
+
+    # --- IBS recording (AMD only) ---
+    IBS_PID=""
+    IBS_DATA="${output_folder}/ibs_${prefix}${i}.data"
+    IBS_ERR="${output_folder}/ibs_${prefix}${i}.err"
+
+    if [[ "$IBS_ENABLED" -eq 1 ]]; then
+        echo "Starting IBS recording..."
+
+        # Record with:
+        #   -e ibs_op//          IBS Op sampling (captures load latency + data source)
+        #   -p $BENCH_PID        attach to benchmark process (all threads)
+        #   -c 100000            sample period (~100K cycles between samples)
+        #   --sample-cpu         record which CPU each sample came from
+        #   -W                   record weight (load latency in cycles)
+        #   -d                   record data addresses (for c2c analysis)
+        #   --phys-data          record physical addresses (for NUMA node attribution)
+        (trap - INT; exec perf record \
+            -e "$IBS_EVENT" \
+            -p $BENCH_PID \
+            -c 100000 \
+            --sample-cpu \
+            -W \
+            -d \
+            --phys-data \
+            -o "$IBS_DATA" \
+        ) 2>"$IBS_ERR" &
+        IBS_PID=$!
+
+        sleep 0.5
+        if ! kill -0 $IBS_PID 2>/dev/null; then
+            echo "WARNING: IBS perf record failed to start"
+            [[ -f "$IBS_ERR" ]] && cat "$IBS_ERR"
+            echo "Continuing without IBS..."
+            IBS_PID=""
+            IBS_ENABLED_THIS_RUN=0
+        else
+            echo "IBS recording started (PID: $IBS_PID, output: $IBS_DATA)"
+            IBS_ENABLED_THIS_RUN=1
+        fi
+    else
+        IBS_ENABLED_THIS_RUN=0
+    fi
 
     echo "Waiting for benchmark to complete..."
     wait $SCRIPT_PID
@@ -233,18 +414,30 @@ for ((i=start; i<=max_index; i++)); do
         BENCH_CRASHED=0
     fi
 
-    # Stop perf gracefully
+    # Stop perf stat
     stop_perf $PERF_PID
     wait $PERF_PID 2>/dev/null
 
+    # Stop IBS recording
+    if [[ -n "$IBS_PID" ]]; then
+        echo "Stopping IBS recording..."
+        stop_perf $IBS_PID
+        wait $IBS_PID 2>/dev/null
+
+        if [[ -s "$IBS_ERR" ]] && grep -qi -E "fail|error|not supported" "$IBS_ERR"; then
+            echo "WARNING: IBS perf record reported issues:"
+            cat "$IBS_ERR"
+        fi
+    fi
+
     if [[ -s "$PERF_ERR" ]] && grep -qi -E "fail|error|not counted|not supported|cannot" "$PERF_ERR"; then
-        echo "WARNING: perf reported issues during iteration $i:"
+        echo "WARNING: perf stat reported issues during iteration $i:"
         cat "$PERF_ERR"
     fi
 
     # Validate perf output exists and is non-empty
     if [[ ! -s "${PERF_OUTPUT}.txt" ]]; then
-        echo "ERROR: perf output file missing or empty for iteration $i"
+        echo "ERROR: perf stat output file missing or empty for iteration $i"
         echo "--- perf stderr ---"
         cat "$PERF_ERR" 2>/dev/null
         echo "---"
@@ -252,18 +445,7 @@ for ((i=start; i<=max_index; i++)); do
     fi
 
     # Validate perf counter multiplexing
-    if [[ "$PROFILE_MODE" == "intel_perf" ]]; then
-        FIRST_LINE=$(grep -m1 'cycles' "${PERF_OUTPUT}.txt" 2>/dev/null)
-        if [[ -n "$FIRST_LINE" ]]; then
-            MUX_PCT=$(echo "$FIRST_LINE" | awk -F, '{printf "%.1f", $5}')
-            echo "Perf stat scaling: ${MUX_PCT}% time on HW (perf auto-scales values)"
-            MUX_LOW=$(awk "BEGIN { print ($MUX_PCT + 0 < 10) ? 1 : 0 }")
-            if [[ "$MUX_LOW" -eq 1 ]]; then
-                echo "WARNING: Heavy multiplexing (${MUX_PCT}% on HW). Scaled values may be noisy."
-            fi
-        fi
-    elif [[ "$PROFILE_MODE" == "amd_perf" ]]; then
-        # Check multiplexing for AMD — column 5 in CSV is the percentage of time counted
+    if [[ "$PROFILE_MODE" == "amd_perf" ]]; then
         MUX_WARN=0
         while IFS=, read -r count unit event runtime pct _rest; do
             if [[ -n "$pct" && "$pct" != "100.00" ]]; then
@@ -287,7 +469,7 @@ for ((i=start; i<=max_index; i++)); do
             echo "WARNING: Benchmark crashed (no DONE file). Results may be partial."
         fi
         echo ""
-        echo "=== Perf Counters (system-wide) ==="
+        echo "=== Perf Counters ==="
         cat "${PERF_OUTPUT}.txt"
 
         # AMD: print human-readable summary of fill sources
@@ -320,6 +502,24 @@ for ((i=start; i<=max_index; i++)); do
 
     echo ""
     echo "Statistics saved to $STATS_FILE"
+
+    # Post-process IBS data
+    if [[ "$IBS_ENABLED_THIS_RUN" -eq 1 && -f "$IBS_DATA" ]]; then
+        echo ""
+        echo "=== IBS Post-Processing ==="
+        IBS_REPORT_PREFIX="${output_folder}/ibs_${prefix}${i}"
+        process_ibs_data "$IBS_DATA" "$IBS_REPORT_PREFIX"
+
+        # Append IBS summary to stats file
+        {
+            echo ""
+            echo "=== IBS Latency Histogram ==="
+            cat "${IBS_REPORT_PREFIX}_latency_hist.txt" 2>/dev/null
+            echo ""
+            echo "=== IBS Data Source Summary ==="
+            cat "${IBS_REPORT_PREFIX}_datasrc.txt" 2>/dev/null
+        } >> "$STATS_FILE"
+    fi
 
     # Save history
     cat $history_interface > "${output_folder}/history_${prefix}${i}.txt"
