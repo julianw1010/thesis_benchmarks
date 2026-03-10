@@ -302,6 +302,10 @@ for ((i=start; i<=max_index; i++)); do
     sync
     echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
 
+    # Reset Hydra/Mitosis stats so history only captures the simulation phase
+    echo 1 | sudo tee ${history_interface%/*}/reset > /dev/null 2>&1
+    echo "Page table stats reset (simulation-only measurement)"
+
     touch "$BENCH_FLUSHED"
     echo "Caches flushed, benchmark signaled to proceed"
 
