@@ -1,5 +1,4 @@
 #!/bin/bash
-# Check for required arguments
 if [[ $# -lt 4 ]]; then
     echo "Usage: $0 <mode> <num_runs> <output_folder> <command...>"
     echo "  mode 0: First touch (numactl -P)"
@@ -23,14 +22,12 @@ echo "Detected CPU: $CPU_MODEL"
 
 NUM_CPUS=$(nproc)
 
-# Benchmark synchronization files
 BENCH_READY="/tmp/alloctest-bench.ready"
 BENCH_FLUSHED="/tmp/alloctest-bench.flushed"
 BENCH_DONE="/tmp/alloctest-bench.done"
 BENCH_STATS_CAPTURED="/tmp/alloctest-bench.stats_captured"
 BENCH_PID_FILE="/tmp/alloctest-bench.pid"
 
-# Detect cache interface
 if [[ -f /proc/mitosis/cache ]]; then
     cache_interface="/proc/mitosis/cache"
     history_interface="/proc/mitosis/history"
@@ -51,7 +48,6 @@ case $mode in
     *) echo "Error: Invalid mode $mode (must be 0-3)"; exit 1 ;;
 esac
 
-# Select numactl variant based on output folder
 if [[ "$output_folder" == *"hydra"* ]]; then
     NUMACTL_BIN="numactl-hydra"
 else
@@ -62,7 +58,6 @@ echo "Using numactl binary: $NUMACTL_BIN"
 echo -1 | sudo tee $cache_interface > /dev/null
 echo 250000 | sudo tee $cache_interface > /dev/null
 
-# Find the starting point based on existing history files
 start=0
 for ((i=max_index; i>=0; i--)); do
     if [[ -f "${output_folder}/history_${prefix}${i}.txt" ]]; then
@@ -86,13 +81,11 @@ for ((i=start; i<=max_index; i++)); do
 
     rm -f "$BENCH_READY" "$BENCH_FLUSHED" "$BENCH_DONE" "$BENCH_STATS_CAPTURED" "$BENCH_PID_FILE"
 
-    # Reset history
     echo -1 | sudo tee $history_interface > /dev/null
 
     sync
     echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
 
-    # Launch benchmark (caches are flushed AFTER the benchmark signals ready)
     LAUNCH_CMD="$NUMACTL_BIN $numactl_opts /usr/bin/time -v -o ${output_folder}/time_${prefix}${i}.txt -- $cmd"
     echo "Launch command: $LAUNCH_CMD"
 
@@ -110,20 +103,15 @@ for ((i=start; i<=max_index; i++)); do
     done
     echo "Benchmark is ready!"
 
-    # Flush caches now that the benchmark has allocated/initialized
     echo "Flushing page cache..."
     sync
     echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
 
-    # Reset mitosis/hydra counters after flush, before benchmark proceeds
     if [[ -f /proc/mitosis/reset ]]; then
         echo 1 | sudo tee /proc/mitosis/reset > /dev/null
     elif [[ -f /proc/hydra/reset ]]; then
         echo 1 | sudo tee /proc/hydra/reset > /dev/null
     fi
-
-    touch "$BENCH_FLUSHED"
-    echo "Caches flushed, counters reset, benchmark signaled to proceed"
 
     if [[ ! -f "$BENCH_PID_FILE" ]]; then
         echo "ERROR: Benchmark did not write PID file"
@@ -139,12 +127,16 @@ for ((i=start; i<=max_index; i++)); do
         exit 1
     fi
 
-    # Start timing
+    perf stat -p $BENCH_PID --inherit -e dTLB-load-misses,dTLB-loads,l1_data_cache_fills_from_remote_node,ls_dmnd_fills_from_sys.mem_io_remote,L1-dcache-load-misses -o "${output_folder}/perf_${prefix}${i}.txt" &
+    PERF_PID=$!
+
+    touch "$BENCH_FLUSHED"
+    echo "Caches flushed, counters reset, benchmark signaled to proceed"
+
     SECONDS=0
 
     echo "Waiting for simulation to complete..."
 
-    # Wait for BENCH_DONE (simulation finished, teardown not yet started)
     while [[ ! -f "$BENCH_DONE" ]]; do
         if ! kill -0 $SCRIPT_PID 2>/dev/null; then
             echo "WARNING: Benchmark exited before writing DONE file"
@@ -154,6 +146,8 @@ for ((i=start; i<=max_index; i++)); do
     done
 
     if [[ -f "$BENCH_DONE" ]]; then
+        kill -INT $PERF_PID 2>/dev/null
+        wait $PERF_PID 2>/dev/null
         echo "Simulation complete — snapshotting simulation-only stats"
         echo -1 | sudo tee ${history_interface%/*}/snapshot > /dev/null 2>&1
         cat $history_interface > "${output_folder}/history_sim_${prefix}${i}.txt"
@@ -161,7 +155,6 @@ for ((i=start; i<=max_index; i++)); do
         touch "$BENCH_STATS_CAPTURED"
     fi
 
-    # Wait for full process exit (teardown phase)
     wait $SCRIPT_PID
     BENCH_EXIT_CODE=$?
 
@@ -174,7 +167,6 @@ for ((i=start; i<=max_index; i++)); do
         BENCH_CRASHED=0
     fi
 
-    # Collect stats
     STATS_FILE="${output_folder}/stats_${prefix}${i}.txt"
     {
         echo "Execution Time (seconds): $DURATION"
@@ -187,9 +179,7 @@ for ((i=start; i<=max_index; i++)); do
     echo ""
     echo "Statistics saved to $STATS_FILE"
 
-    # Save teardown-only history (counters were reset after simulation snapshot)
     cat $history_interface > "${output_folder}/history_teardown_${prefix}${i}.txt"
-    # Also save as history_ for backwards compatibility
     cat $history_interface > "${output_folder}/history_${prefix}${i}.txt"
 
     if [[ $BENCH_CRASHED -eq 1 ]]; then
