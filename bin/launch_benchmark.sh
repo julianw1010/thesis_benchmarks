@@ -127,7 +127,7 @@ for ((i=start; i<=max_index; i++)); do
         exit 1
     fi
 
-    perf stat -e instructions,cycles,branch-misses,context-switches,cpu-migrations -- sleep 0.1
+    perf stat -p $BENCH_PID --inherit -e instructions,cycles,branch-misses,context-switches,cpu-migrations -o "${output_folder}/perf_${prefix}${i}.txt" &
     PERF_PID=$!
 
     touch "$BENCH_FLUSHED"
