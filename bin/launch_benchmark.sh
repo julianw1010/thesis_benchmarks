@@ -115,8 +115,15 @@ for ((i=start; i<=max_index; i++)); do
     sync
     echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
 
+    # Reset mitosis/hydra counters after flush, before benchmark proceeds
+    if [[ -f /proc/mitosis/reset ]]; then
+        echo 1 | sudo tee /proc/mitosis/reset > /dev/null
+    elif [[ -f /proc/hydra/reset ]]; then
+        echo 1 | sudo tee /proc/hydra/reset > /dev/null
+    fi
+
     touch "$BENCH_FLUSHED"
-    echo "Caches flushed, benchmark signaled to proceed"
+    echo "Caches flushed, counters reset, benchmark signaled to proceed"
 
     if [[ ! -f "$BENCH_PID_FILE" ]]; then
         echo "ERROR: Benchmark did not write PID file"
