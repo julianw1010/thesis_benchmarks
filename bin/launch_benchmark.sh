@@ -127,7 +127,7 @@ for ((i=start; i<=max_index; i++)); do
         exit 1
     fi
 
-    perf stat -p $BENCH_PID --inherit -e dTLB-load-misses,L1-dcache-load-misses,l1_data_cache_fills_from_remote_node,ls_dmnd_fills_from_sys.mem_io_remote,ls_dmnd_fills_from_sys.mem_io_local -o "${output_folder}/perf_${prefix}${i}.txt" &
+    perf stat -e instructions,cycles,branch-misses,context-switches,cpu-migrations -- sleep 0.1
     PERF_PID=$!
 
     touch "$BENCH_FLUSHED"
