@@ -1,9 +1,0 @@
-WARNING: perf not found for kernel 6.4.0
-
-  You may need to install the following packages for this specific kernel:
-    linux-tools-6.4.0-wasp+
-    linux-cloud-tools-6.4.0-wasp+
-
-  You may also want to install one of the following packages to keep up to date:
-    linux-tools-wasp+
-    linux-cloud-tools-wasp+

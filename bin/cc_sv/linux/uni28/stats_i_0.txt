@@ -1,4 +1,0 @@
-Execution Time (seconds): 190
-Benchmark Exit Code: 0
-
-(No profiling data — AMD CPU)
