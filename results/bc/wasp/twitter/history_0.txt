@@ -1,0 +1,112 @@
+Mitosis Page Table Replication - Historical Statistics
+========================================================
+(Entries are immutable snapshots, keyed by seq_id not PID)
+
+================================================================================
+History Entry #421
+Process: numactl-wasp (PID: 137835, TGID: 137835) [CACHE-ONLY]
+Cmdline: numactl-wasp -P /usr/bin/time -v -o wasp/twitter/time_0.txt -- ./bench_bc_mt -f ../../datasets/graphs/twitter.sg -n 5 
+Duration: 0 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 0
+  TLB IPIs sent:    0
+  Per-node flushes:
+
+CR3 Write Statistics:
+  Total CR3 writes: 0
+  Replica hits:     0
+  Primary hits:     0
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PMD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PTE           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           5/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           5/0     
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+================================================================================
+History Entry #422
+Process: bench_bc_mt (PID: 137836, TGID: 137836) [REPLICATED]
+Cmdline: ./bench_bc_mt -f ../../datasets/graphs/twitter.sg -n 5 
+Duration: 14168 ms
+Replication nodes: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 (16 nodes)
+
+TLB Shootdown Statistics:
+  Shootdown events: 10139
+  TLB IPIs sent:    6976
+  Per-node flushes:
+    Node 0: 1085
+    Node 1: 631
+    Node 2: 600
+    Node 3: 645
+    Node 4: 632
+    Node 5: 612
+    Node 6: 635
+    Node 7: 574
+    Node 8: 623
+    Node 9: 607
+    Node 10: 605
+    Node 11: 568
+    Node 12: 592
+    Node 13: 594
+    Node 14: 568
+    Node 15: 568
+
+CR3 Write Statistics:
+  Total CR3 writes: 3887
+  Replica hits:     3216
+  Primary hits:     671
+  Replica hit rate: 82%
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           0/1           1/0           0/1           0/1           0/1           0/1           0/1           0/1           1/15    
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           0/3           3/0           0/3           0/3           0/3           0/3           0/3           0/3           3/45    
+PMD          15/16          1/30          3/30          1/30          1/30          0/31          1/30          0/31          2/29          4/28          1/30          3/30          0/31          2/30          3/29          1/30         38/465   
+PTE        5994/1074       77/6894       79/6890       81/6890       81/6892       77/6892       86/6887       82/6889       78/6894       87/6886       81/6891       79/6893       82/6892       78/6892       77/6894       84/6889     7203/104439
+
+Memory: 7245 primary pages (28980 KB), 104964 replica pages (419856 KB)
+Total:  112209 pages (448836 KB)
+
+================================================================================
+History Entry #423
+Process: time (PID: 137835, TGID: 137835) [CACHE-ONLY]
+Cmdline: /usr/bin/time -v -o wasp/twitter/time_0.txt -- ./bench_bc_mt -f ../../datasets/graphs/twitter.sg -n 5 
+Duration: 27836 ms
+Replication nodes: None (cache-only mode)
+
+TLB Shootdown Statistics:
+  Shootdown events: 18
+  TLB IPIs sent:    0
+  Per-node flushes:
+    Node 0: 2
+    Node 8: 16
+
+CR3 Write Statistics:
+  Total CR3 writes: 3
+  Replica hits:     0
+  Primary hits:     3
+  Replica hit rate: 0%
+
+Peak Page Table Allocations (primary/replica):
+LEVEL             NODE0           NODE1           NODE2           NODE3           NODE4           NODE5           NODE6           NODE7           NODE8           NODE9           NODE10          NODE11          NODE12          NODE13          NODE14          NODE15             TOTAL
+--------------------------------------------------------------------------------
+PGD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           1/0     
+P4D           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0     
+PUD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PMD           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           3/0     
+PTE           0/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           5/0           0/0           0/0           0/0           0/0           0/0           0/0           0/0           5/0     
+
+Memory: 12 primary pages (48 KB), 0 replica pages (0 KB)
+Total:  12 pages (48 KB)
+
+Total historical entries: 3 (max: 64)

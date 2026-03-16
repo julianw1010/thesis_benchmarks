@@ -1,0 +1,183 @@
+Script started on 2026-03-08 06:46:49-04:00 [COMMAND="numactl-wasp -r all /usr/bin/time -v -o mitosis/time_r_2.txt -- ./bench_canneal_mt 128 450000 2000 ../../datasets/canneal_large 260" <not executed on terminal>]
+
+OPENMP DISPLAY ENVIRONMENT BEGIN
+  _OPENMP = '201511'
+  [host] OMP_DYNAMIC = 'FALSE'
+  [host] OMP_NESTED = 'FALSE'
+  [host] OMP_NUM_THREADS = '128'
+  [host] OMP_SCHEDULE = 'STATIC'
+  [host] OMP_PROC_BIND = 'SPREAD'
+  [host] OMP_PLACES = '{0,64},{1,65},{2,66},{3,67},{4,68},{5,69},{6,70},{7,71},{8,72},{9,73},{10,74},{11,75},{12,76},{13,77},{14,78},{15,79},{16,80},{17,81},{18,82},{19,83},{20,84},{21,85},{22,86},{23,87},{24,88},{25,89},{26,90},{27,91},{28,92},{29,93},{30,94},{31,95},{32,96},{33,97},{34,98},{35,99},{36,100},{37,101},{38,102},{39,103},{40,104},{41,105},{42,106},{43,107},{44,108},{45,109},{46,110},{47,111},{48,112},{49,113},{50,114},{51,115},{52,116},{53,117},{54,118},{55,119},{56,120},{57,121},{58,122},{59,123},{60,124},{61,125},{62,126},{63,127}'
+  [host] OMP_STACKSIZE = '0'
+  [host] OMP_WAIT_POLICY = 'PASSIVE'
+  [host] OMP_THREAD_LIMIT = '4294967295'
+  [host] OMP_MAX_ACTIVE_LEVELS = '1'
+  [host] OMP_NUM_TEAMS = '0'
+  [host] OMP_TEAMS_THREAD_LIMIT = '0'
+  [all] OMP_CANCELLATION = 'FALSE'
+  [all] OMP_DEFAULT_DEVICE = '0'
+  [all] OMP_MAX_TASK_PRIORITY = '0'
+  [all] OMP_DISPLAY_AFFINITY = 'FALSE'
+  [host] OMP_AFFINITY_FORMAT = 'level %L thread %i affinity %A'
+  [host] OMP_ALLOCATOR = 'omp_default_mem_alloc'
+  [all] OMP_TARGET_OFFLOAD = 'DEFAULT'
+  [host] GOMP_CPU_AFFINITY = ''
+  [host] GOMP_STACKSIZE = '0'
+  [host] GOMP_SPINCOUNT = '300000'
+OPENMP DISPLAY ENVIRONMENT END
+./bench_canneal_mt 128 450000 2000 ../../datasets/canneal_large 260 
+<benchmark exec="./bench_canneal_mt">
+<config>
+  <openmp>on</openmp>  <memsize>1G <memsize>  <hugetlb>0</hugetlb>
+  <data>-1</data>  <interference>0</interference>
+</config>
+<run>
+PARSEC Benchmark Suite
+Threadcount: 128
+450000 swaps per temperature step
+start temperature: 2000
+netlist filename: ../../datasets/canneal_large
+number of temperature steps: 260
+File size: 47612 MB
+Elements: 816000000, Grid: 29000x29000
+locs created
+locs assigned
+Parsing with 128 threads...
+Pass 1: Counting connections...
+Pre-allocating vectors with exact sizes...
+Pass 2: Building netlist...
+Parsed: 5000000 elements
+Parsed: 10000000 elements
+Parsed: 15000000 elements
+Parsed: 20000000 elements
+Parsed: 25000000 elements
+Parsed: 30000000 elements
+Parsed: 43219461 elements
+Parsed: 48219461 elements
+Parsed: 53219461 elements
+Parsed: 58219461 elements
+Parsed: 63219461 elements
+Parsed: 68219461 elements
+Parsed: 73219461 elements
+Parsed: 78219461 elements
+Parsed: 83219461 elements
+Parsed: 88219461 elements
+Parsed: 93219461 elements
+Parsed: 98219461 elements
+Parsed: 103219461 elements
+Parsed: 108219461 elements
+Parsed: 113219461 elements
+Parsed: 118219461 elements
+Parsed: 123219461 elements
+Parsed: 128219461 elements
+Parsed: 133219461 elements
+Parsed: 138219461 elements
+Parsed: 143219461 elements
+Parsed: 148219461 elements
+Parsed: 153219461 elements
+Parsed: 158219461 elements
+Parsed: 163219461 elements
+Parsed: 168219461 elements
+Parsed: 173219461 elements
+Parsed: 178219461 elements
+Parsed: 183219461 elements
+Parsed: 188219461 elements
+Parsed: 193219461 elements
+Parsed: 198219461 elements
+Parsed: 203219461 elements
+Parsed: 208219461 elements
+Parsed: 235260474 elements
+Parsed: 240260474 elements
+Parsed: 245260474 elements
+Parsed: 250260474 elements
+Parsed: 255260474 elements
+Parsed: 260260474 elements
+Parsed: 265260474 elements
+Parsed: 270260474 elements
+Parsed: 300024742 elements
+Parsed: 305024742 elements
+Parsed: 310024742 elements
+Parsed: 315024742 elements
+Parsed: 320024742 elements
+Parsed: 325024742 elements
+Parsed: 330024742 elements
+Parsed: 335024742 elements
+Parsed: 340024742 elements
+Parsed: 345024742 elements
+Parsed: 350024742 elements
+Parsed: 355024742 elements
+Parsed: 360024742 elements
+Parsed: 365024742 elements
+Parsed: 370024742 elements
+Parsed: 375024742 elements
+Parsed: 412977816 elements
+Parsed: 417977816 elements
+Parsed: 422977816 elements
+Parsed: 427977816 elements
+Parsed: 432977816 elements
+Parsed: 437977816 elements
+Parsed: 442977816 elements
+Parsed: 447977816 elements
+Parsed: 452977816 elements
+Parsed: 457977816 elements
+Parsed: 462977816 elements
+Parsed: 467977816 elements
+Parsed: 472977816 elements
+Parsed: 477977816 elements
+Parsed: 482977816 elements
+Parsed: 487977816 elements
+Parsed: 492977816 elements
+Parsed: 497977816 elements
+Parsed: 502977816 elements
+Parsed: 507977816 elements
+Parsed: 512977816 elements
+Parsed: 517977816 elements
+Parsed: 522977816 elements
+Parsed: 527977816 elements
+Parsed: 532977816 elements
+Parsed: 537977816 elements
+Parsed: 542977816 elements
+Parsed: 547977816 elements
+Parsed: 552977816 elements
+Parsed: 557977816 elements
+Parsed: 604218936 elements
+Parsed: 609218936 elements
+Parsed: 614218936 elements
+Parsed: 619218936 elements
+Parsed: 624218936 elements
+Parsed: 629218936 elements
+Parsed: 634218936 elements
+Parsed: 639218936 elements
+Parsed: 644218936 elements
+Parsed: 649218936 elements
+Parsed: 654218936 elements
+Parsed: 659218936 elements
+Parsed: 664218936 elements
+Parsed: 669218936 elements
+Parsed: 674218936 elements
+Parsed: 679218936 elements
+Parsed: 684218936 elements
+Parsed: 689218936 elements
+Parsed: 694218936 elements
+Parsed: 699218936 elements
+Parsed: 704218936 elements
+Parsed: 709218936 elements
+Parsed: 714218936 elements
+Parsed: 719218936 elements
+Parsed: 724218936 elements
+Parsed: 729218936 elements
+Parsed: 734218936 elements
+Parsed: 739218936 elements
+Parsed: 744218936 elements
+Parsed: 749218936 elements
+Parsed: 773270881 elements
+Parsed: 790605886 elements
+Parsed: 808278266 elements
+Parsed: 813278266 elements
+netlist created. 816000002 elements.
+signalling readyness to /tmp/alloctest-bench.ready
+Final routing is: 7.5499e+13
+Annealing took: 219.456 seconds
+Total took: 542.948 seconds
+
+Script done on 2026-03-08 06:56:00-04:00 [COMMAND_EXIT_CODE="0"]
