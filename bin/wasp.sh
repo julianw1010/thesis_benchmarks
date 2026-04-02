@@ -4,5 +4,5 @@ set -e
 for script in ~/thesis_benchmarks/bin/*/wasp_amd.sh; do
     [[ "$script" == */memcached/* ]] && continue
     echo "=== Running: $script ==="
-    bash "$script"
+    cd "$(dirname "$script")" && bash "$(basename "$script")"
 done
