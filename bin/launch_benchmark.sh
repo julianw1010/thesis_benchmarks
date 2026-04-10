@@ -28,14 +28,14 @@ BENCH_DONE="/tmp/alloctest-bench.done"
 BENCH_STATS_CAPTURED="/tmp/alloctest-bench.stats_captured"
 BENCH_PID_FILE="/tmp/alloctest-bench.pid"
 
-if [[ -f /proc/mitosis/cache ]]; then
-    cache_interface="/proc/mitosis/cache"
-    history_interface="/proc/mitosis/history"
+if [[ -f /proc/wasp/cache ]]; then
+    cache_interface="/proc/wasp/cache"
+    history_interface="/proc/wasp/history"
 elif [[ -f /proc/hydra/cache ]]; then
     cache_interface="/proc/hydra/cache"
     history_interface="/proc/hydra/history"
 else
-    echo "Error: Neither /proc/mitosis/cache nor /proc/hydra/cache found"
+    echo "Error: Neither /proc/wasp/cache nor /proc/hydra/cache found"
     exit 1
 fi
 echo "Using interface: $cache_interface"
@@ -107,8 +107,8 @@ for ((i=start; i<=max_index; i++)); do
     sync
     echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
 
-    if [[ -f /proc/mitosis/reset ]]; then
-        echo 1 | sudo tee /proc/mitosis/reset > /dev/null
+    if [[ -f /proc/wasp/reset ]]; then
+        echo 1 | sudo tee /proc/wasp/reset > /dev/null
     elif [[ -f /proc/hydra/reset ]]; then
         echo 1 | sudo tee /proc/hydra/reset > /dev/null
     fi
